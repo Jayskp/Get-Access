@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:getaccess/screens/social_screen.dart';
 import 'package:getaccess/splash_screen.dart';
 
 class App extends StatelessWidget {
@@ -24,7 +27,7 @@ class App extends StatelessWidget {
           onPrimary: Colors.black,
         ),
       ),
-      home: SplashScreen(),
+      home: SocialScreen(),
     );
   }
 }
