@@ -48,11 +48,11 @@ class _SettingsPageState extends State<SettingsPage> {
         "items": [
           {
             "title": "Notification Preferences",
-            "icon": "assets/images/logo.png",
+            "icon": "assets/images/icons/notifications.png",
           },
           {
             "title": "Security Alert",
-            "icon": "assets/images/logo.png",
+            "icon": "assets/images/icons/alert.png",
           }
         ]
       },
@@ -61,11 +61,11 @@ class _SettingsPageState extends State<SettingsPage> {
         "items": [
           {
             "title": "My Orders",
-            "icon": "assets/images/logo.png",
+            "icon": "assets/images/icons/shippingbox.png",
           },
           {
             "title": "My Plans",
-            "icon": "assets/images/logo.png",
+            "icon": "assets/images/icons/crown.png",
           }
         ]
       }
@@ -74,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
       "sectionTitle": "Manage Flats",
       "flatName": "Sahaj Flats, C-105",
       "status": "Active",
-      "icon": "assets/images/logo.png",
+      "icon": "assets/images/icons/home.png",
       "addFlatText": "Add Flat/Home/Villa",
     },
     "generalSettings": {
@@ -82,19 +82,19 @@ class _SettingsPageState extends State<SettingsPage> {
       "items": [
         {
           "title": "Support & Feedback",
-          "icon": "assets/images/logo.png",
+          "icon": "assets/images/icons/like-shapes.png",
         },
         {
           "title": "Share App",
-          "icon": "assets/images/logo.png",
+          "icon": "assets/images/icons/share-all.png",
         },
         {
-          "title": "Change App Icon",
-          "icon": "assets/images/logo.png",
+          "title": "Account Info",
+          "icon": "assets/images/icons/account.png",
         },
         {
           "title": "Logout",
-          "icon": "assets/images/logo.png",
+          "icon": "assets/images/icons/logout.png",
         }
       ]
     }
@@ -144,7 +144,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       Navigator.of(context).pop();
                     },
                     child: Image.asset(
-                      "assets/images/logo.png",
+                      "assets/images/icons/backarrow.png",
                       width: 24,
                       height: 24,
                     ),
@@ -162,7 +162,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   GestureDetector(
                     onTap: () {},
                     child: Image.asset(
-                      "assets/images/logo.png",
+                      "assets/images/icons/search.png",
                       width: 24,
                       height: 24,
                     ),
@@ -185,12 +185,13 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: [
                         CircleAvatar(
                           radius: 28,
-                          backgroundColor: Colors.grey.shade300,
+                          backgroundColor: Color(0xFFD6C104),
                           child: Text(
                             userData["avatarText"],
                             style: _archivoTextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -221,7 +222,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         GestureDetector(
                           onTap: () {},
                           child: Image.asset(
-                            "assets/images/logo.png",
+                            "assets/images/icons/qrcode.png",
                             width: 36,
                             height: 36,
                           ),
@@ -310,25 +311,11 @@ class _SettingsPageState extends State<SettingsPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _lightGreyColor,
+        border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.location_on_outlined,
-              size: 18,
-              color: Colors.black54,
-            ),
-          ),
-          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -605,28 +592,13 @@ class _MemberButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
             children: [
-              DottedBorder(
-                color: greenBorderColor,
-                strokeWidth: 2,
-                dashPattern: const [6, 3],
-                padding: EdgeInsets.zero,
-                borderType: BorderType.Circle,
-                child: Container(
-                  width: 28,
-                  height: 28,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                  ),
-                  child: Center(
+              Center(
                     child: Image.asset(
                       iconPath,
-                      width: 14,
-                      height: 14,
+                      width: 31,
+                      height: 31,
                     ),
                   ),
-                ),
-              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

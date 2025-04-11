@@ -27,7 +27,7 @@ class App extends StatelessWidget {
           onPrimary: Colors.black,
         ),
       ),
-      home: SocialScreen(),
+      home: SplashScreen(),
     );
   }
 }
