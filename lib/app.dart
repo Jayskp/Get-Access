@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:getaccess/screens/social_screen.dart';
+import 'package:getaccess/BottomNavBar.dart';
 import 'package:getaccess/splash_screen.dart';
 
 class App extends StatelessWidget {
@@ -19,7 +19,11 @@ class App extends StatelessWidget {
           backgroundColor: Colors.white,
           elevation: 1,
           iconTheme: IconThemeData(color: Colors.black),
-          titleTextStyle: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
+          titleTextStyle: TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         colorScheme: const ColorScheme.light(
           primary: Colors.grey,
@@ -27,7 +31,7 @@ class App extends StatelessWidget {
           onPrimary: Colors.black,
         ),
       ),
-      home: SocialScreen(),
+      home: BottomNavBarDemo(),
     );
   }
 }
