@@ -5,7 +5,6 @@ class ServiceCard extends StatelessWidget {
   final String title;
   final VoidCallback? onTap;
   final double borderRadius;
-  final double elevation;
 
   const ServiceCard({
     Key? key,
@@ -13,7 +12,6 @@ class ServiceCard extends StatelessWidget {
     required this.title,
     this.onTap,
     this.borderRadius = 12,
-    this.elevation = 2,
   }) : super(key: key);
 
   @override
@@ -45,22 +43,25 @@ class ServiceCard extends StatelessWidget {
                 ),
               ),
 
-              Spacer(),
+              const SizedBox(height: 8),
 
-              // Title
+              // Responsive title
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 16,          // this is the max size
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
             ],
           ),
         ),

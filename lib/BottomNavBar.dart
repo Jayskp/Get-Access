@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:getaccess/NewEvent.dart';
 import 'package:getaccess/Settings.dart';
+import 'package:getaccess/screens/Community/community_screen.dart';
 import 'package:getaccess/screens/Marketplace/marketplace.dart';
+import 'package:getaccess/screens/Services/Service_screen.dart';
 import 'package:getaccess/screens/Social%20screen/social_screen.dart';
 import 'package:getaccess/splash_screen.dart';
 
@@ -17,10 +19,10 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
   int _currentIndex = 0;
   final List<Widget> _screens = [
     SocialScreen(),
-    NewEventPage(),
+    CommunityScreen(),
     const Placeholder(color: Colors.blue),
     Marketplace(),
-    SettingsPage(),
+    ServiceScreen(),
   ];
 
   @override
