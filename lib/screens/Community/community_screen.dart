@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:getaccess/Search.dart';
 import 'package:getaccess/util/constants/colors.dart';
 import 'package:getaccess/widgets/helpers_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
-
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -24,33 +24,29 @@ class _CommunityScreenState extends State<CommunityScreen> {
       color: color,
     );
   }
-  final List<Map<String, String>> categoryItems = [
 
+  final List<Map<String, String>> categoryItems = [
     {
       "iconPath": "assets/images/icons/vacuum-cleaner.png",
       "title": "Maid",
-      "badgeCount":"3"
+      "badgeCount": "3",
     },
     {
       "iconPath": "assets/images/icons/chef-hat-one.png",
       "title": "Cook",
-      "badgeCount":"2"
-
+      "badgeCount": "2",
     },
     {
       "iconPath": "assets/images/icons/milk-one.png",
       "title": "Milkman",
-      "badgeCount":"5"
-
+      "badgeCount": "5",
     },
     {
       "iconPath": "assets/images/icons/Laundry.png",
       "title": "Laundry",
-      "badgeCount":"7"
-
+      "badgeCount": "7",
     },
   ];
-
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +54,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.only(left:26,right:26),
+            padding: EdgeInsets.only(left: 26, right: 26),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -78,7 +74,12 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     ),
                     SizedBox(width: 19),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SearchPage()),
+                        );
+                      },
                       icon: Image(
                         image: AssetImage("assets/images/icons/bx-chat.png"),
                         height: 24,
@@ -242,7 +243,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16,),
+                SizedBox(height: 16),
                 GridView.builder(
                   shrinkWrap: true,
                   physics: ScrollPhysics(),
@@ -256,11 +257,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     return HelpersCard(
                       iconPath: categoryItems[index]["iconPath"] ?? "",
                       title: categoryItems[index]["title"] ?? "",
-                      badgeCount: int.parse(categoryItems[index]["badgeCount"] ?? "0"),
+                      badgeCount: int.parse(
+                        categoryItems[index]["badgeCount"] ?? "0",
+                      ),
                     );
                   },
                 ),
-                SizedBox(height:16,),
+                SizedBox(height: 16),
                 Row(
                   children: [
                     Container(
@@ -273,7 +276,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         child: Row(
                           children: [
                             Image(image: AssetImage("assets/images/cook.png")),
-                            SizedBox(width: 10,),
+                            SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -281,36 +284,53 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   "Cook",
                                   style: _archivoTextStyle(
                                     fontSize: 14,
-                                    fontWeight: FontWeight.w500,)),
-                                SizedBox(height: 5,),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(height: 5),
                                 Text(
                                   "Ketki",
                                   style: _archivoTextStyle(
                                     fontSize: 10,
-                                    color: Colors.grey,)),
+                                    color: Colors.grey,
+                                  ),
+                                ),
                               ],
                             ),
-                            SizedBox(width: 23,),
+                            SizedBox(width: 23),
                             Column(
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.star, color: Colors.yellow, size:9,),
-                                    Icon(Icons.star, color: Colors.yellow, size:9,),
-                                    Icon(Icons.star, color: Colors.yellow, size:9,),
+                                    Icon(
+                                      Icons.star,
+                                      color: Colors.yellow,
+                                      size: 9,
+                                    ),
+                                    Icon(
+                                      Icons.star,
+                                      color: Colors.yellow,
+                                      size: 9,
+                                    ),
+                                    Icon(
+                                      Icons.star,
+                                      color: Colors.yellow,
+                                      size: 9,
+                                    ),
                                   ],
                                 ),
-                                SizedBox(height: 10,),
-                                Text("4.5",style: _archivoTextStyle(
-                                  fontSize: 10
-                                ),)
+                                SizedBox(height: 10),
+                                Text(
+                                  "4.5",
+                                  style: _archivoTextStyle(fontSize: 10),
+                                ),
                               ],
-                            )
-                          ]
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    SizedBox(width: 17,),
+                    SizedBox(width: 17),
                     Container(
                       decoration: BoxDecoration(
                         color: AppColors.lightGrey,
@@ -319,55 +339,74 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       child: Padding(
                         padding: EdgeInsets.all(12),
                         child: Row(
-                            children: [
-                              Image(image: AssetImage("assets/images/cook.png")),
-                              SizedBox(width: 10,),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                      "Cook",
-                                      style: _archivoTextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,)),
-                                  SizedBox(height: 5,),
-                                  Text(
-                                      "Ketki",
-                                      style: _archivoTextStyle(
-                                        fontSize: 10,
-                                        color: Colors.grey,)),
-                                ],
-                              ),
-                              SizedBox(width: 13,),
-                              Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(Icons.star, color: Colors.yellow, size:9,),
-                                      Icon(Icons.star, color: Colors.yellow, size:9,),
-                                      Icon(Icons.star, color: Colors.yellow, size:9,),
-                                    ],
+                          children: [
+                            Image(image: AssetImage("assets/images/cook.png")),
+                            SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Cook",
+                                  style: _archivoTextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  SizedBox(height: 10,),
-                                  Text("4.5",style: _archivoTextStyle(
-                                      fontSize: 10
-                                  ),)
-                                ],
-                              )
-                            ]
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  "Ketki",
+                                  style: _archivoTextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(width: 13),
+                            Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.star,
+                                      color: Colors.yellow,
+                                      size: 9,
+                                    ),
+                                    Icon(
+                                      Icons.star,
+                                      color: Colors.yellow,
+                                      size: 9,
+                                    ),
+                                    Icon(
+                                      Icons.star,
+                                      color: Colors.yellow,
+                                      size: 9,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  "4.5",
+                                  style: _archivoTextStyle(fontSize: 10),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    
                   ],
                 ),
-                SizedBox(height: 16,),
-                Text("Emergency",style: _archivoTextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w600
-                ),),
-                SizedBox(height: 16,),
+                SizedBox(height: 16),
+                Text(
+                  "Emergency",
+                  style: _archivoTextStyle(
+                    fontSize: 18,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 16),
                 Wrap(
                   spacing: 16,
                   runSpacing: 16,
@@ -405,7 +444,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         ),
                       ),
                     ),
-                    
                   ],
                 ),
               ],

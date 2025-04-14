@@ -9,9 +9,15 @@ class NewPostPage extends StatefulWidget {
 class _NewPostPageState extends State<NewPostPage> {
   final List<String> _residents = ["Residents", "Owners", "Tenants"];
   String _selectedResident = "Residents";
-  final TextEditingController _propertyController = TextEditingController(text: "C-104 Radhe Kirtan");
-  final TextEditingController _dateController = TextEditingController(text: "Select Date");
-  final TextEditingController _priceController = TextEditingController(text: "Price range");
+  final TextEditingController _propertyController = TextEditingController(
+    text: "C-104 Radhe Kirtan",
+  );
+  final TextEditingController _dateController = TextEditingController(
+    text: "Select Date",
+  );
+  final TextEditingController _priceController = TextEditingController(
+    text: "Price range",
+  );
   bool _isSellSelected = true;
 
   @override
@@ -32,7 +38,11 @@ class _NewPostPageState extends State<NewPostPage> {
         ),
         title: Text(
           "Edit Listing Details",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: textColor),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: textColor,
+          ),
         ),
         actions: [
           Padding(
@@ -40,12 +50,16 @@ class _NewPostPageState extends State<NewPostPage> {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _selectedResident,
-                items: _residents.map((String val) {
-                  return DropdownMenuItem(
-                    value: val,
-                    child: Text(val, style: TextStyle(fontSize: 14, color: textColor)),
-                  );
-                }).toList(),
+                items:
+                    _residents.map((String val) {
+                      return DropdownMenuItem(
+                        value: val,
+                        child: Text(
+                          val,
+                          style: TextStyle(fontSize: 14, color: textColor),
+                        ),
+                      );
+                    }).toList(),
                 onChanged: (val) {
                   if (val != null) setState(() => _selectedResident = val);
                 },
@@ -66,7 +80,11 @@ class _NewPostPageState extends State<NewPostPage> {
                 const SizedBox(height: 24),
                 Text(
                   "Select the Property",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
+                  ),
                   textAlign: TextAlign.left,
                 ),
                 const SizedBox(height: 8),
@@ -97,13 +115,21 @@ class _NewPostPageState extends State<NewPostPage> {
                           color: containerColor,
                         ),
                         child: Center(
-                          child: Image.asset("assets/images/plus_circle.png", width: 24, height: 24),
+                          child: Image.asset(
+                            "assets/images/icons/add-circle.png",
+                            width: 24,
+                            height: 24,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       const Text(
                         "Add Flat/Home/Villa",
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black,
+                        ),
                       ),
                     ],
                   ),
@@ -111,7 +137,11 @@ class _NewPostPageState extends State<NewPostPage> {
                 const SizedBox(height: 24),
                 Text(
                   "Select what to do",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
@@ -123,13 +153,18 @@ class _NewPostPageState extends State<NewPostPage> {
                         child: Container(
                           height: 48,
                           decoration: BoxDecoration(
-                            color: _isSellSelected ? primaryColor : containerColor,
+                            color:
+                                _isSellSelected ? primaryColor : containerColor,
                             borderRadius: BorderRadius.circular(24),
                           ),
                           alignment: Alignment.center,
                           child: Text(
                             "Sell",
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: _isSellSelected ? Colors.white : textColor),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: _isSellSelected ? Colors.white : textColor,
+                            ),
                           ),
                         ),
                       ),
@@ -141,13 +176,21 @@ class _NewPostPageState extends State<NewPostPage> {
                         child: Container(
                           height: 48,
                           decoration: BoxDecoration(
-                            color: !_isSellSelected ? primaryColor : containerColor,
+                            color:
+                                !_isSellSelected
+                                    ? primaryColor
+                                    : containerColor,
                             borderRadius: BorderRadius.circular(24),
                           ),
                           alignment: Alignment.center,
                           child: Text(
                             "Rent Out",
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: !_isSellSelected ? Colors.white : textColor),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color:
+                                  !_isSellSelected ? Colors.white : textColor,
+                            ),
                           ),
                         ),
                       ),
@@ -157,7 +200,11 @@ class _NewPostPageState extends State<NewPostPage> {
                 const SizedBox(height: 24),
                 Text(
                   "Available From",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
+                  ),
                   textAlign: TextAlign.left,
                 ),
                 const SizedBox(height: 8),
@@ -178,7 +225,11 @@ class _NewPostPageState extends State<NewPostPage> {
                           style: TextStyle(fontSize: 14, color: textColor),
                         ),
                         const Spacer(),
-                        const Icon(Icons.calendar_today_outlined, size: 20, color: Colors.black54),
+                        const Icon(
+                          Icons.calendar_today_outlined,
+                          size: 20,
+                          color: Colors.black54,
+                        ),
                       ],
                     ),
                   ),
@@ -186,7 +237,11 @@ class _NewPostPageState extends State<NewPostPage> {
                 const SizedBox(height: 24),
                 Text(
                   "Price",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textColor),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
+                  ),
                   textAlign: TextAlign.left,
                 ),
                 const SizedBox(height: 8),
@@ -211,7 +266,9 @@ class _NewPostPageState extends State<NewPostPage> {
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 48),
                     backgroundColor: primaryColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     elevation: 0,
                   ),
                   child: const Text(

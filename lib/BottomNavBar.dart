@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:getaccess/NewEvent.dart';
+import 'package:getaccess/NewPost.dart';
+import 'package:getaccess/Search.dart';
+import 'package:getaccess/SearchDetails.dart';
 import 'package:getaccess/Settings.dart';
 import 'package:getaccess/screens/Community/community_screen.dart';
 import 'package:getaccess/screens/Marketplace/marketplace.dart';
@@ -18,10 +21,10 @@ class BottomNavBarDemo extends StatefulWidget {
 class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
   int _currentIndex = 0;
   final List<Widget> _screens = [
-    SocialScreen(),
+    NewPostPage(),
     CommunityScreen(),
     const Placeholder(color: Colors.blue),
-    Marketplace(),
+    SettingsPage(),
     ServiceScreen(),
   ];
 
