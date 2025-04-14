@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:getaccess/BottomNavBar.dart';
+import 'package:getaccess/Settings.dart';
 // import 'package:mygate/screens/signin/signin_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,12 +14,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Timer(const Duration(seconds: 3), () {
-    //   Navigator.pushReplacement(
-    //     context,
-    //     // MaterialPageRoute(builder: (context) => const SignUpPage()),
-    //   );
-    // });
+    Timer(const Duration(seconds: 3), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => BottomNavBarDemo()),
+      );
+    });
   }
 
   @override
