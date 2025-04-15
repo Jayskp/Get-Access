@@ -19,9 +19,9 @@ class _SearchPageState extends State<SearchPage> {
         {
           "avatar": "assets/images/avatar.png",
           "name": "Dhruv Patel",
-          "flat": "A104"
-        }
-      ]
+          "flat": "A104",
+        },
+      ],
     },
     {
       "floorTitle": "2nd Floor",
@@ -29,14 +29,14 @@ class _SearchPageState extends State<SearchPage> {
         {
           "avatar": "assets/images/avatar.png",
           "name": "Sonal Desai",
-          "flat": "A105"
+          "flat": "A105",
         },
         {
           "avatar": "assets/images/avatar.png",
           "name": "Rahul Sharma",
-          "flat": "A106"
-        }
-      ]
+          "flat": "A106",
+        },
+      ],
     },
     {
       "floorTitle": "3rd Floor",
@@ -44,15 +44,15 @@ class _SearchPageState extends State<SearchPage> {
         {
           "avatar": "assets/images/avatar.png",
           "name": "Priya Singh",
-          "flat": "B101"
+          "flat": "B101",
         },
         {
           "avatar": "assets/images/avatar.png",
           "name": "Karan Kumar",
-          "flat": "B102"
-        }
-      ]
-    }
+          "flat": "B102",
+        },
+      ],
+    },
   ];
 
   @override
@@ -70,8 +70,12 @@ class _SearchPageState extends State<SearchPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          "Search",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
+          "Search Residents",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
@@ -90,16 +94,26 @@ class _SearchPageState extends State<SearchPage> {
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: _selectedBlock,
-                        items: _blocks.map((String value) {
-                          return DropdownMenuItem(
-                            value: value,
-                            child: Text(value, style: const TextStyle(fontSize: 14, color: Colors.black)),
-                          );
-                        }).toList(),
+                        items:
+                            _blocks.map((String value) {
+                              return DropdownMenuItem(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                         onChanged: (val) {
                           if (val != null) setState(() => _selectedBlock = val);
                         },
-                        icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
+                        icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                   ),
@@ -116,16 +130,26 @@ class _SearchPageState extends State<SearchPage> {
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: _selectedFloor,
-                        items: _floors.map((String value) {
-                          return DropdownMenuItem(
-                            value: value,
-                            child: Text(value, style: const TextStyle(fontSize: 14, color: Colors.black)),
-                          );
-                        }).toList(),
+                        items:
+                            _floors.map((String value) {
+                              return DropdownMenuItem(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                         onChanged: (val) {
                           if (val != null) setState(() => _selectedFloor = val);
                         },
-                        icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
+                        icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                   ),
@@ -144,7 +168,11 @@ class _SearchPageState extends State<SearchPage> {
             children: [
               Text(
                 _data[index]["floorTitle"],
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                ),
               ),
               const SizedBox(height: 12),
               Column(
@@ -156,18 +184,30 @@ class _SearchPageState extends State<SearchPage> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       leading: CircleAvatar(
                         radius: 22,
-                        backgroundImage: AssetImage(_data[index]["people"][i]["avatar"]),
+                        backgroundImage: AssetImage(
+                          _data[index]["people"][i]["avatar"],
+                        ),
                       ),
                       title: Text(
                         _data[index]["people"][i]["name"],
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
                       ),
                       subtitle: Text(
                         _data[index]["people"][i]["flat"],
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                       trailing: SizedBox(
                         width: 64,
@@ -176,11 +216,19 @@ class _SearchPageState extends State<SearchPage> {
                           children: [
                             InkWell(
                               onTap: () {},
-                              child: Image.asset("assets/images/phone_icon.png", width: 24, height: 24),
+                              child: Image.asset(
+                                "assets/images/icons/call.png",
+                                width: 24,
+                                height: 24,
+                              ),
                             ),
                             InkWell(
                               onTap: () {},
-                              child: Image.asset("assets/images/chat_icon.png", width: 24, height: 24),
+                              child: Image.asset(
+                                "assets/images/icons/chat.png",
+                                width: 24,
+                                height: 24,
+                              ),
                             ),
                           ],
                         ),

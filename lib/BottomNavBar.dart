@@ -1,10 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:getaccess/Milkman.dart';
 import 'package:getaccess/NewEvent.dart';
-import 'package:getaccess/NewPost.dart';
-import 'package:getaccess/Search.dart';
-import 'package:getaccess/SearchDetails.dart';
+import 'package:getaccess/NewPoll.dart';
 import 'package:getaccess/Settings.dart';
 
 class BottomNavBarDemo extends StatefulWidget {
@@ -18,10 +15,10 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
   int _currentIndex = 0;
   final List<Widget> _screens = [
     NewEventPage(),
-    MilkmanPage(),
-    SearchPage(),
+    NewPollPage(),
+    const Placeholder(color: Colors.blue),
     const Placeholder(color: Colors.orange),
-    SearchDetailsPage(),
+    SettingsPage(),
   ];
 
   @override
