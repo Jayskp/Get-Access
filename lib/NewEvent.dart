@@ -73,7 +73,7 @@ class _NewEventPageState extends State<NewEventPage> {
                   CircleAvatar(
                     radius: 22,
                     backgroundColor: Colors.grey.shade300,
-                    backgroundImage: const AssetImage("assets/images/avatar.png"),
+                    backgroundImage: const AssetImage("assets/images/icons/Group 1.png"),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -172,11 +172,11 @@ class _NewEventPageState extends State<NewEventPage> {
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Colors.lightGreenAccent,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       elevation: 0,
                     ),
-                    child: const Text("Post", style: TextStyle(fontWeight: FontWeight.w600)),
+                    child: const Text("Post", style: TextStyle(fontWeight: FontWeight.w600,color:Colors.green)),
                   ),
                 ],
               ),

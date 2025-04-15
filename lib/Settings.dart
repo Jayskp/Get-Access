@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:getaccess/SearchDetails.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
 
@@ -11,31 +12,18 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final Map<String, dynamic> settingsData = {
-    "user": {
-      "avatarText": "D",
-      "name": "Dhruv Patel",
-      "id": "ID-154689",
-    },
+    "user": {"avatarText": "D", "name": "Dhruv Patel", "id": "ID-154689"},
     "profileIncompleteText":
-    "Your Profile is Incomplete... please complete it!!!",
+        "Your Profile is Incomplete... please complete it!!!",
     "membersSectionTitle": "Members",
     "membersGrid": [
       {
         "title": "Add Family Members",
         "icon": "assets/images/icons/Circularplus.png",
       },
-      {
-        "title": "Add Pets",
-        "icon": "assets/images/icons/Circularplus.png",
-      },
-      {
-        "title": "House Help",
-        "icon": "assets/images/icons/Circularplus.png",
-      },
-      {
-        "title": "Vehicle",
-        "icon": "assets/images/icons/Circularplus.png",
-      }
+      {"title": "Add Pets", "icon": "assets/images/icons/Circularplus.png"},
+      {"title": "House Help", "icon": "assets/images/icons/Circularplus.png"},
+      {"title": "Vehicle", "icon": "assets/images/icons/Circularplus.png"},
     ],
     "address": {
       "label": "My Address",
@@ -48,33 +36,24 @@ class _SettingsPageState extends State<SettingsPage> {
         "items": [
           {
             "title": "Notification Preferences",
-            "icon": "assets/images/logo.png",
+            "icon": "assets/images/icons/notifications.png",
           },
-          {
-            "title": "Security Alert",
-            "icon": "assets/images/logo.png",
-          }
-        ]
+          {"title": "Security Alert", "icon": "assets/images/icons/alert.png"},
+        ],
       },
       {
         "sectionTitle": "Purchases",
         "items": [
-          {
-            "title": "My Orders",
-            "icon": "assets/images/logo.png",
-          },
-          {
-            "title": "My Plans",
-            "icon": "assets/images/logo.png",
-          }
-        ]
-      }
+          {"title": "My Orders", "icon": "assets/images/icons/shippingbox.png"},
+          {"title": "My Plans", "icon": "assets/images/icons/crown.png"},
+        ],
+      },
     ],
     "manageFlats": {
       "sectionTitle": "Manage Flats",
       "flatName": "Sahaj Flats, C-105",
       "status": "Active",
-      "icon": "assets/images/logo.png",
+      "icon": "assets/images/icons/home.png",
       "addFlatText": "Add Flat/Home/Villa",
     },
     "generalSettings": {
@@ -82,22 +61,13 @@ class _SettingsPageState extends State<SettingsPage> {
       "items": [
         {
           "title": "Support & Feedback",
-          "icon": "assets/images/logo.png",
+          "icon": "assets/images/icons/like-shapes.png",
         },
-        {
-          "title": "Share App",
-          "icon": "assets/images/logo.png",
-        },
-        {
-          "title": "Change App Icon",
-          "icon": "assets/images/logo.png",
-        },
-        {
-          "title": "Logout",
-          "icon": "assets/images/logo.png",
-        }
-      ]
-    }
+        {"title": "Share App", "icon": "assets/images/icons/share-all.png"},
+        {"title": "Account Info", "icon": "assets/images/icons/account.png"},
+        {"title": "Logout", "icon": "assets/images/icons/logout.png"},
+      ],
+    },
   };
 
   final Color _dividerColor = const Color(0xFFE0E0E0);
@@ -144,7 +114,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       Navigator.of(context).pop();
                     },
                     child: Image.asset(
-                      "assets/images/logo.png",
+                      "assets/images/icons/backarrow.png",
                       width: 24,
                       height: 24,
                     ),
@@ -160,9 +130,16 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SearchDetailsPage(),
+                        ),
+                      );
+                    },
                     child: Image.asset(
-                      "assets/images/logo.png",
+                      "assets/images/icons/search.png",
                       width: 24,
                       height: 24,
                     ),
@@ -170,14 +147,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             ),
-            Container(
-              height: 1,
-              color: _dividerColor,
-            ),
+            Container(height: 1, color: _dividerColor),
             Expanded(
               child: SingleChildScrollView(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -185,12 +161,13 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: [
                         CircleAvatar(
                           radius: 28,
-                          backgroundColor: Colors.grey.shade300,
+                          backgroundColor: Color(0xFFD6C104),
                           child: Text(
                             userData["avatarText"],
                             style: _archivoTextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -221,11 +198,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         GestureDetector(
                           onTap: () {},
                           child: Image.asset(
-                            "assets/images/logo.png",
+                            "assets/images/icons/qrcode.png",
                             width: 36,
                             height: 36,
                           ),
-                        )
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -269,12 +246,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisExtent: 60,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisExtent: 60,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
                       itemBuilder: (context, index) {
                         final item = membersGrid[index];
                         return _MemberButton(
@@ -310,25 +287,11 @@ class _SettingsPageState extends State<SettingsPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _lightGreyColor,
+        border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.location_on_outlined,
-              size: 18,
-              color: Colors.black54,
-            ),
-          ),
-          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,11 +316,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           GestureDetector(
             onTap: () {},
-            child: Image.asset(
-              addressData["shareIcon"],
-              width: 24,
-              height: 24,
-            ),
+            child: Image.asset(addressData["shareIcon"], width: 24, height: 24),
           ),
         ],
       ),
@@ -372,10 +331,7 @@ class _SettingsPageState extends State<SettingsPage> {
       children: [
         Text(
           sectionTitle,
-          style: _archivoTextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: _archivoTextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         Container(
@@ -384,38 +340,37 @@ class _SettingsPageState extends State<SettingsPage> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
-            children: items.map((item) {
-              return InkWell(
-                onTap: () {},
-                child: Padding(
-                  padding:
-                  const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        item["icon"],
-                        width: 24,
-                        height: 24,
+            children:
+                items.map((item) {
+                  return InkWell(
+                    onTap: () {},
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          item["title"],
-                          style: _archivoTextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
+                      child: Row(
+                        children: [
+                          Image.asset(item["icon"], width: 24, height: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              item["title"],
+                              style: _archivoTextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
                           ),
-                        ),
+                          Icon(
+                            Icons.chevron_right,
+                            color: Colors.grey.shade700,
+                          ),
+                        ],
                       ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: Colors.grey.shade700,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
+                    ),
+                  );
+                }).toList(),
           ),
         ),
       ],
@@ -428,10 +383,7 @@ class _SettingsPageState extends State<SettingsPage> {
       children: [
         Text(
           manageData["sectionTitle"],
-          style: _archivoTextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: _archivoTextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         Container(
@@ -442,11 +394,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           child: Row(
             children: [
-              Image.asset(
-                manageData["icon"],
-                width: 24,
-                height: 24,
-              ),
+              Image.asset(manageData["icon"], width: 24, height: 24),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -455,8 +403,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: _activeChipColor,
                   borderRadius: BorderRadius.circular(20),
@@ -469,7 +416,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     color: Colors.white,
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -484,10 +431,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             child: Row(
               children: [
-                Icon(
-                  Icons.add_home_work_outlined,
-                  color: Colors.grey.shade800,
-                ),
+                Icon(Icons.add_home_work_outlined, color: Colors.grey.shade800),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -498,10 +442,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                 ),
-                Icon(
-                  Icons.chevron_right,
-                  color: Colors.grey.shade700,
-                ),
+                Icon(Icons.chevron_right, color: Colors.grey.shade700),
               ],
             ),
           ),
@@ -518,10 +459,7 @@ class _SettingsPageState extends State<SettingsPage> {
       children: [
         Text(
           sectionTitle,
-          style: _archivoTextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: _archivoTextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         GridView.builder(
@@ -543,15 +481,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: _lightGreyColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 child: Row(
                   children: [
-                    Image.asset(
-                      item["icon"],
-                      width: 24,
-                      height: 24,
-                    ),
+                    Image.asset(item["icon"], width: 24, height: 24),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -562,10 +498,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                       ),
                     ),
-                    Icon(
-                      Icons.chevron_right,
-                      color: Colors.grey.shade700,
-                    ),
+                    Icon(Icons.chevron_right, color: Colors.grey.shade700),
                   ],
                 ),
               ),
@@ -605,28 +538,7 @@ class _MemberButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
             children: [
-              DottedBorder(
-                color: greenBorderColor,
-                strokeWidth: 2,
-                dashPattern: const [6, 3],
-                padding: EdgeInsets.zero,
-                borderType: BorderType.Circle,
-                child: Container(
-                  width: 28,
-                  height: 28,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                  ),
-                  child: Center(
-                    child: Image.asset(
-                      iconPath,
-                      width: 14,
-                      height: 14,
-                    ),
-                  ),
-                ),
-              ),
+              Center(child: Image.asset(iconPath, width: 31, height: 31)),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

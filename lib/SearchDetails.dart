@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:getaccess/Milkman.dart';
 
 class SearchDetailsPage extends StatefulWidget {
   const SearchDetailsPage({Key? key}) : super(key: key);
@@ -77,7 +78,7 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () {
-                            // Implement button action here
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>MilkmanPage()));
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8),
