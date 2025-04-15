@@ -13,6 +13,10 @@ class CommunityScreen extends StatefulWidget {
 }
 
 class _CommunityScreenState extends State<CommunityScreen> {
+  final TextEditingController searchController = TextEditingController();
+  final PageController _noticePageController = PageController();
+  int _currentNoticePage = 0;
+
   TextStyle _archivoTextStyle({
     double fontSize = 14,
     FontWeight fontWeight = FontWeight.normal,
@@ -24,6 +28,30 @@ class _CommunityScreenState extends State<CommunityScreen> {
       color: color,
     );
   }
+
+  final List<Map<String, dynamic>> _notices = [
+    {
+      'category': 'Society',
+      'timeAgo': '6d ago',
+      'title': 'Attention Residents',
+      'content':
+          'Water tank cleaning is scheduled for Friday, 10 AM - 2 PM. Water supply may be interrupted during this time. Please plan accordingly',
+    },
+    {
+      'category': 'Society',
+      'timeAgo': '2d ago',
+      'title': 'Monthly Meeting',
+      'content':
+          'Monthly society meeting will be held on Sunday at 11 AM in the community hall. All residents are requested to attend.',
+    },
+    {
+      'category': 'Maintenance',
+      'timeAgo': '1d ago',
+      'title': 'Elevator Maintenance',
+      'content':
+          'Elevator maintenance is scheduled for Saturday from 9 AM to 12 PM. Please use stairs during this period.',
+    },
+  ];
 
   final List<Map<String, String>> categoryItems = [
     {
@@ -47,6 +75,30 @@ class _CommunityScreenState extends State<CommunityScreen> {
       "badgeCount": "7",
     },
   ];
+
+  void initState() {
+    super.initState();
+    // Listen for search text changes
+
+    // Add listener for page changes in carousel
+    _noticePageController.addListener(_onPageChanged);
+  }
+
+  void _onPageChanged() {
+    if (_noticePageController.page!.round() != _currentNoticePage) {
+      setState(() {
+        _currentNoticePage = _noticePageController.page!.round();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    _noticePageController.removeListener(_onPageChanged);
+    _noticePageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +276,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 20),
                 Row(
                   children: [
                     Text(
@@ -397,7 +449,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 20),
                 Text(
                   "Emergency",
                   style: _archivoTextStyle(
@@ -446,6 +498,488 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     ),
                   ],
                 ),
+                SizedBox(height: 20),
+                Text(
+                  "Announcements",
+                  style: _archivoTextStyle(
+                    fontSize: 18,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 16),
+                SizedBox(
+                  height: 120,
+                  child: PageView.builder(
+                    controller: _noticePageController,
+                    itemCount: _notices.length,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentNoticePage = index;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      final notice = _notices[index];
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  notice['title'],
+                                  style: _archivoTextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                Spacer(),
+                                Text(
+                                  '${notice['timeAgo']}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              notice['content'],
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Carousel indicators
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    _notices.length,
+                    (index) => GestureDetector(
+                      onTap: () {
+                        _noticePageController.animateToPage(
+                          index,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color:
+                              _currentNoticePage == index
+                                  ? Colors.black
+                                  : Colors.grey[300],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  "Community Needs",
+                  style: _archivoTextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                  ),
+                ),
+                SizedBox(height: 16),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.grey),
+                    color: Colors.transparent,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(29),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.lightGrey,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Center(
+                                      child: Image(
+                                        image: AssetImage(
+                                          "assets/images/icons/mingcute_service-line.png",
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 7),
+                                Text(
+                                  "Help Desk",
+                                  style: _archivoTextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.lightGrey,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Center(
+                                      child: Image(
+                                        image: AssetImage(
+                                          "assets/images/icons/payment.png",
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 7),
+                                Text(
+                                  "Society Dues",
+                                  style: _archivoTextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.lightGrey,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Center(
+                                      child: Image(
+                                        image: AssetImage(
+                                          "assets/images/icons/mynaui_building.png",
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 7),
+                                Text(
+                                  "Amenities",
+                                  style: _archivoTextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.lightGrey,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Center(
+                                      child: Image(
+                                        image: AssetImage(
+                                          "assets/images/icons/tachometer-alt-solid.png",
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 7),
+                                Text(
+                                  "Meter Consumption",
+                                  style: _archivoTextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.lightGrey,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Center(
+                                      child: Image(
+                                        image: AssetImage(
+                                          "assets/images/icons/humbleicons_chat.png",
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 7),
+                                Text(
+                                  "Communications",
+                                  style: _archivoTextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.lightGrey,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Center(
+                                      child: Image(
+                                        image: AssetImage(
+                                          "assets/images/icons/car.side.arrowtriangle.down.png",
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 7),
+                                Text(
+                                  "Rental Parking",
+                                  style: _archivoTextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.lightGrey,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Center(
+                                      child: Image(
+                                        image: AssetImage(
+                                          "assets/images/icons/girl.png",
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 7),
+                                Text(
+                                  "Daily Help",
+                                  style: _archivoTextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.lightGrey,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.arrow_forward_ios,
+                                        color: Colors.grey,
+                                        size: 24,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 7),
+                                Text(
+                                  "Help Desk",
+                                  style: _archivoTextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    Text(
+                      "Connect with Neighbours",
+                      style: _archivoTextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Text("C-105",style: _archivoTextStyle(
+                      color:Colors.grey
+                    ),)
+                  ],
+                ),
+                SizedBox(height:16,),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Color(0xFFEBB55F),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'DP',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Dhruv Patel',
+                              style:_archivoTextStyle(
+
+                              )
+                            ),
+                            Text(
+                              'C-104 (Owner)',
+                              style: _archivoTextStyle(
+                                color:Colors.grey
+                              )
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '3 Members',
+                        style: _archivoTextStyle()
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height:16,),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Color(0xFFEBB55F),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'DP',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                'Dhruv Patel',
+                                style:_archivoTextStyle(
+
+                                )
+                            ),
+                            Text(
+                                'C-104 (Owner)',
+                                style: _archivoTextStyle(
+                                    color:Colors.grey
+                                )
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                          '3 Members',
+                          style: _archivoTextStyle()
+                      ),
+                    ],
+                  ),
+                )
+
               ],
             ),
           ),
