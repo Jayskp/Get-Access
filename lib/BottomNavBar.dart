@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:getaccess/NewEvent.dart';
-import 'package:getaccess/NewPoll.dart';
-import 'package:getaccess/ResidentDirectory.dart';
-import 'package:getaccess/Settings.dart';
-import 'package:getaccess/chat.dart';
-import 'package:getaccess/notification.dart';
+import 'package:getaccess/screens/Community/community_screen.dart';
+import 'package:getaccess/screens/Marketplace/marketplace.dart';
+import 'package:getaccess/screens/Search%20Home/search_home_screen.dart';
+import 'package:getaccess/screens/Services/Service_screen.dart';
+import 'package:getaccess/screens/Social%20screen/social_screen.dart';
 
 class BottomNavBarDemo extends StatefulWidget {
   const BottomNavBarDemo({Key? key}) : super(key: key);
@@ -17,11 +17,11 @@ class BottomNavBarDemo extends StatefulWidget {
 class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
   int _currentIndex = 0;
   final List<Widget> _screens = [
-    NewEventPage(),
-    NewPollPage(),
-    const Placeholder(color: Colors.blue),
-    Chat(),
-    ResidentDirectory(),
+    SocialScreen(),
+    CommunityScreen(),
+    SearchHomeScreen(),
+    Marketplace(),
+    ServiceScreen()
   ];
 
   @override
