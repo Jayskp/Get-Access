@@ -14,14 +14,11 @@ class _SocialScreenState extends State<SocialScreen> {
   final TextEditingController searchController = TextEditingController();
   final PageController _noticePageController = PageController();
   int _currentNoticePage = 0;
-  // Added for dropdown functionality
   bool _isDropdownOpen = false;
-  // Added for property form
   bool _showAddPropertyForm = false;
   String _selectedPropertyType = 'Flat';
   final TextEditingController _propertyNameController = TextEditingController();
-  final TextEditingController _propertyAddressController =
-      TextEditingController();
+  final TextEditingController _propertyAddressController = TextEditingController();
 
   // Sample notice data
   final List<Map<String, dynamic>> _notices = [
@@ -30,31 +27,28 @@ class _SocialScreenState extends State<SocialScreen> {
       'timeAgo': '6d ago',
       'title': 'Attention Residents',
       'content':
-          'Water tank cleaning is scheduled for Friday, 10 AM - 2 PM. Water supply may be interrupted during this time. Please plan accordingly',
+      'Water tank cleaning is scheduled for Friday, 10 AM - 2 PM. Water supply may be interrupted during this time. Please plan accordingly',
     },
     {
       'category': 'Society',
       'timeAgo': '2d ago',
       'title': 'Monthly Meeting',
       'content':
-          'Monthly society meeting will be held on Sunday at 11 AM in the community hall. All residents are requested to attend.',
+      'Monthly society meeting will be held on Sunday at 11 AM in the community hall. All residents are requested to attend.',
     },
     {
       'category': 'Maintenance',
       'timeAgo': '1d ago',
       'title': 'Elevator Maintenance',
       'content':
-          'Elevator maintenance is scheduled for Saturday from 9 AM to 12 PM. Please use stairs during this period.',
+      'Elevator maintenance is scheduled for Saturday from 9 AM to 12 PM. Please use stairs during this period.',
     },
   ];
 
   @override
   void initState() {
     super.initState();
-    // Listen for search text changes
     searchController.addListener(() => setState(() {}));
-
-    // Add listener for page changes in carousel
     _noticePageController.addListener(_onPageChanged);
   }
 
@@ -82,7 +76,6 @@ class _SocialScreenState extends State<SocialScreen> {
     }
   }
 
-  // Added toggle method for dropdown
   void _toggleDropdown() {
     setState(() {
       _isDropdownOpen = !_isDropdownOpen;
@@ -92,7 +85,6 @@ class _SocialScreenState extends State<SocialScreen> {
     });
   }
 
-  // Show add property form
   void _showAddPropertyDialog() {
     setState(() {
       _isDropdownOpen = false;
@@ -103,25 +95,15 @@ class _SocialScreenState extends State<SocialScreen> {
     });
   }
 
-  // Submit property form
   void _submitPropertyForm() {
-    // Here you would typically save the property data
     if (kDebugMode) {
       print('Adding property: $_selectedPropertyType');
-    }
-    if (kDebugMode) {
       print('Name: ${_propertyNameController.text}');
-    }
-    if (kDebugMode) {
       print('Address: ${_propertyAddressController.text}');
     }
-
-    // Close the form
     setState(() {
       _showAddPropertyForm = false;
     });
-
-    // Show confirmation
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$_selectedPropertyType added successfully!'),
@@ -132,24 +114,30 @@ class _SocialScreenState extends State<SocialScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Get screen width to make layout responsive
+    // Use dynamic horizontal padding similar to previous code,
+    // but add uniform vertical padding (16) like in Marketplace.
     final screenWidth = MediaQuery.of(context).size.width;
-    final double horizontalPadding = screenWidth > 600 ? 40 : 20;
+    final double horizontalPadding =
+    screenWidth > 1024 ? 64 : (screenWidth > 600 ? 40 : 20);
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        // Changed to Stack to overlay dropdown
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: Container(
+          // Mimic a website layout by limiting maximum width and aligning to top-left.
+          alignment: Alignment.topLeft,
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: 16,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
-
                     // Header with location and notification
                     Row(
                       children: [
@@ -166,16 +154,16 @@ class _SocialScreenState extends State<SocialScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Modified to add dropdown toggle
                         GestureDetector(
                           onTap: _toggleDropdown,
                           child: Row(
                             children: [
                               Text(
                                 'Block B,105',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.titleMedium?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
                                   color: Colors.black87,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -197,7 +185,7 @@ class _SocialScreenState extends State<SocialScreen> {
                             color: Colors.white,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
+                                color: Colors.black.withOpacity(0.1),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -211,9 +199,7 @@ class _SocialScreenState extends State<SocialScreen> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 16),
-
                     // Search bar
                     Container(
                       decoration: BoxDecoration(
@@ -241,15 +227,17 @@ class _SocialScreenState extends State<SocialScreen> {
                                   color: Colors.grey[600],
                                 ),
                                 border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                ),
+                                contentPadding:
+                                const EdgeInsets.symmetric(vertical: 14),
                               ),
                             ),
                           ),
                           if (searchController.text.isNotEmpty)
                             IconButton(
-                              icon: Icon(Icons.clear, color: Colors.grey[600]),
+                              icon: Icon(
+                                Icons.clear,
+                                color: Colors.grey[600],
+                              ),
                               onPressed: () {
                                 searchController.clear();
                               },
@@ -257,21 +245,20 @@ class _SocialScreenState extends State<SocialScreen> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
                     // Quick Access section
                     Text(
                       'Quick Access',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(
                         color: Colors.black,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
-                    // Quick Access Cards
+                    // Quick Access Cards (same row as before)
                     SizedBox(
                       height: 100,
                       child: Row(
@@ -306,9 +293,7 @@ class _SocialScreenState extends State<SocialScreen> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
                     // Notice Carousel
                     SizedBox(
                       height: 230,
@@ -355,7 +340,7 @@ class _SocialScreenState extends State<SocialScreen> {
                                     const SizedBox(width: 12),
                                     Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
@@ -369,14 +354,14 @@ class _SocialScreenState extends State<SocialScreen> {
                                             const SizedBox(width: 8),
                                             Container(
                                               padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 2,
-                                                  ),
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 2,
+                                              ),
                                               decoration: BoxDecoration(
                                                 color: Colors.black,
                                                 borderRadius:
-                                                    BorderRadius.circular(4),
+                                                BorderRadius.circular(4),
                                               ),
                                               child: const Text(
                                                 'Admin',
@@ -422,15 +407,13 @@ class _SocialScreenState extends State<SocialScreen> {
                         },
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
                     // Carousel indicators
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
                         _notices.length,
-                        (index) => GestureDetector(
+                            (index) => GestureDetector(
                           onTap: () {
                             _noticePageController.animateToPage(
                               index,
@@ -441,351 +424,352 @@ class _SocialScreenState extends State<SocialScreen> {
                           child: Container(
                             width: 8,
                             height: 8,
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            margin:
+                            const EdgeInsets.symmetric(horizontal: 4),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color:
-                                  _currentNoticePage == index
-                                      ? Colors.black
-                                      : Colors.grey[300],
+                              color: _currentNoticePage == index
+                                  ? Colors.black
+                                  : Colors.grey[300],
                             ),
                           ),
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
                     // Services section
                     Text(
                       'Services',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(
                         color: Colors.black,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
-                    // Services Grid
-                    GridView.count(
+                    // Responsive Services Grid modeled after the Marketplace Categories grid.
+                    GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      childAspectRatio: 1,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      children: [
-                        ServiceCard(
-                          image: 'assets/images/daily help.png',
-                          title: 'Daily help',
-                          onTap: () {},
-                        ),
-                        ServiceCard(
-                          image: 'assets/images/helpdesk.png',
-                          title: 'Helpdesk',
-                          onTap: () {},
-                        ),
-                        ServiceCard(
-                          image: 'assets/images/home serivce.png',
-                          title: 'Salon',
-                          onTap: () {},
-                        ),
-                        ServiceCard(
-                          image: 'assets/images/market.png',
-                          title: 'Groceries',
-                          onTap: () {},
-                        ),
-                      ],
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: screenWidth > 1024 ? 200 : 150,
+                        childAspectRatio: 1,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemCount: 4,
+                      itemBuilder: (context, index) {
+                        // Using the same service cards as before
+                        final serviceCards = [
+                          ServiceCard(
+                            image: 'assets/images/daily help.png',
+                            title: 'Daily help',
+                            onTap: () {},
+                          ),
+                          ServiceCard(
+                            image: 'assets/images/helpdesk.png',
+                            title: 'Helpdesk',
+                            onTap: () {},
+                          ),
+                          ServiceCard(
+                            image: 'assets/images/home serivce.png',
+                            title: 'Salon',
+                            onTap: () {},
+                          ),
+                          ServiceCard(
+                            image: 'assets/images/market.png',
+                            title: 'Groceries',
+                            onTap: () {},
+                          ),
+                        ];
+                        return serviceCards[index];
+                      },
                     ),
-
                     const SizedBox(height: 24),
                   ],
                 ),
               ),
-            ),
-
-            // Added dropdown overlay
-            if (_isDropdownOpen)
-              Positioned(
-                top: 60,
-                left: horizontalPadding,
-                right: horizontalPadding,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        spreadRadius: 1,
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+              // Dropdown overlay
+              if (_isDropdownOpen)
+                Positioned(
+                  top: 60,
+                  left: horizontalPadding,
+                  right: horizontalPadding,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          spreadRadius: 1,
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.grey[200]!,
-                              width: 1,
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Colors.grey[200]!,
+                                width: 1,
+                              ),
                             ),
                           ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.home_outlined,
-                              size: 22,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(width: 12),
-                            const Text(
-                              'C-105 Sahaj Flat',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.home_outlined,
+                                size: 22,
+                                color: Colors.grey,
                               ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
+                              const SizedBox(width: 12),
+                              const Text(
+                                'C-105 Sahaj Flat',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                              decoration: BoxDecoration(
-                                color: Colors.orange,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Text(
-                                    'Members',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                      'Members',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Container(
-                                    width: 16,
-                                    height: 16,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: const Center(
-                                      child: Text(
-                                        '3',
-                                        style: TextStyle(
-                                          color: Colors.orange,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
+                                    const SizedBox(width: 4),
+                                    Container(
+                                      width: 16,
+                                      height: 16,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.white,
+                                      ),
+                                      child: const Center(
+                                        child: Text(
+                                          '3',
+                                          style: TextStyle(
+                                            color: Colors.orange,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: _showAddPropertyDialog,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.add_circle_outline,
+                                  size: 22,
+                                  color: Colors.grey,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Add Flat/Home/Villa',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[700],
                                   ),
-                                ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              // Add Property Form overlay
+              if (_showAddPropertyForm)
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: Center(
+                      child: Container(
+                        width: screenWidth - 48,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Add New Property',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    setState(() {
+                                      _showAddPropertyForm = false;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            // Property Type Selection
+                            Text(
+                              'Property Type',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  isExpanded: true,
+                                  value: _selectedPropertyType,
+                                  items: ['Flat', 'House', 'Villa', 'Building']
+                                      .map((type) {
+                                    return DropdownMenuItem<String>(
+                                      value: type,
+                                      child: Text(type),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedPropertyType = value!;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            // Property Name
+                            Text(
+                              'Property Name/Number',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: _propertyNameController,
+                              decoration: InputDecoration(
+                                hintText: 'e.g. C-105, Villa 23',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey[300]!,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            // Property Address
+                            Text(
+                              'Property Address',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: _propertyAddressController,
+                              maxLines: 3,
+                              decoration: InputDecoration(
+                                hintText: 'Enter complete address',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey[300]!,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Center(
+                              child: ElevatedButton(
+                                onPressed: _submitPropertyForm,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.black,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 32,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Add Property',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: _showAddPropertyDialog,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.add_circle_outline,
-                                size: 22,
-                                color: Colors.grey,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                'Add Flat/Home/Villa',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-            // Add Property Form
-            if (_showAddPropertyForm)
-              Positioned.fill(
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  child: Center(
-                    child: Container(
-                      width: screenWidth - 48,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Add New Property',
-                                style: Theme.of(context).textTheme.titleLarge
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: () {
-                                  setState(() {
-                                    _showAddPropertyForm = false;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Property Type Selection
-                          Text(
-                            'Property Type',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey[300]!),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                isExpanded: true,
-                                value: _selectedPropertyType,
-                                items:
-                                    ['Flat', 'House', 'Villa', 'Building'].map((
-                                      type,
-                                    ) {
-                                      return DropdownMenuItem<String>(
-                                        value: type,
-                                        child: Text(type),
-                                      );
-                                    }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedPropertyType = value!;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          // Property Name
-                          Text(
-                            'Property Name/Number',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: _propertyNameController,
-                            decoration: InputDecoration(
-                              hintText: 'e.g. C-105, Villa 23',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          // Property Address
-                          Text(
-                            'Property Address',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: _propertyAddressController,
-                            maxLines: 3,
-                            decoration: InputDecoration(
-                              hintText: 'Enter complete address',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          // Submit Button
-                          Center(
-                            child: ElevatedButton(
-                              onPressed: _submitPropertyForm,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 32,
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: const Text(
-                                'Add Property',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -173,6 +173,9 @@ class _SearchHomeScreenState extends State<SearchHomeScreen> {
 
                   /// Testimonials Container
                   _buildTestimonialsContainer(screenWidth),
+                  SizedBox(height:16),
+                  _buildTestimonialsContainer(screenWidth),
+
                 ],
               ),
             ),
@@ -448,14 +451,12 @@ class _SearchHomeScreenState extends State<SearchHomeScreen> {
               children: [
                 Expanded(child: _buildTestimonialProfile()),
                 const SizedBox(width: 20),
-                Expanded(child: _buildTestimonialProfile()),
               ],
             )
                 : Column(
               children: [
                 _buildTestimonialProfile(),
                 const SizedBox(height: 10),
-                _buildTestimonialProfile(),
               ],
             ),
           ],
