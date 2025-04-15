@@ -2,7 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:getaccess/NewEvent.dart';
 import 'package:getaccess/NewPoll.dart';
+import 'package:getaccess/ResidentDirectory.dart';
 import 'package:getaccess/Settings.dart';
+import 'package:getaccess/chat.dart';
+import 'package:getaccess/notification.dart';
 
 class BottomNavBarDemo extends StatefulWidget {
   const BottomNavBarDemo({Key? key}) : super(key: key);
@@ -17,8 +20,8 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
     NewEventPage(),
     NewPollPage(),
     const Placeholder(color: Colors.blue),
-    const Placeholder(color: Colors.orange),
-    SettingsPage(),
+    Chat(),
+    ResidentDirectory(),
   ];
 
   @override
