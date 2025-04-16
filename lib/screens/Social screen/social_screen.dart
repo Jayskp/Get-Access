@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:getaccess/Settings.dart';
 import 'package:getaccess/util/constants/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -377,15 +378,25 @@ class _SocialScreenState extends State<SocialScreen> {
                       // Header with location and notification
                       Row(
                         children: [
-                          CircleAvatar(
-                            backgroundColor: const Color(0xFFD4BE45),
-                            radius: 18,
-                            child: const Text(
-                              'D',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SettingsPage(),
+                                ),
+                              );
+                            },
+                            child: CircleAvatar(
+                              backgroundColor: const Color(0xFFD4BE45),
+                              radius: 18,
+                              child: const Text(
+                                'D',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                           ),
@@ -510,7 +521,7 @@ class _SocialScreenState extends State<SocialScreen> {
                             ).textTheme.titleLarge?.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
-                              fontSize: 20
+                              fontSize: 20,
                             ),
                           ),
                           TextButton(
@@ -573,7 +584,7 @@ class _SocialScreenState extends State<SocialScreen> {
                             ).textTheme.titleLarge?.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
-                              fontSize: 20
+                              fontSize: 20,
                             ),
                           ),
                           TextButton(
@@ -757,7 +768,7 @@ class _SocialScreenState extends State<SocialScreen> {
                             ).textTheme.titleLarge?.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
-                              fontSize: 20
+                              fontSize: 20,
                             ),
                           ),
                           TextButton(
@@ -1134,7 +1145,7 @@ class _SocialScreenState extends State<SocialScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            height:28,
+            height: 28,
             width: 28,
             child: Image.asset(imagePath, fit: BoxFit.contain),
           ),
@@ -1142,9 +1153,7 @@ class _SocialScreenState extends State<SocialScreen> {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: _archivoTextStyle(
-              fontSize: 12
-            ),
+            style: _archivoTextStyle(fontSize: 12),
           ),
         ],
       ),
