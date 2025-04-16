@@ -567,7 +567,7 @@ class _SocialScreenState extends State<SocialScreen> {
                               screenWidth > 1024
                                   ? 240
                                   : (screenWidth > 600 ? 200 : 150),
-                          childAspectRatio: isPortrait?0.85:1.2,
+                          childAspectRatio: isLargeScreen?0.98:0.85,
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
                         ),
