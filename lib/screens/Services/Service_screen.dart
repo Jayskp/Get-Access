@@ -24,8 +24,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
       color: color,
     );
   }
-  final List<Map<String, String>> categoryItems = [
 
+  final List<Map<String, String>> categoryItems = [
     {
       "iconPath": "assets/images/icons/Services.png",
       "title": "Services by Urab",
@@ -37,110 +37,166 @@ class _ServiceScreenState extends State<ServiceScreen> {
     {
       "iconPath": "assets/images/icons/tabler_truck-delivery.png",
       "title": "Movers & Packers",
-
     },
-    {
-      "iconPath": "assets/images/icons/bucket.png",
-      "title": "Cleaning",
-
-    },
+    {"iconPath": "assets/images/icons/bucket.png", "title": "Cleaning"},
   ];
-
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isLargeScreen = screenWidth > 768;
+    final horizontalPadding =
+        screenWidth > 1024 ? 64.0 : (screenWidth > 600 ? 40.0 : 26.0);
+
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(left: 26, right: 26),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            decoration:
+                isLargeScreen
+                    ? BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          offset: const Offset(0, 0),
+                          blurRadius: 10,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                    )
+                    : null,
+            margin:
+                isLargeScreen ? const EdgeInsets.symmetric(vertical: 16) : null,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Text(
+                          "Services",
+                          style: _archivoTextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.search_rounded, size: 24),
+                          tooltip: 'Search',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    const Divider(color: Colors.grey),
+                    const SizedBox(height: 24),
                     Text(
-                      "Services",
+                      "Categories",
                       style: _archivoTextStyle(
-                        fontSize: 20,
                         fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                        color: Colors.black,
                       ),
                     ),
-                    Spacer(),
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(Icons.search_rounded, size: 24),
+                    const SizedBox(height: 16),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: isLargeScreen ? 4 : 2,
+                        childAspectRatio: isLargeScreen ? 1.2 : 0.85,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemCount: categoryItems.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 5,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: CategoriesCard(
+                            iconPath: categoryItems[index]["iconPath"] ?? "",
+                            title: categoryItems[index]["title"] ?? "",
+                          ),
+                        );
+                      },
                     ),
+                    const SizedBox(height: 32),
+                    Text(
+                      "Trending Services",
+                      style: _archivoTextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: isLargeScreen ? 4 : 2,
+                      childAspectRatio: 1,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      children: [
+                        _buildTrendingServiceCard(
+                          'assets/images/truck.png',
+                          'Porter Packers & Movers',
+                        ),
+                        _buildTrendingServiceCard(
+                          'assets/images/locks.png',
+                          'Okinava Smart Locks',
+                        ),
+                        _buildTrendingServiceCard(
+                          'assets/images/cabs.png',
+                          'Airport Cabs',
+                        ),
+                        _buildTrendingServiceCard(
+                          'assets/images/medical.png',
+                          'Instant Medical Help',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Divider(color: Colors.grey),
-                const SizedBox(height: 8),
-                Text("Categories",style: _archivoTextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
-                  color: Colors.black
-                ),),
-                SizedBox(height: 16,),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: ScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    childAspectRatio: 0.72,
-                    crossAxisSpacing: 8,
-                  ),
-                  itemCount: categoryItems.length,
-                  itemBuilder: (context, index) {
-                    return CategoriesCard(
-                      iconPath: categoryItems[index]["iconPath"] ?? "",
-                      title: categoryItems[index]["title"] ?? "",
-                    );
-                  },
-                ),
-                SizedBox(height:16,),
-                Text("Trending Services",style: _archivoTextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
-                    color: Colors.black
-                ),),
-                SizedBox(height:16,),
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  childAspectRatio: 1,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  children: [
-                    ServiceCard(
-                      image: 'assets/images/truck.png',
-                      title: 'Porter Packers & Movers',
-                      onTap: () {},
-                    ),
-                    ServiceCard(
-                      image: 'assets/images/locks.png',
-                      title: 'Okinava Smart Locks',
-                      onTap: () {},
-                    ),
-                    ServiceCard(
-                      image: 'assets/images/cabs.png',
-                      title: 'Airport Cabs',
-                      onTap: () {},
-                    ),
-                    ServiceCard(
-                      image: 'assets/images/medical.png',
-                      title: 'Instant Medical Help',
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-
-              ],
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTrendingServiceCard(String image, String title) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ServiceCard(image: image, title: title, onTap: () {}),
     );
   }
 }

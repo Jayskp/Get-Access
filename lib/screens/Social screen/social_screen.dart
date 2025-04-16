@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:getaccess/util/constants/colors.dart';
 
 import '../../widgets/social_services_card.dart';
 
@@ -140,7 +141,7 @@ class _SocialScreenState extends State<SocialScreen> {
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha:0.05),
                           offset: const Offset(0, 0),
                           blurRadius: 10,
                           spreadRadius: 0,
@@ -207,7 +208,7 @@ class _SocialScreenState extends State<SocialScreen> {
                               color: Colors.white,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
+                                  color: Colors.black.withValues(alpha: 0.1),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -235,7 +236,7 @@ class _SocialScreenState extends State<SocialScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha:0.05),
                               blurRadius: 5,
                               offset: const Offset(0, 2),
                             ),
@@ -390,11 +391,11 @@ class _SocialScreenState extends State<SocialScreen> {
                             return Container(
                               margin: const EdgeInsets.symmetric(horizontal: 2),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: AppColors.lightGrey,
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
+                                    color: Colors.black.withValues(alpha:0.05),
                                     offset: const Offset(0, 2),
                                     blurRadius: 10,
                                     spreadRadius: 0,
@@ -614,7 +615,7 @@ class _SocialScreenState extends State<SocialScreen> {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha:0.1),
                             spreadRadius: 1,
                             blurRadius: 10,
                             offset: const Offset(0, 4),
@@ -732,7 +733,7 @@ class _SocialScreenState extends State<SocialScreen> {
                 if (_showAddPropertyForm)
                   Positioned.fill(
                     child: Container(
-                      color: Colors.black.withOpacity(0.5),
+                      color: Colors.black.withValues(alpha:0.5),
                       child: Center(
                         child: Container(
                           width: screenWidth - 48,
