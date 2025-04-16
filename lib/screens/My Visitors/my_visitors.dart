@@ -3,7 +3,7 @@ import 'package:getaccess/util/constants/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MyVisitors extends StatefulWidget {
-  const MyVisitors({Key? key}) : super(key: key);
+  const MyVisitors({super.key});
 
   @override
   State<MyVisitors> createState() => _MyVisitorsState();

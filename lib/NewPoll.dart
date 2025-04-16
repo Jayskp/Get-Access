@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class NewPollPage extends StatefulWidget {
-  const NewPollPage({Key? key}) : super(key: key);
+  const NewPollPage({super.key});
 
   @override
   State<NewPollPage> createState() => _NewPollPageState();

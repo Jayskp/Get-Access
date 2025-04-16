@@ -8,7 +8,7 @@ Widget propertyCard({
   required String price,
   required String bhk,
 }) {
-  TextStyle _archivoTextStyle({
+  TextStyle archivoTextStyle({
     double fontSize = 14,
     FontWeight fontWeight = FontWeight.normal,
     Color color = Colors.black,
@@ -54,7 +54,7 @@ Widget propertyCard({
                 children: [
                   Text(
                     title,
-                    style: _archivoTextStyle(
+                    style: archivoTextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600
                     )
@@ -62,7 +62,7 @@ Widget propertyCard({
                   Spacer(),
                   Text(
                     bhk,
-                    style: _archivoTextStyle(
+                    style: archivoTextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600
                     )
@@ -74,7 +74,7 @@ Widget propertyCard({
                 children: [
                   Text(
                     location,
-                    style: _archivoTextStyle(
+                    style: archivoTextStyle(
                       fontSize: 16,
                       color: Colors.grey
                     )
@@ -82,7 +82,7 @@ Widget propertyCard({
                   Spacer(),
                   Text(
                     price,
-                    style: _archivoTextStyle(
+                    style: archivoTextStyle(
                       fontSize: 16,
                       color: Colors.grey
                     )

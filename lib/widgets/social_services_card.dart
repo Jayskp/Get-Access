@@ -7,12 +7,12 @@ class ServiceCard extends StatelessWidget {
   final double borderRadius;
 
   const ServiceCard({
-    Key? key,
+    super.key,
     required this.image,
     required this.title,
     this.onTap,
     this.borderRadius = 12,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

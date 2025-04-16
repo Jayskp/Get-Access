@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:getaccess/util/constants/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 Widget buildCategoryCard({
@@ -8,7 +7,7 @@ Widget buildCategoryCard({
   required String subtitle,
   double width = 100,
 }) {
-  TextStyle _archivoTextStyle({
+  TextStyle archivoTextStyle({
     double fontSize = 14,
     FontWeight fontWeight = FontWeight.normal,
     Color color = Colors.black,
@@ -46,10 +45,10 @@ Widget buildCategoryCard({
         ),
       ),
       SizedBox(height: 8),
-      Text(title, style: _archivoTextStyle()),
+      Text(title, style: archivoTextStyle()),
       Text(
         subtitle,
-        style: _archivoTextStyle(fontSize: 12, color: Colors.grey),
+        style: archivoTextStyle(fontSize: 12, color: Colors.grey),
       ),
     ],
   );

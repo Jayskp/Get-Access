@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:getaccess/BottomNavBar.dart';
-import 'package:getaccess/Settings.dart';
 // import 'package:mygate/screens/signin/signin_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -30,8 +29,11 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           children: [
             Expanded(
-              child: Center(
-                child: Image(image: AssetImage('assets/images/icons/GA.png')),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Image(image: AssetImage('assets/images/icons/logo.png')),
+                ),
               ),
             ),
             Padding(
@@ -55,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 class ProcessCompletorIndicator extends StatefulWidget {
-  const ProcessCompletorIndicator({Key? key}) : super(key: key);
+  const ProcessCompletorIndicator({super.key});
   @override
   _ProcessCompletorIndicatorState createState() =>
       _ProcessCompletorIndicatorState();

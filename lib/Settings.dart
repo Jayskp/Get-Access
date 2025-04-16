@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -517,12 +517,11 @@ class _MemberButton extends StatelessWidget {
   final TextStyle textStyle;
 
   const _MemberButton({
-    Key? key,
     required this.iconPath,
     required this.text,
     required this.greenBorderColor,
     required this.textStyle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

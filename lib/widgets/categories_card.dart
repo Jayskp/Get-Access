@@ -7,7 +7,7 @@ Widget CategoriesCard({
   required String title,
   double width = 100,
 }) {
-  TextStyle _archivoTextStyle({
+  TextStyle archivoTextStyle({
     double fontSize = 14,
     FontWeight fontWeight = FontWeight.normal,
     Color color = Colors.black,
@@ -48,7 +48,7 @@ Widget CategoriesCard({
 
       // <-- Badge
       const SizedBox(height: 8),
-      Flexible(child: Text(title, style: _archivoTextStyle())),
+      Flexible(child: Text(title, style: archivoTextStyle())),
     ],
   );
 }

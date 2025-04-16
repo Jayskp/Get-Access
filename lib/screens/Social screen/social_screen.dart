@@ -1,8 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:getaccess/Settings.dart';
-import 'package:getaccess/notification.dart';
 import 'package:getaccess/util/constants/colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../widgets/social_services_card.dart';
 
@@ -19,6 +18,7 @@ class _SocialScreenState extends State<SocialScreen> {
   int _currentNoticePage = 0;
   bool _isDropdownOpen = false;
   bool _showAddPropertyForm = false;
+  bool _showQuickAccessPopup = false;
   String _selectedPropertyType = 'Flat';
   final TextEditingController _propertyNameController = TextEditingController();
   final TextEditingController _propertyAddressController =
@@ -48,6 +48,51 @@ class _SocialScreenState extends State<SocialScreen> {
           'Elevator maintenance is scheduled for Saturday from 9 AM to 12 PM. Please use stairs during this period.',
     },
   ];
+
+  final List<Map<String, String>> quickAccessItems = [
+    {"iconPath": "assets/images/icons/All Icons.png", "title": "Pre-Approval"},
+    {"iconPath": "assets/images/icons/Vector (1).png", "title": "Daily help"},
+    {
+      "iconPath": "assets/images/icons/car.side.arrowtriangle.down.png",
+      "title": "Cab",
+    },
+    {"iconPath": "assets/images/icons/Group (2).png", "title": "Visit Home"},
+  ];
+
+  // Add these sections data
+  final List<Map<String, dynamic>> preApproveItems = [
+    {"icon": Icons.person_outline, "title": "Guest"},
+    {"icon": Icons.directions_car_outlined, "title": "Cab"},
+    {"icon": Icons.delivery_dining_outlined, "title": "Delivery"},
+    {"icon": Icons.build_outlined, "title": "Visiting\nHelp"},
+  ];
+
+  final List<Map<String, dynamic>> securityItems = [
+    {"icon": Icons.phone_outlined, "title": "Call\nSecurity"},
+    {"icon": Icons.message_outlined, "title": "Message\nGuard"},
+    {"icon": Icons.car_repair_outlined, "title": "Search a\nVehicle"},
+    {"icon": Icons.child_care_outlined, "title": "Allow Kid\nExit"},
+  ];
+
+  final List<Map<String, dynamic>> createPostItems = [
+    {"icon": Icons.post_add_outlined, "title": "Create\nPost"},
+    {"icon": Icons.poll_outlined, "title": "Start\nPoll"},
+    {"icon": Icons.card_giftcard_outlined, "title": "Sell or\nGiveaway"},
+    {"icon": Icons.event_outlined, "title": "Host\nEvent"},
+    {"icon": Icons.home_work_outlined, "title": "List a\nproperty"},
+  ];
+
+  TextStyle _archivoTextStyle({
+    double fontSize = 14,
+    FontWeight fontWeight = FontWeight.normal,
+    Color color = Colors.black,
+  }) {
+    return GoogleFonts.archivo(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+    );
+  }
 
   @override
   void initState() {
@@ -116,6 +161,171 @@ class _SocialScreenState extends State<SocialScreen> {
     );
   }
 
+  void _toggleQuickAccessPopup() {
+    if (_showQuickAccessPopup) {
+      Navigator.pop(context);
+      setState(() {
+        _showQuickAccessPopup = false;
+      });
+    } else {
+      setState(() {
+        _showQuickAccessPopup = true;
+      });
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (BuildContext context) {
+          return SingleChildScrollView(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Handle bar at the top
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildSectionTitle('Pre-approve entry'),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black87),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.mic, size: 20),
+                            const SizedBox(width: 8),
+                            const Text('Speak'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children:
+                          preApproveItems
+                              .map(
+                                (item) => Padding(
+                                  padding: const EdgeInsets.only(right: 24),
+                                  child: _buildQuickAccessItem(
+                                    item['icon'] as IconData,
+                                    item['title'] as String,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildSectionTitle('Security'),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black87),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.notifications_active_outlined,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            const Text('Raise Alert'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children:
+                          securityItems
+                              .map(
+                                (item) => Padding(
+                                  padding: const EdgeInsets.only(right: 24),
+                                  child: _buildQuickAccessItem(
+                                    item['icon'] as IconData,
+                                    item['title'] as String,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  _buildSectionTitle('Create post'),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children:
+                          createPostItems
+                              .map(
+                                (item) => Padding(
+                                  padding: const EdgeInsets.only(right: 24),
+                                  child: _buildQuickAccessItem(
+                                    item['icon'] as IconData,
+                                    item['title'] as String,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ).then((_) {
+        setState(() {
+          _showQuickAccessPopup = false;
+        });
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Responsive width calculations
@@ -164,29 +374,18 @@ class _SocialScreenState extends State<SocialScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 16),
                       // Header with location and notification
                       Row(
                         children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SettingsPage(),
-                                ),
-                              );
-                            },
-                            child: CircleAvatar(
-                              backgroundColor: const Color(0xFFD4BE45),
-                              radius: 18,
-                              child: const Text(
-                                'D',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+                          CircleAvatar(
+                            backgroundColor: const Color(0xFFD4BE45),
+                            radius: 18,
+                            child: const Text(
+                              'D',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
                               ),
                             ),
                           ),
@@ -233,14 +432,7 @@ class _SocialScreenState extends State<SocialScreen> {
                                 size: 24,
                                 color: Colors.black,
                               ),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => NotificationPage(),
-                                  ),
-                                );
-                              },
+                              onPressed: () {},
                               tooltip: 'Notifications',
                               padding: const EdgeInsets.all(8),
                               constraints: const BoxConstraints(),
@@ -318,6 +510,7 @@ class _SocialScreenState extends State<SocialScreen> {
                             ).textTheme.titleLarge?.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
+                              fontSize: 20
                             ),
                           ),
                           TextButton(
@@ -380,6 +573,7 @@ class _SocialScreenState extends State<SocialScreen> {
                             ).textTheme.titleLarge?.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
+                              fontSize: 20
                             ),
                           ),
                           TextButton(
@@ -563,6 +757,7 @@ class _SocialScreenState extends State<SocialScreen> {
                             ).textTheme.titleLarge?.copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
+                              fontSize: 20
                             ),
                           ),
                           TextButton(
@@ -587,7 +782,7 @@ class _SocialScreenState extends State<SocialScreen> {
                               screenWidth > 1024
                                   ? 240
                                   : (screenWidth > 600 ? 200 : 150),
-                          childAspectRatio: isLargeScreen ? 0.98 : 0.85,
+                          childAspectRatio: isLargeScreen ? 0.98 : 0.67,
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
                         ),
@@ -907,38 +1102,92 @@ class _SocialScreenState extends State<SocialScreen> {
           ),
         ),
       ),
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(bottom: 16.0),
+        child: FloatingActionButton(
+          onPressed: _toggleQuickAccessPopup,
+          backgroundColor: AppColors.primaryGreen,
+          elevation: 6,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          tooltip: 'Quick Access',
+          child: Icon(
+            _showQuickAccessPopup ? Icons.close : Icons.add,
+            color: Colors.white,
+            size: 28,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
   Widget _buildQuickAccessCard(String imagePath, String label) {
     return Container(
+      width: 100,
       decoration: BoxDecoration(
-        color: const Color(0xFFF4FFF4),
+        color: AppColors.lightGrey,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            offset: const Offset(0, 2),
-            blurRadius: 5,
-            spreadRadius: 0,
-          ),
-        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            height: 36,
-            width: 36,
+            height:28,
+            width: 28,
             child: Image.asset(imagePath, fit: BoxFit.contain),
           ),
           const SizedBox(height: 8),
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            style: _archivoTextStyle(
+              fontSize: 12
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildQuickAccessItem(IconData icon, String label) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            color: AppColors.lightGrey, // Light beige color
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(icon, size: 28, color: Colors.black87),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 13,
+            color: Colors.black87,
+            height: 1.2,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+        ),
       ),
     );
   }

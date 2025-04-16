@@ -1,9 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:getaccess/NewEvent.dart';
-import 'package:getaccess/PreApproveCab.dart';
-import 'package:getaccess/PreApproveDelivery.dart';
-import 'package:getaccess/PreApproveMaid.dart';
 import 'package:getaccess/screens/Community/community_screen.dart';
 import 'package:getaccess/screens/Marketplace/marketplace.dart';
 import 'package:getaccess/screens/Search%20Home/search_home_screen.dart';
@@ -11,7 +6,7 @@ import 'package:getaccess/screens/Services/Service_screen.dart';
 import 'package:getaccess/screens/Social%20screen/social_screen.dart';
 
 class BottomNavBarDemo extends StatefulWidget {
-  const BottomNavBarDemo({Key? key}) : super(key: key);
+  const BottomNavBarDemo({super.key});
 
   @override
   State<BottomNavBarDemo> createState() => _BottomNavBarDemoState();
@@ -24,7 +19,7 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
     CommunityScreen(),
     SearchHomeScreen(),
     Marketplace(),
-    PreApproveMaid(),
+    ServiceScreen()
   ];
 
   @override
@@ -111,7 +106,7 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
       bottomNavigationBar: SafeArea(
         child: BottomAppBar(
           color: Colors.white,
-          child: Container(
+          child: SizedBox(
             height: 56,
             child: Row(
               children: [
