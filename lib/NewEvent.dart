@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 
 class NewEventPage extends StatefulWidget {
-  const NewEventPage({Key? key}) : super(key: key);
+  const NewEventPage({super.key});
 
   @override
   State<NewEventPage> createState() => _NewEventPageState();

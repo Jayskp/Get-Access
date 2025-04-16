@@ -76,6 +76,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
     },
   ];
 
+  @override
   void initState() {
     super.initState();
     // Listen for search text changes
@@ -143,7 +144,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         Text(
                           "Community",
                           style: _archivoTextStyle(
-                            fontSize: 24,
+                            fontSize: 20,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -265,7 +266,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     Text(
                       "Connect",
                       style: _archivoTextStyle(
-                        fontSize: 24,
+                        fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -343,7 +344,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         Text(
                           "Find Helpers",
                           style: _archivoTextStyle(
-                            fontSize: 24.0,
+                            fontSize: 20,
                             fontWeight: FontWeight.w600,
                             color: Colors.black,
                           ),
@@ -382,7 +383,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     Text(
                       "Emergency",
                       style: _archivoTextStyle(
-                        fontSize: 24.0,
+                        fontSize: 20.0,
                         color: Colors.black,
                         fontWeight: FontWeight.w600,
                       ),
@@ -444,14 +445,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     Text(
                       "Announcements",
                       style: _archivoTextStyle(
-                        fontSize: 24.0,
+                        fontSize: 20.0,
                         color: Colors.black,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     SizedBox(height: 16),
                     SizedBox(
-                      height: isLargeScreen ? 130.0 : 130.0,
+                      height: isLargeScreen ? 130.0 : 160.0,
                       child: PageView.builder(
                         controller: _noticePageController,
                         itemCount: _notices.length,
@@ -548,7 +549,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       "Community Needs",
                       style: _archivoTextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 24.0,
+                        fontSize: 20.0,
                       ),
                     ),
                     SizedBox(height: 16),
@@ -559,58 +560,82 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         color: Colors.white,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 5,
-                            offset: const Offset(0, 2),
+                            offset: Offset(0, 2),
                           ),
                         ],
                       ),
                       padding: EdgeInsets.all(25),
                       child: Column(
                         children: [
+                          // ── First row ──
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,  // align all cards to top
                             children: [
-                              _buildCommunityNeedItem(
-                                icon:
-                                    "assets/images/icons/mingcute_service-line.png",
-                                label: "Helpdesk",
+                              Expanded(
+                                child: _buildCommunityNeedItem(
+                                  icon: "assets/images/icons/mingcute_service-line.png",
+                                  label: "Helpdesk",
+                                ),
                               ),
-                              _buildCommunityNeedItem(
-                                icon: "assets/images/icons/payment.png",
-                                label: "Society Dues",
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: _buildCommunityNeedItem(
+                                  icon: "assets/images/icons/payment.png",
+                                  label: "Society Dues",
+                                ),
                               ),
-                              _buildCommunityNeedItem(
-                                icon: "assets/images/icons/mynaui_building.png",
-                                label: "Amenities",
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: _buildCommunityNeedItem(
+                                  icon: "assets/images/icons/mynaui_building.png",
+                                  label: "Amenities",
+                                ),
                               ),
-                              _buildCommunityNeedItem(
-                                icon:
-                                    "assets/images/icons/tachometer-alt-solid.png",
-                                label: "Meter\nConsumption",
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: _buildCommunityNeedItem(
+                                  icon: "assets/images/icons/tachometer-alt-solid.png",
+                                  label: "Meter\nConsumption",
+                                ),
                               ),
                             ],
                           ),
+
                           SizedBox(height: 40),
+
+                          // ── Second row ──
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,  // and here too
                             children: [
-                              _buildCommunityNeedItem(
-                                icon:
-                                    "assets/images/icons/humbleicons_chat.png",
-                                label: "Communication",
+                              Expanded(
+                                child: _buildCommunityNeedItem(
+                                  icon: "assets/images/icons/humbleicons_chat.png",
+                                  label: "Communication",
+                                ),
                               ),
-                              _buildCommunityNeedItem(
-                                icon:
-                                    "assets/images/icons/car.side.arrowtriangle.down.png",
-                                label: "Rental Parking",
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: _buildCommunityNeedItem(
+                                  icon: "assets/images/icons/car.side.arrowtriangle.down.png",
+                                  label: "Rental Parking",
+                                ),
                               ),
-                              _buildCommunityNeedItem(
-                                icon: "assets/images/icons/girl.png",
-                                label: "Daily Help",
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: _buildCommunityNeedItem(
+                                  icon: "assets/images/icons/girl.png",
+                                  label: "Daily Help",
+                                ),
                               ),
-                              _buildCommunityNeedItem(
-                                icon: Icons.chevron_right,
-                                label: "View More",
-                                useIconWidget: true,
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: _buildCommunityNeedItem(
+                                  icon: Icons.chevron_right,
+                                  label: "View More",
+                                  useIconWidget: true,
+                                ),
                               ),
                             ],
                           ),
@@ -624,7 +649,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         Text(
                           "Connect with Neighbours",
                           style: _archivoTextStyle(
-                            fontSize: 24.0,
+                            fontSize: 20.0,
                             fontWeight: FontWeight.w600,
                             color: Colors.black,
                           ),
@@ -811,44 +836,42 @@ class _CommunityScreenState extends State<CommunityScreen> {
     required String label,
     bool useIconWidget = false,
   }) {
-    return Expanded(
-      child: Column(
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child:
-                  useIconWidget
-                      ? Icon(
-                        icon as IconData,
-                        color: const Color(0xFF777777),
-                        size: 24,
-                      )
-                      : Image.asset(
-                        icon as String,
-                        width: 24,
-                        height: 24,
-                        color: const Color(0xFF777777),
-                      ),
-            ),
+    return Column(
+      children: [
+        Container(
+          width: 72,
+          height: 72,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(8),
           ),
-          SizedBox(height: 10),
-          Text(
-            label,
-            style: GoogleFonts.archivo(
-              fontSize: 14.0,
-              color: const Color(0xFF777777),
-              fontWeight: FontWeight.w400,
-            ),
-            textAlign: TextAlign.center,
+          child: Center(
+            child:
+                useIconWidget
+                    ? Icon(
+                      icon as IconData,
+                      color: const Color(0xFF777777),
+                      size: 24,
+                    )
+                    : Image.asset(
+                      icon as String,
+                      width: 24,
+                      height: 24,
+                      color: const Color(0xFF777777),
+                    ),
           ),
-        ],
-      ),
+        ),
+        SizedBox(height: 10),
+        Text(
+          label,
+          style: GoogleFonts.archivo(
+            fontSize: 14.0,
+            color: const Color(0xFF777777),
+            fontWeight: FontWeight.w400,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

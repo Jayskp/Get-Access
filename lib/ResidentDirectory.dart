@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ResidentDirectory extends StatefulWidget {
-  const ResidentDirectory({Key? key}) : super(key: key);
+  const ResidentDirectory({super.key});
 
   @override
   State<ResidentDirectory> createState() => _ResidentDirectoryState();

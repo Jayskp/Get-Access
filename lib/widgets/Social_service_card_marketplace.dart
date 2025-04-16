@@ -20,7 +20,7 @@ class SocialServiceCardMarketplace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle _archivoTextStyle({
+    TextStyle archivoTextStyle({
       double fontSize = 14,
       FontWeight fontWeight = FontWeight.normal,
       Color color = Colors.black,
@@ -89,7 +89,7 @@ class SocialServiceCardMarketplace extends StatelessWidget {
                       ),
                       child: Text(
                         label,
-                        style: _archivoTextStyle(
+                        style: archivoTextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
@@ -108,7 +108,7 @@ class SocialServiceCardMarketplace extends StatelessWidget {
                 child: Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: _archivoTextStyle(
+                  style: archivoTextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey,

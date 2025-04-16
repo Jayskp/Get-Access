@@ -9,7 +9,7 @@ class MilkmanPage extends StatelessWidget {
     {"name": "Himesh Desai", "houses": "2 Houses", "rating": "4.5"},
     {"name": "Himesh Desai", "houses": "2 Houses", "rating": "4.5"},
   ];
-  MilkmanPage({Key? key}) : super(key: key);
+  MilkmanPage({super.key});
 
   @override
   Widget build(BuildContext context) {

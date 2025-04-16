@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../util/constants/colors.dart';
 import '../../widgets/categories_card.dart';
 import '../../widgets/social_services_card.dart';
 

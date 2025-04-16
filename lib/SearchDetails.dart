@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:getaccess/Milkman.dart';
 
 class SearchDetailsPage extends StatefulWidget {
-  const SearchDetailsPage({Key? key}) : super(key: key);
+  const SearchDetailsPage({super.key});
 
   @override
   State<SearchDetailsPage> createState() => _SearchDetailsPageState();

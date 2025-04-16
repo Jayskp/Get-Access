@@ -8,7 +8,7 @@ Widget HelpersCard({
   required int badgeCount,    // new!
   double width = 100,
 }) {
-  TextStyle _archivoTextStyle({
+  TextStyle archivoTextStyle({
     double fontSize = 14,
     FontWeight fontWeight = FontWeight.normal,
     Color color = Colors.black,
@@ -65,7 +65,7 @@ Widget HelpersCard({
                 child: Center(
                   child: Text(
                     badgeCount.toString(),
-                    style: _archivoTextStyle(
+                    style: archivoTextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -78,7 +78,7 @@ Widget HelpersCard({
       ),
 
       const SizedBox(height: 8),
-      Text(title, style: _archivoTextStyle()),
+      Text(title, style: archivoTextStyle()),
     ],
   );
 }

@@ -5,7 +5,7 @@ import '../../util/constants/colors.dart';
 import '../../widgets/property_card.dart';
 
 class SearchHomeScreen extends StatefulWidget {
-  const SearchHomeScreen({Key? key}) : super(key: key);
+  const SearchHomeScreen({super.key});
 
   @override
   State<SearchHomeScreen> createState() => _SearchHomeScreenState();
