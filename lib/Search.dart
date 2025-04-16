@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:getaccess/ServicesDirectory.dart';
+
+import 'chat.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -215,7 +218,14 @@ class _SearchPageState extends State<SearchPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             InkWell(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ServiceDirectory(),
+                                  ),
+                                );
+                              },
                               child: Image.asset(
                                 "assets/images/icons/call.png",
                                 width: 24,
@@ -223,7 +233,14 @@ class _SearchPageState extends State<SearchPage> {
                               ),
                             ),
                             InkWell(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Chat(),
+                                  ),
+                                );
+                              },
                               child: Image.asset(
                                 "assets/images/icons/chat.png",
                                 width: 24,

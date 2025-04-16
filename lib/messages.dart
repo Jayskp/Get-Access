@@ -79,7 +79,9 @@ class _MessagesState extends State<Messages> {
         ),
         child: Column(
           crossAxisAlignment:
-          data['isSent'] ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              data['isSent']
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
           children: [
             Text(
               data['message'],
@@ -110,22 +112,6 @@ class _MessagesState extends State<Messages> {
               height: 24,
             ),
           ),
-          IconButton(
-            onPressed: () {},
-            icon: Image.asset(
-              'assets/images/icons/attachment.png',
-              width: 24,
-              height: 24,
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: Image.asset(
-              'assets/images/icons/money.png',
-              width: 24,
-              height: 24,
-            ),
-          ),
           Expanded(
             child: TextField(
               controller: _messageController,
@@ -135,6 +121,30 @@ class _MessagesState extends State<Messages> {
                 hintText: 'Type a message',
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(horizontal: 12),
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: Image.asset(
+              'assets/images/icons/attachment.png',
+              width: 24,
+              height: 24,
+            ),
+          ),
+          Container(
+            width: 24,
+            height: 24,
+            decoration: const BoxDecoration(
+              color: Color(0xFF8696A0),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              onPressed: () {},
+              icon: Image.asset(
+                'assets/images/icons/money.png',
+                width: 24,
+                height: 24,
               ),
             ),
           ),
@@ -172,7 +182,7 @@ class _MessagesState extends State<Messages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFECE5DD),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFF075E54),
         leadingWidth: 80,
