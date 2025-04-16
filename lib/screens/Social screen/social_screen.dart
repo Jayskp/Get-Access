@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:getaccess/Settings.dart';
+import 'package:getaccess/notification.dart';
 import 'package:getaccess/util/constants/colors.dart';
 
 import '../../widgets/social_services_card.dart';
@@ -120,7 +122,8 @@ class _SocialScreenState extends State<SocialScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final double horizontalPadding =
         screenWidth > 1024 ? 64 : (screenWidth > 600 ? 40 : 20);
-    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
 
     // Calculate if we're on a larger screen for more responsive design
     final bool isLargeScreen = screenWidth > 768;
@@ -141,7 +144,7 @@ class _SocialScreenState extends State<SocialScreen> {
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha:0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           offset: const Offset(0, 0),
                           blurRadius: 10,
                           spreadRadius: 0,
@@ -165,15 +168,25 @@ class _SocialScreenState extends State<SocialScreen> {
                       // Header with location and notification
                       Row(
                         children: [
-                          CircleAvatar(
-                            backgroundColor: const Color(0xFFD4BE45),
-                            radius: 18,
-                            child: const Text(
-                              'D',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SettingsPage(),
+                                ),
+                              );
+                            },
+                            child: CircleAvatar(
+                              backgroundColor: const Color(0xFFD4BE45),
+                              radius: 18,
+                              child: const Text(
+                                'D',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                           ),
@@ -220,7 +233,14 @@ class _SocialScreenState extends State<SocialScreen> {
                                 size: 24,
                                 color: Colors.black,
                               ),
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => NotificationPage(),
+                                  ),
+                                );
+                              },
                               tooltip: 'Notifications',
                               padding: const EdgeInsets.all(8),
                               constraints: const BoxConstraints(),
@@ -236,7 +256,7 @@ class _SocialScreenState extends State<SocialScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha:0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 5,
                               offset: const Offset(0, 2),
                             ),
@@ -324,21 +344,21 @@ class _SocialScreenState extends State<SocialScreen> {
                                 "Pre-Approval",
                               ),
                             ),
-                            const SizedBox(width:15),
+                            const SizedBox(width: 15),
                             Expanded(
                               child: _buildQuickAccessCard(
                                 "assets/images/icons/Vector (1).png",
                                 "Daily help",
                               ),
                             ),
-                            const SizedBox(width:15),
+                            const SizedBox(width: 15),
                             Expanded(
                               child: _buildQuickAccessCard(
                                 "assets/images/icons/car.side.arrowtriangle.down.png",
                                 "Cab",
                               ),
                             ),
-                            const SizedBox(width:15),
+                            const SizedBox(width: 15),
                             Expanded(
                               child: _buildQuickAccessCard(
                                 "assets/images/icons/Group (2).png",
@@ -377,7 +397,7 @@ class _SocialScreenState extends State<SocialScreen> {
                       const SizedBox(height: 16),
                       // Notice Carousel
                       SizedBox(
-                        height: isPortrait?230:170,
+                        height: isPortrait ? 230 : 170,
                         child: PageView.builder(
                           controller: _noticePageController,
                           itemCount: _notices.length,
@@ -395,7 +415,7 @@ class _SocialScreenState extends State<SocialScreen> {
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha:0.05),
+                                    color: Colors.black.withValues(alpha: 0.05),
                                     offset: const Offset(0, 2),
                                     blurRadius: 10,
                                     spreadRadius: 0,
@@ -567,7 +587,7 @@ class _SocialScreenState extends State<SocialScreen> {
                               screenWidth > 1024
                                   ? 240
                                   : (screenWidth > 600 ? 200 : 150),
-                          childAspectRatio: isLargeScreen?0.98:0.85,
+                          childAspectRatio: isLargeScreen ? 0.98 : 0.85,
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
                         ),
@@ -615,7 +635,7 @@ class _SocialScreenState extends State<SocialScreen> {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha:0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             spreadRadius: 1,
                             blurRadius: 10,
                             offset: const Offset(0, 4),
@@ -733,7 +753,7 @@ class _SocialScreenState extends State<SocialScreen> {
                 if (_showAddPropertyForm)
                   Positioned.fill(
                     child: Container(
-                      color: Colors.black.withValues(alpha:0.5),
+                      color: Colors.black.withValues(alpha: 0.5),
                       child: Center(
                         child: Container(
                           width: screenWidth - 48,
@@ -897,7 +917,7 @@ class _SocialScreenState extends State<SocialScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             offset: const Offset(0, 2),
             blurRadius: 5,
             spreadRadius: 0,
