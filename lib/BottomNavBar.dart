@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:getaccess/NewEvent.dart';
+import 'package:getaccess/PreApproveCab.dart';
+import 'package:getaccess/PreApproveDelivery.dart';
+import 'package:getaccess/PreApproveMaid.dart';
 import 'package:getaccess/screens/Community/community_screen.dart';
 import 'package:getaccess/screens/Marketplace/marketplace.dart';
 import 'package:getaccess/screens/Search%20Home/search_home_screen.dart';
@@ -21,7 +24,7 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
     CommunityScreen(),
     SearchHomeScreen(),
     Marketplace(),
-    ServiceScreen()
+    PreApproveMaid(),
   ];
 
   @override
