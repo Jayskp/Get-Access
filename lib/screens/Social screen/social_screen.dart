@@ -955,17 +955,27 @@ class _SocialScreenState extends State<SocialScreen> {
                                                   ),
                                             );
                                           },
-                                          child: _buildQuickAccessCard(
-                                            "assets/images/icons/All Icons.png",
-                                            "Pre-Approval",
+                                          child: InkWell(
+                                            onTap: (){
+                                              _showPreApprovalDialog();
+                                            },
+                                            child: _buildQuickAccessCard(
+                                              "assets/images/icons/All Icons.png",
+                                              "Pre-Approval",
+                                            ),
                                           ),
                                         ),
                                       ),
                                       const SizedBox(width: 15),
                                       Expanded(
-                                        child: _buildQuickAccessCard(
-                                          "assets/images/icons/Vector (1).png",
-                                          "Daily help",
+                                        child: InkWell(
+                                          onTap: (){
+
+                                          },
+                                          child: _buildQuickAccessCard(
+                                            "assets/images/icons/Vector (1).png",
+                                            "Daily help",
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(width: 15),
@@ -1162,9 +1172,14 @@ class _SocialScreenState extends State<SocialScreen> {
                                       ),
                                       const SizedBox(width: 15),
                                       Expanded(
-                                        child: _buildQuickAccessCard(
-                                          "assets/images/icons/Group (2).png",
-                                          "Visit Home",
+                                        child: InkWell(
+                                          onTap: (){
+                                            _showVisitingHelpDialog();
+                                          },
+                                          child: _buildQuickAccessCard(
+                                            "assets/images/icons/Group (2).png",
+                                            "Visit Home",
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -1765,36 +1780,27 @@ class _SocialScreenState extends State<SocialScreen> {
   }
 
   Widget _buildQuickAccessCard(String imagePath, String label) {
-    return InkWell(
-      onTap: () {
-        if (label == "Pre-Approval") {
-          _showPreApprovalDialog();
-        } else if (label == "Visit Home") {
-          _showVisitingHelpDialog();
-        }
-      },
-      child: Container(
-        width: 100,
-        decoration: BoxDecoration(
-          color: AppColors.lightGrey,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: 28,
-              width: 28,
-              child: Image.asset(imagePath, fit: BoxFit.contain),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: _archivoTextStyle(fontSize: 12),
-            ),
-          ],
-        ),
+    return Container(
+      width: 100,
+      decoration: BoxDecoration(
+        color: AppColors.lightGrey,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 28,
+            width: 28,
+            child: Image.asset(imagePath, fit: BoxFit.contain),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: _archivoTextStyle(fontSize: 12),
+          ),
+        ],
       ),
     );
   }
