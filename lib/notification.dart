@@ -8,7 +8,6 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-
   final List<Map<String, dynamic>> notifications = [
     {
       'username': 'Nilesh',
@@ -91,17 +90,15 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
             subtitle: Text(
               current['time'],
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: current['isRead']
-                    ? Colors.grey[300]
-                    : const Color(0xFFFFC107),
+                color:
+                    current['isRead']
+                        ? Colors.grey[300]
+                        : const Color(0xFFFFC107),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
@@ -115,10 +112,12 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
             onTap: () {
               setState(() {
-                notifications[index]['isRead'] = !notifications[index]['isRead'];
+                notifications[index]['isRead'] =
+                    !notifications[index]['isRead'];
               });
             },
           );
+          Divider();
         },
       ),
     );
