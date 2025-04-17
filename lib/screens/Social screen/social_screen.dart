@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:getaccess/screens/Social%20screen/social_shimmer.dart';
+import 'package:getaccess/screens/Social screen/social_shimmer.dart';
+import 'package:getaccess/Settings.dart';
 import 'package:getaccess/util/constants/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -100,7 +101,6 @@ class _SocialScreenState extends State<SocialScreen> {
     super.initState();
     searchController.addListener(() => setState(() {}));
     _noticePageController.addListener(_onPageChanged);
-    loadData();
   }
 
   void _onPageChanged() {
@@ -397,7 +397,16 @@ class _SocialScreenState extends State<SocialScreen> {
                                 // Header with location and notification
                                 Row(
                                   children: [
-                                    CircleAvatar(
+                                    InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SettingsPage(),
+                                ),
+                              );
+                            },
+                            child:CircleAvatar(
                                       backgroundColor: const Color(0xFFD4BE45),
                                       radius: 18,
                                       child: const Text(
@@ -405,7 +414,7 @@ class _SocialScreenState extends State<SocialScreen> {
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                          fontSize: 16,),
                                         ),
                                       ),
                                     ),
@@ -1752,6 +1761,27 @@ class _SocialScreenState extends State<SocialScreen> {
   }
 
   Widget _buildQuickAccessCard(String imagePath, String label) {
+    return Container(
+      width: 100,
+      decoration: BoxDecoration(
+        color: AppColors.lightGrey,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 28,
+            width: 28,
+            child: Image.asset(imagePath, fit: BoxFit.contain),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: _archivoTextStyle(fontSize: 12),
+          ),
+        ],
     return InkWell(
       onTap: () {
         if (label == "Pre-Approval") {
@@ -1825,295 +1855,5 @@ class _SocialScreenState extends State<SocialScreen> {
         ),
       ),
     );
-  }
-
-  // Helper method for option cards in the popup
-  Widget _buildOptionCard({
-    required IconData icon,
-    required String title,
-    required String description,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F2),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 20, color: const Color(0xFF4A4A4A)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  title,
-                  style: _archivoTextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            description,
-            style: _archivoTextStyle(
-              fontSize: 10,
-              color: const Color(0xFF666666),
-              fontWeight: FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showPreApprovalDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      builder: (BuildContext dialogContext) {
-        return Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16),
-          backgroundColor: Colors.transparent,
-          child: SingleChildScrollView(
-            child: Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.topCenter,
-              children: [
-                // Main Container
-                Container(
-                  width: 340,
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title and close button
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Guest Invite',
-                            style: _archivoTextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => Navigator.pop(dialogContext),
-                            child: const Padding(
-                              padding: EdgeInsets.all(4),
-                              child: Image(
-                                image: AssetImage(
-                                  "assets/images/icons/close-outline.png",
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Pre-approve expected visitors for a seamless and\nhassle-free entry experience.',
-                        style: _archivoTextStyle(
-                          fontSize: 12,
-                          color: const Color(0xFF666666),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      // First row of options
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildOptionCard(
-                              icon: Icons.person_add_outlined,
-                              title: 'Quick Invite',
-                              description:
-                                  'Manually approve guests for smooth entry. Ideal for small, personal gatherings.',
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildOptionCard(
-                              icon: Icons.groups_outlined,
-                              title: 'Party/Group Invite',
-                              description:
-                                  'Generate a shared invite link with guest limits for easy tracking during large events.',
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      // Second row of options
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildOptionCard(
-                              icon: Icons.repeat_outlined,
-                              title: 'Frequent Invite',
-                              description:
-                                  'Provide regular visitors with a single passcode, avoiding the need for repeated approvals.',
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildOptionCard(
-                              icon: Icons.lock_outline,
-                              title: 'Private Invite',
-                              description:
-                                  'Create exclusive access codes for VIP guests ensuring heightened security and privacy.',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showVisitingHelpDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      builder: (BuildContext dialogContext) {
-        return Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16),
-          backgroundColor: Colors.transparent,
-          child: SingleChildScrollView(
-            child: Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.topCenter,
-              children: [
-                Container(
-                  width: 340,
-                  padding: const EdgeInsets.fromLTRB(20, 60, 20, 24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'VISITING HELP CATEGORY',
-                            style: _archivoTextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF4A4A4A),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => Navigator.pop(dialogContext),
-                            child: const Padding(
-                              padding: EdgeInsets.all(4),
-                              child: Image(
-                                image: AssetImage(
-                                  "assets/images/icons/close-outline.png",
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      // Category List
-                      ..._buildCategoryItems(),
-                    ],
-                  ),
-                ),
-                // Floating Icon
-                Positioned(
-                  top: -40,
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryGreen,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.build_outlined,
-                        size: 40,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  List<Widget> _buildCategoryItems() {
-    final categories = [
-      'Home repair',
-      'Application repair',
-      'Internet repair',
-      'Spa',
-      'Tutor',
-      'Other',
-    ];
-
-    return categories.map((category) {
-      return Column(
-        children: [
-          InkWell(
-            onTap: () {
-              // Handle category selection
-              Navigator.pop(context);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Color(0xFFEEEEEE), width: 1),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    category,
-                    style: _archivoTextStyle(
-                      fontSize: 16,
-                      color: const Color(0xFF4A4A4A),
-                    ),
-                  ),
-                  const Icon(
-                    Icons.chevron_right,
-                    color: Color(0xFF4A4A4A),
-                    size: 24,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
-    }).toList();
   }
 }

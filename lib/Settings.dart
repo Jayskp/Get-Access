@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:getaccess/Profile.dart';
 import 'package:getaccess/SearchDetails.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -159,15 +160,20 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     Row(
                       children: [
-                        CircleAvatar(
-                          radius: 28,
-                          backgroundColor: Color(0xFFD6C104),
-                          child: Text(
-                            userData["avatarText"],
-                            style: _archivoTextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                        InkWell(
+                          onTap:(){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfilePage()));
+                          },
+                          child: CircleAvatar(
+                            radius: 28,
+                            backgroundColor: Color(0xFFD6C104),
+                            child: Text(
+                              userData["avatarText"],
+                              style: _archivoTextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
