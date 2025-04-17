@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'Payment.dart';
+
 class Messages extends StatefulWidget {
   const Messages({super.key});
 
@@ -66,7 +68,8 @@ class _MessagesState extends State<Messages> {
   }
 
   Widget _buildMessageBubble(Map<String, dynamic> data) {
-    final bubbleColor = data['isSent'] ? Color.fromRGBO(49, 175, 100, 1) : Colors.white;
+    final bubbleColor =
+        data['isSent'] ? Color.fromRGBO(49, 175, 100, 1) : Colors.white;
     final align = data['isSent'] ? Alignment.centerRight : Alignment.centerLeft;
     return Align(
       alignment: align,
@@ -82,7 +85,10 @@ class _MessagesState extends State<Messages> {
           children: [
             Text(
               data['message'],
-              style: TextStyle(fontSize: 14, color: data['isSent'] ? Colors.white: Colors.black),
+              style: TextStyle(
+                fontSize: 14,
+                color: data['isSent'] ? Colors.white : Colors.black,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
@@ -137,9 +143,16 @@ class _MessagesState extends State<Messages> {
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MakePayment()),
+                );
+              },
               icon: Image.asset(
                 'assets/images/icons/money.png',
+                height: 24,
+                width: 24,
               ),
             ),
           ),
@@ -190,7 +203,7 @@ class _MessagesState extends State<Messages> {
               },
             ),
             CircleAvatar(
-              radius: 20,
+              radius: 16,
               backgroundImage: const AssetImage('assets/images/avatar1.png'),
               backgroundColor: Colors.grey,
             ),
@@ -204,7 +217,7 @@ class _MessagesState extends State<Messages> {
           IconButton(
             onPressed: () {},
             icon: Image.asset(
-              'assets/images/icons/phone2.png',
+              'assets/images/icons/videocall.png',
               width: 24,
               height: 24,
               color: Colors.white,
@@ -213,7 +226,7 @@ class _MessagesState extends State<Messages> {
           IconButton(
             onPressed: () {},
             icon: Image.asset(
-              'assets/images/icons/videocall.png',
+              'assets/images/icons/phone2.png',
               width: 24,
               height: 24,
               color: Colors.white,

@@ -273,7 +273,11 @@ class _NewPostPageState extends State<NewPostPage> {
                   ),
                   child: const Text(
                     "Post",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),

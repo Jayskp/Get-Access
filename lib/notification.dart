@@ -8,7 +8,6 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-
   final List<Map<String, dynamic>> notifications = [
     {
       'username': 'Nilesh',
@@ -75,48 +74,60 @@ class _NotificationPageState extends State<NotificationPage> {
         itemCount: notifications.length,
         itemBuilder: (context, index) {
           final current = notifications[index];
-          return ListTile(
-            leading: CircleAvatar(
-              radius: 26,
-              backgroundImage: const AssetImage('assets/images/avatar1.png'),
-            ),
-            title: Text(
-              '${current['username']}  ${current['message']}',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            subtitle: Text(
-              current['time'],
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ),
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: current['isRead']
-                    ? Colors.grey[300]
-                    : const Color(0xFFFFC107),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                current['isRead'] ? 'Read' : 'Unread',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: current['isRead'] ? Colors.black54 : Colors.white,
+          return Column(
+            children: [
+              ListTile(
+                leading: CircleAvatar(
+                  radius: 26,
+                  backgroundImage: const AssetImage(
+                    'assets/images/avatar1.png',
+                  ),
                 ),
+                title: Text(
+                  '${current['username']}  ${current['message']}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                subtitle: Text(
+                  current['time'],
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                        current['isRead']
+                            ? Colors.grey[300]
+                            : const Color(0xFFFFC107),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    current['isRead'] ? 'Read' : 'Unread',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: current['isRead'] ? Colors.black54 : Colors.white,
+                    ),
+                  ),
+                ),
+                onTap: () {
+                  setState(() {
+                    notifications[index]['isRead'] =
+                        !notifications[index]['isRead'];
+                  });
+                },
               ),
-            ),
-            onTap: () {
-              setState(() {
-                notifications[index]['isRead'] = !notifications[index]['isRead'];
-              });
-            },
+              Padding(
+                padding: const EdgeInsets.all(15),
+                child: Divider(color: Colors.grey[300]),
+              ),
+            ],
           );
         },
       ),
