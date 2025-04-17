@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:getaccess/new_listing.dart';
 import 'package:getaccess/util/constants/colors.dart';
 import 'package:getaccess/widgets/social_service_card_marketplace.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -104,12 +105,17 @@ class _MarketplaceState extends State<Marketplace> {
                       children: [
                         const Icon(Icons.add_circle_outline_outlined, color: Colors.white, size: 17),
                         const SizedBox(width: 4),
-                        Text(
-                          "New Listing",
-                          style: _archivoTextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                        InkWell(
+                          onTap: (){
+                            Navigator.push(context,MaterialPageRoute(builder: (context)=>NewListing()));
+                          },
+                          child: Text(
+                            "New Listing",
+                            style: _archivoTextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],
