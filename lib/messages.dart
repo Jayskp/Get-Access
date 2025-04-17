@@ -66,7 +66,7 @@ class _MessagesState extends State<Messages> {
   }
 
   Widget _buildMessageBubble(Map<String, dynamic> data) {
-    final bubbleColor = data['isSent'] ? const Color(0xFFDCF8C6) : Colors.white;
+    final bubbleColor = data['isSent'] ? Color.fromRGBO(49, 175, 100, 1) : Colors.white;
     final align = data['isSent'] ? Alignment.centerRight : Alignment.centerLeft;
     return Align(
       alignment: align,
@@ -78,14 +78,11 @@ class _MessagesState extends State<Messages> {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
-          crossAxisAlignment:
-              data['isSent']
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
               data['message'],
-              style: const TextStyle(fontSize: 14, color: Colors.black),
+              style: TextStyle(fontSize: 14, color: data['isSent'] ? Colors.white: Colors.black),
             ),
             const SizedBox(height: 4),
             Text(
@@ -133,8 +130,8 @@ class _MessagesState extends State<Messages> {
             ),
           ),
           Container(
-            width: 24,
             height: 24,
+            width: 24,
             decoration: const BoxDecoration(
               color: Color(0xFF8696A0),
               shape: BoxShape.circle,
@@ -143,8 +140,6 @@ class _MessagesState extends State<Messages> {
               onPressed: () {},
               icon: Image.asset(
                 'assets/images/icons/money.png',
-                width: 24,
-                height: 24,
               ),
             ),
           ),
@@ -161,7 +156,7 @@ class _MessagesState extends State<Messages> {
             height: 48,
             margin: const EdgeInsets.only(left: 4),
             decoration: const BoxDecoration(
-              color: Color(0xFF075E54),
+              color: Color.fromRGBO(49, 175, 100, 1),
               shape: BoxShape.circle,
             ),
             child: IconButton(
@@ -184,7 +179,7 @@ class _MessagesState extends State<Messages> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF075E54),
+        backgroundColor: Color.fromRGBO(49, 175, 100, 1),
         leadingWidth: 80,
         leading: Row(
           children: [

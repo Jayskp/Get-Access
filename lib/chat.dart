@@ -80,10 +80,10 @@ class _ChatState extends State<Chat> {
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>Messages()));
               },
-              leading: CircleAvatar(
-                radius: 25,
-                backgroundImage: AssetImage(chatData[index]['avatar']),
-              ),
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(3.77),
+                child:  Image.asset(chatData[index]['avatar']),
+                ),
               title: Padding(
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
@@ -117,7 +117,7 @@ class _ChatState extends State<Chat> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        backgroundColor: Colors.green,
+        backgroundColor: Color.fromRGBO(49, 175, 100, 1),
         child: Image.asset('assets/images/icons/Chat2.png'),
       ),
     );
