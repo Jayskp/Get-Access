@@ -23,6 +23,19 @@ class _NewListingState extends State<NewListing> {
     {'icon': Icons.more_horiz_outlined, 'name': 'Others'},
   ];
 
+  TextStyle _archivoTextStyle({
+    double fontSize = 14,
+    FontWeight fontWeight = FontWeight.normal,
+    Color color = Colors.black,
+  }) {
+    return GoogleFonts.archivo(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+    );
+  }
+
+
   void _showCategoryDialog() {
     showDialog(
       context: context,
@@ -38,13 +51,13 @@ class _NewListingState extends State<NewListing> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                 Text(
                   'Choose a category',
-                  style: TextStyle(
+                  style: _archivoTextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
-                  ),
+                  )
                 ),
                 const SizedBox(height: 16),
                 ..._categories.map((category) {
@@ -76,7 +89,7 @@ class _NewListingState extends State<NewListing> {
                             const SizedBox(width: 16),
                             Text(
                               category['name'],
-                              style: const TextStyle(
+                              style:_archivoTextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
                                 color: Colors.black87,
@@ -112,9 +125,9 @@ class _NewListingState extends State<NewListing> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
+        title: Text(
           "New Listing",
-          style: TextStyle(
+          style: _archivoTextStyle(
             color: Colors.black,
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -141,10 +154,10 @@ class _NewListingState extends State<NewListing> {
                         children: [
                           CircleAvatar(
                             radius: isSmallScreen ? 20 : 24,
-                            backgroundColor: const Color(0xFFE6B94D),
-                            child: const Text(
+                            backgroundColor: AppColors.primaryYellow,
+                            child: Text(
                               'D',
-                              style: TextStyle(
+                              style:_archivoTextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
@@ -155,18 +168,18 @@ class _NewListingState extends State<NewListing> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                               Text(
                                 'Dhruv',
-                                style: TextStyle(
+                                style: _archivoTextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
                               Text(
                                 'C-105',
-                                style: TextStyle(
+                                style: _archivoTextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey[600],
+                                  color: Colors.grey.shade600,
                                 ),
                               ),
                             ],
@@ -180,7 +193,7 @@ class _NewListingState extends State<NewListing> {
                         maxLines: 8,
                         decoration: InputDecoration(
                           hintText: 'Write something about it.........',
-                          hintStyle: TextStyle(color: Colors.grey[500]),
+                          hintStyle: _archivoTextStyle(color: Colors.grey.shade500),
                           filled: true,
                           fillColor: Colors.grey[200],
                           border: OutlineInputBorder(
@@ -203,7 +216,9 @@ class _NewListingState extends State<NewListing> {
                           onPressed: _showCategoryDialog,
                           child: Text(
                             _selectedCategory ?? 'Choose a Category',
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                            style: _archivoTextStyle(
+                                color: Colors.grey, fontSize: 16
+                            ),
                           ),
                         ),
                       ),
@@ -229,13 +244,13 @@ class _NewListingState extends State<NewListing> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
+                child:  Text(
                   'Post',
-                  style: TextStyle(
+                  style: _archivoTextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                  ),
+                  )
                 ),
               ),
             ),
