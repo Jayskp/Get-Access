@@ -76,7 +76,7 @@ class _MarketplaceState extends State<Marketplace> {
   @override
   Widget build(BuildContext context) {
     final searchController = TextEditingController();
-
+    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: SafeArea(
@@ -204,8 +204,8 @@ class _MarketplaceState extends State<Marketplace> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 120,
-                  childAspectRatio: 0.75,
+                  maxCrossAxisExtent: 100,
+                  childAspectRatio: 0.86,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
@@ -219,7 +219,7 @@ class _MarketplaceState extends State<Marketplace> {
                   );
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height:20),
 
               // Recent Listings Header
               Row(
@@ -253,10 +253,11 @@ class _MarketplaceState extends State<Marketplace> {
               // Recent Listings Grid
               GridView.builder(
                 shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                physics:NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 200,
-                  childAspectRatio: 1,
+                  childAspectRatio:
+                  screenWidth > 1024 ? 0.98 : (screenWidth > 600 ? 0.8 : 1),
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
