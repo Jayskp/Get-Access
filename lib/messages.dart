@@ -136,7 +136,6 @@ class _MessagesState extends State<Messages> {
             ),
           ),
           Container(
-            padding: EdgeInsets.all(2),
             height: 24,
             width: 24,
             decoration: const BoxDecoration(
@@ -150,7 +149,11 @@ class _MessagesState extends State<Messages> {
                   MaterialPageRoute(builder: (context) => MakePayment()),
                 );
               },
-              icon: Image.asset('assets/images/icons/money.png'),
+              icon: Image.asset(
+                'assets/images/icons/money.png',
+                height: 24,
+                width: 24,
+              ),
             ),
           ),
           IconButton(

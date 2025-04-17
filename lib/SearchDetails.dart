@@ -12,10 +12,13 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
   final List<Map<String, String>> _popularSearches = [
     {"icon": "assets/images/icons/daily_help.png", "title": "Daily Help"},
     {"icon": "assets/images/icons/society_dues.png", "title": "Society Dues"},
-    {"icon": "assets/images/icons/visitors_approval.png", "title": "Visitors Approval"},
+    {
+      "icon": "assets/images/icons/visitors_approval.png",
+      "title": "Visitors Approval",
+    },
     {"icon": "assets/images/icons/carpenters.png", "title": "Carpenters"},
     {"icon": "assets/images/icons/plumber.png", "title": "Plumber"},
-    {"icon": "assets/images/icons/electrician.png", "title": "Electrician"},
+    {"icon": "assets/images/icons/plumber.png", "title": "Electrician"},
     {"icon": "assets/images/icons/milkman.png", "title": "Milkman"},
     {"icon": "assets/images/icons/carpenters.png", "title": "Carpenters"},
   ];
@@ -46,7 +49,11 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
           child: Row(
             children: [
               const SizedBox(width: 12),
-              Image.asset("assets/images/icons/search.png", width: 20, height: 20),
+              Image.asset(
+                "assets/images/icons/search.png",
+                width: 20,
+                height: 20,
+              ),
               const SizedBox(width: 8),
               const Expanded(
                 child: Text(
@@ -65,7 +72,11 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
           children: [
             const Text(
               "Popular searches",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+              ),
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -78,7 +89,12 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>MilkmanPage()));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MilkmanPage(),
+                              ),
+                            );
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8),
@@ -92,7 +108,11 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
                                 const SizedBox(width: 16),
                                 Text(
                                   _popularSearches[index]["title"]!,
-                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.black,
+                                  ),
                                 ),
                               ],
                             ),

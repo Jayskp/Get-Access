@@ -49,7 +49,11 @@ class _NewPollPageState extends State<NewPollPage> {
         ),
         title: const Text(
           "New Poll",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
         ),
         centerTitle: true,
         actions: [
@@ -57,10 +61,18 @@ class _NewPollPageState extends State<NewPollPage> {
             padding: const EdgeInsets.only(right: 8.0),
             child: TextButton.icon(
               onPressed: () {},
-              icon: const Icon(Icons.info_outline, color: Colors.green, size: 16),
+              icon: const Icon(
+                Icons.info_outline,
+                color: Colors.green,
+                size: 16,
+              ),
               label: const Text(
                 "Guidelines",
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.green),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.green,
+                ),
               ),
             ),
           ),
@@ -81,33 +93,55 @@ class _NewPollPageState extends State<NewPollPage> {
                   CircleAvatar(
                     radius: 22,
                     backgroundColor: Colors.grey.shade300,
-                    backgroundImage: const AssetImage("assets/images/icons/Group 1.png"),
+                    backgroundImage: const AssetImage(
+                      "assets/images/icons/Group 1.png",
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Text("Dhruv", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        Text(
+                          "Dhruv",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         SizedBox(height: 4),
-                        Text("C Block,104", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        Text(
+                          "C Block,104",
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
                       ],
                     ),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(color: lightGreyColor, borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(
+                      color: lightGreyColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: _selectedResident,
-                        items: _residents.map((String value) {
-                          return DropdownMenuItem(
-                            value: value,
-                            child: Text(value, style: const TextStyle(fontSize: 12, color: Colors.black)),
-                          );
-                        }).toList(),
+                        items:
+                            _residents.map((String value) {
+                              return DropdownMenuItem(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                         onChanged: (val) {
-                          if (val != null) setState(() => _selectedResident = val);
+                          if (val != null)
+                            setState(() => _selectedResident = val);
                         },
                         icon: const Icon(Icons.keyboard_arrow_down, size: 18),
                       ),
@@ -142,7 +176,9 @@ class _NewPollPageState extends State<NewPollPage> {
                     ),
                     const SizedBox(height: 12),
                     Column(
-                      children: List.generate(_optionControllers.length, (index) {
+                      children: List.generate(_optionControllers.length, (
+                        index,
+                      ) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
                           child: TextField(
@@ -185,11 +221,31 @@ class _NewPollPageState extends State<NewPollPage> {
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.lightGreenAccent,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      backgroundColor: Color(0xFFAFE9C6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       elevation: 0,
                     ),
-                    child: const Text("Post", style: TextStyle(fontWeight: FontWeight.w600, color: Colors.green)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Post",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.green,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Image.asset(
+                          'assets/images/icons/post.png',
+                          width: 18,
+                          height: 18,
+                          fit: BoxFit.contain,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

@@ -342,7 +342,11 @@ class _PreApproveCabState extends State<PreApproveCab> {
                 onPressed: () => debugPrint('Car Number: $carNumber'),
                 child: const Text(
                   'Notify Guard',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),

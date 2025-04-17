@@ -13,9 +13,15 @@ class NewEventPage extends StatefulWidget {
 
 class _NewEventPageState extends State<NewEventPage> {
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController(text: "05/07/25");
-  final TextEditingController _timeController = TextEditingController(text: "10 : 00 AM");
-  final TextEditingController _venueController = TextEditingController(text: "Club house");
+  final TextEditingController _dateController = TextEditingController(
+    text: "05/07/25",
+  );
+  final TextEditingController _timeController = TextEditingController(
+    text: "10 : 00 AM",
+  );
+  final TextEditingController _venueController = TextEditingController(
+    text: "Club house",
+  );
   bool _showEmojiPicker = false;
   File? _pickedImage;
   File? _pickedFile;
@@ -41,7 +47,11 @@ class _NewEventPageState extends State<NewEventPage> {
         ),
         title: const Text(
           "New Event",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
         ),
         centerTitle: true,
         actions: [
@@ -49,10 +59,18 @@ class _NewEventPageState extends State<NewEventPage> {
             padding: const EdgeInsets.only(right: 8.0),
             child: TextButton.icon(
               onPressed: () {},
-              icon: const Icon(Icons.info_outline, color: Colors.green, size: 16),
+              icon: const Icon(
+                Icons.info_outline,
+                color: Colors.green,
+                size: 16,
+              ),
               label: const Text(
                 "Guidelines",
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.green),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.green,
+                ),
               ),
             ),
           ),
@@ -73,33 +91,55 @@ class _NewEventPageState extends State<NewEventPage> {
                   CircleAvatar(
                     radius: 22,
                     backgroundColor: Colors.grey.shade300,
-                    backgroundImage: const AssetImage("assets/images/icons/Group 1.png"),
+                    backgroundImage: const AssetImage(
+                      "assets/images/icons/Group 1.png",
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Text("Dhruv", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        Text(
+                          "Dhruv",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         SizedBox(height: 4),
-                        Text("C Block,104", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        Text(
+                          "C Block,104",
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
                       ],
                     ),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(color: lightGreyColor, borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(
+                      color: lightGreyColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: _selectedResident,
-                        items: _residents.map((String value) {
-                          return DropdownMenuItem(
-                            value: value,
-                            child: Text(value, style: const TextStyle(fontSize: 12, color: Colors.black)),
-                          );
-                        }).toList(),
+                        items:
+                            _residents.map((String value) {
+                              return DropdownMenuItem(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                         onChanged: (val) {
-                          if (val != null) setState(() => _selectedResident = val);
+                          if (val != null)
+                            setState(() => _selectedResident = val);
                         },
                         icon: const Icon(Icons.keyboard_arrow_down, size: 18),
                       ),
@@ -144,7 +184,10 @@ class _NewEventPageState extends State<NewEventPage> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.lightBlue.shade50,
                       borderRadius: BorderRadius.circular(6),
@@ -162,21 +205,56 @@ class _NewEventPageState extends State<NewEventPage> {
                 children: [
                   Row(
                     children: [
-                      _iconButton(icon: Icons.insert_drive_file_outlined, onTap: _pickFile, tooltip: "Pick a file"),
+                      _iconButton(
+                        icon: Icons.insert_drive_file_outlined,
+                        onTap: _pickFile,
+                        tooltip: "Pick a file",
+                      ),
                       const SizedBox(width: 16),
-                      _iconButton(icon: Icons.image_outlined, onTap: _pickImage, tooltip: "Pick an image"),
+                      _iconButton(
+                        icon: Icons.image_outlined,
+                        onTap: _pickImage,
+                        tooltip: "Pick an image",
+                      ),
                       const SizedBox(width: 16),
-                      _iconButton(icon: Icons.emoji_emotions_outlined, onTap: () => setState(() => _showEmojiPicker = !_showEmojiPicker), tooltip: "Pick an emoji"),
+                      _iconButton(
+                        icon: Icons.emoji_emotions_outlined,
+                        onTap:
+                            () => setState(
+                              () => _showEmojiPicker = !_showEmojiPicker,
+                            ),
+                        tooltip: "Pick an emoji",
+                      ),
                     ],
                   ),
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.lightGreenAccent,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      backgroundColor: Color(0xFFAFE9C6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       elevation: 0,
                     ),
-                    child: const Text("Post", style: TextStyle(fontWeight: FontWeight.w600,color:Colors.green)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Post",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.green,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Image.asset(
+                          'assets/images/icons/post.png',
+                          width: 18,
+                          height: 18,
+                          fit: BoxFit.contain,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -198,8 +276,14 @@ class _NewEventPageState extends State<NewEventPage> {
                       checkPlatformCompatibility: true,
                       locale: const Locale('en'),
                       emojiTextStyle: const TextStyle(fontSize: 24),
-                      customBackspaceIcon: const Icon(Icons.backspace, color: Colors.black),
-                      customSearchIcon: const Icon(Icons.search, color: Colors.black),
+                      customBackspaceIcon: const Icon(
+                        Icons.backspace,
+                        color: Colors.black,
+                      ),
+                      customSearchIcon: const Icon(
+                        Icons.search,
+                        color: Colors.black,
+                      ),
                       viewOrderConfig: const ViewOrderConfig(),
                       emojiViewConfig: const EmojiViewConfig(),
                       skinToneConfig: const SkinToneConfig(),
@@ -214,15 +298,31 @@ class _NewEventPageState extends State<NewEventPage> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Add Date & Time",
-                  style: TextStyle(fontSize: 14, color: textGreyColor, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: textGreyColor,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Expanded(child: _dateTimeField(controller: _dateController, icon: Icons.calendar_month_outlined, onTap: _pickDate)),
+                  Expanded(
+                    child: _dateTimeField(
+                      controller: _dateController,
+                      icon: Icons.calendar_month_outlined,
+                      onTap: _pickDate,
+                    ),
+                  ),
                   const SizedBox(width: 16),
-                  Expanded(child: _dateTimeField(controller: _timeController, icon: Icons.access_time_outlined, onTap: _pickTime)),
+                  Expanded(
+                    child: _dateTimeField(
+                      controller: _timeController,
+                      icon: Icons.access_time_outlined,
+                      onTap: _pickTime,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -230,7 +330,11 @@ class _NewEventPageState extends State<NewEventPage> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Add Venue",
-                  style: TextStyle(fontSize: 14, color: textGreyColor, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: textGreyColor,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -256,7 +360,11 @@ class _NewEventPageState extends State<NewEventPage> {
     );
   }
 
-  Widget _iconButton({required IconData icon, required VoidCallback onTap, String? tooltip}) {
+  Widget _iconButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    String? tooltip,
+  }) {
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -271,7 +379,11 @@ class _NewEventPageState extends State<NewEventPage> {
     );
   }
 
-  Widget _dateTimeField({required TextEditingController controller, required IconData icon, required VoidCallback onTap}) {
+  Widget _dateTimeField({
+    required TextEditingController controller,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -282,7 +394,10 @@ class _NewEventPageState extends State<NewEventPage> {
         ),
         child: Row(
           children: [
-            Text(controller.text, style: const TextStyle(fontSize: 14, color: Colors.black)),
+            Text(
+              controller.text,
+              style: const TextStyle(fontSize: 14, color: Colors.black),
+            ),
             const Spacer(),
             Icon(icon, size: 20, color: Colors.black54),
           ],
@@ -321,7 +436,8 @@ class _NewEventPageState extends State<NewEventPage> {
     if (newDate != null) {
       setState(() {
         selectedDate = newDate;
-        _dateController.text = "${selectedDate.month.toString().padLeft(2, '0')}/"
+        _dateController.text =
+            "${selectedDate.month.toString().padLeft(2, '0')}/"
             "${selectedDate.day.toString().padLeft(2, '0')}/"
             "${selectedDate.year}";
       });
@@ -336,10 +452,11 @@ class _NewEventPageState extends State<NewEventPage> {
     if (newTime != null) {
       setState(() {
         selectedTime = newTime;
-        final hour = selectedTime.hourOfPeriod == 0 ? 12 : selectedTime.hourOfPeriod;
+        final hour =
+            selectedTime.hourOfPeriod == 0 ? 12 : selectedTime.hourOfPeriod;
         final ampm = selectedTime.period == DayPeriod.am ? "AM" : "PM";
         _timeController.text =
-        "${hour.toString().padLeft(2, '0')} : ${selectedTime.minute.toString().padLeft(2, '0')} $ampm";
+            "${hour.toString().padLeft(2, '0')} : ${selectedTime.minute.toString().padLeft(2, '0')} $ampm";
       });
     }
   }
