@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:getaccess/Settings.dart';
 import 'package:getaccess/screens/Social%20screen/social_shimmer.dart';
 import 'package:getaccess/util/constants/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -397,15 +398,20 @@ class _SocialScreenState extends State<SocialScreen> {
                         // Header with location and notification
                         Row(
                           children: [
-                            CircleAvatar(
-                              backgroundColor: const Color(0xFFD4BE45),
-                              radius: 18,
-                              child: const Text(
-                                'D',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                            InkWell(
+                              onTap: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage()));
+                              },
+                              child: CircleAvatar(
+                                backgroundColor: const Color(0xFFD4BE45),
+                                radius: 18,
+                                child: const Text(
+                                  'D',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
                             ),
