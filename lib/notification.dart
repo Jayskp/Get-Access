@@ -54,7 +54,6 @@ class _NotificationPageState extends State<NotificationPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        centerTitle: true,
         title: const Text(
           'Notification',
           style: TextStyle(
