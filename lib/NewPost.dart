@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'models/social_post.dart';
+import 'providers/social_post_provider.dart';
 
 class NewPostPage extends StatefulWidget {
   const NewPostPage({super.key});
@@ -18,7 +21,17 @@ class _NewPostPageState extends State<NewPostPage> {
   final TextEditingController _priceController = TextEditingController(
     text: "Price range",
   );
+  final TextEditingController _contentController = TextEditingController();
   bool _isSellSelected = true;
+
+  @override
+  void dispose() {
+    _contentController.dispose();
+    _propertyController.dispose();
+    _dateController.dispose();
+    _priceController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -260,9 +273,36 @@ class _NewPostPageState extends State<NewPostPage> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 24),
+                Text(
+                  "Description",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: containerColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextField(
+                    controller: _contentController,
+                    style: const TextStyle(fontSize: 14, color: Colors.black),
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.all(12),
+                      hintText: "Describe your property",
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => _createPost(context),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 48),
                     backgroundColor: primaryColor,
@@ -287,5 +327,34 @@ class _NewPostPageState extends State<NewPostPage> {
         ),
       ),
     );
+  }
+
+  void _createPost(BuildContext context) {
+    if (_contentController.text.isEmpty) {
+      _contentController.text =
+          "Available for ${_isSellSelected ? 'Sell' : 'Rent'} at ${_propertyController.text}";
+    }
+
+    final content =
+        _contentController.text +
+        "\n\nPrice: ${_priceController.text}" +
+        "\nAvailable From: ${_dateController.text}";
+
+    final post = SocialPost.fromPost(
+      authorName: "You",
+      authorBlock: _propertyController.text,
+      content: content,
+    );
+
+    Provider.of<SocialPostProvider>(context, listen: false).addPost(post);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Your post has been created!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    Navigator.pop(context);
   }
 }

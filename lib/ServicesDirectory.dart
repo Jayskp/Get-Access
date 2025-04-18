@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ServiceDirectory extends StatefulWidget {
+  const ServiceDirectory({super.key});
+
   @override
   _ServiceDirectoryState createState() => _ServiceDirectoryState();
 }

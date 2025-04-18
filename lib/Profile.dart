@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -21,15 +21,18 @@ class _ProfilePageState extends State<ProfilePage> {
     'bio': '',
     'work': '',
     'hometown': '',
-    'interests': <String>[]
+    'interests': <String>[],
   };
 
   Future<void> _pickImage(bool cover) async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked == null) return;
     setState(() {
-      if (cover) _coverImage = File(picked.path);
-      else _avatarImage = File(picked.path);
+      if (cover) {
+        _coverImage = File(picked.path);
+      } else {
+        _avatarImage = File(picked.path);
+      }
     });
   }
 
@@ -39,37 +42,39 @@ class _ProfilePageState extends State<ProfilePage> {
     );
     showModalBottomSheet(
       context: context,
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: controller,
-              decoration: InputDecoration(labelText: label),
-              maxLines: isList ? 1 : null,
+      builder:
+          (_) => Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: controller,
+                  decoration: InputDecoration(labelText: label),
+                  maxLines: isList ? 1 : null,
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      if (isList) {
+                        _user[key] =
+                            controller.text
+                                .split(',')
+                                .map((e) => e.trim())
+                                .where((e) => e.isNotEmpty)
+                                .toList();
+                      } else {
+                        _user[key] = controller.text;
+                      }
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  if (isList) {
-                    _user[key] = controller.text
-                        .split(',')
-                        .map((e) => e.trim())
-                        .where((e) => e.isNotEmpty)
-                        .toList();
-                  } else {
-                    _user[key] = controller.text;
-                  }
-                });
-                Navigator.pop(context);
-              },
-              child: const Text('Save'),
-            )
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -93,14 +98,22 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.lightGreen.shade200, Colors.yellow.shade200],
+                      colors: [
+                        Colors.lightGreen.shade200,
+                        Colors.yellow.shade200,
+                      ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                     ),
                   ),
-                  child: _coverImage != null
-                      ? Image.file(_coverImage!, fit: BoxFit.cover, width: double.infinity)
-                      : null,
+                  child:
+                      _coverImage != null
+                          ? Image.file(
+                            _coverImage!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                          )
+                          : null,
                 ),
               ),
               // White panel behind avatar
@@ -110,10 +123,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 right: 0,
                 bottom: 0,
                 child: Container(
-                  padding: const EdgeInsets.fromLTRB(20, avatarRadius + 20, 20, 20),
+                  padding: const EdgeInsets.fromLTRB(
+                    20,
+                    avatarRadius + 20,
+                    20,
+                    20,
+                  ),
                   decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
                   ),
                   child: SingleChildScrollView(
                     child: Column(
@@ -125,15 +145,23 @@ class _ProfilePageState extends State<ProfilePage> {
                           children: [
                             Text(
                               _user['name'],
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Row(
                               children: [
-                                const Text('Enable calling', style: TextStyle(color: Colors.grey)),
+                                const Text(
+                                  'Enable calling',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
                                 Switch(
                                   activeColor: Colors.lightGreen.shade600,
                                   value: _callingEnabled,
-                                  onChanged: (v) => setState(() => _callingEnabled = v),
+                                  onChanged:
+                                      (v) =>
+                                          setState(() => _callingEnabled = v),
                                 ),
                               ],
                             ),
@@ -142,41 +170,89 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(Icons.apartment, size: 18, color: Colors.grey),
+                            const Icon(
+                              Icons.apartment,
+                              size: 18,
+                              color: Colors.grey,
+                            ),
                             const SizedBox(width: 4),
-                            Text(_user['flat'], style: const TextStyle(color: Colors.grey)),
+                            Text(
+                              _user['flat'],
+                              style: const TextStyle(color: Colors.grey),
+                            ),
                             const SizedBox(width: 16),
-                            const Icon(Icons.home, size: 18, color: Colors.grey),
+                            const Icon(
+                              Icons.home,
+                              size: 18,
+                              color: Colors.grey,
+                            ),
                             const SizedBox(width: 4),
-                            Text(_user['role'], style: const TextStyle(color: Colors.grey)),
+                            Text(
+                              _user['role'],
+                              style: const TextStyle(color: Colors.grey),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 20),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Text(_user['bio'].isEmpty ? 'Add Bio' : _user['bio']),
-                          subtitle: const Text('Tell your neighbours about yourself', style: TextStyle(color: Colors.grey)),
+                          title: Text(
+                            _user['bio'].isEmpty ? 'Add Bio' : _user['bio'],
+                          ),
+                          subtitle: const Text(
+                            'Tell your neighbours about yourself',
+                            style: TextStyle(color: Colors.grey),
+                          ),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () => _editField('bio', 'Bio'),
                         ),
                         const Divider(),
                         ListTile(
-                          leading: const Icon(Icons.work_outline, color: Colors.grey),
-                          title: Text(_user['work'].isEmpty ? 'Add Work' : _user['work']),
+                          leading: const Icon(
+                            Icons.work_outline,
+                            color: Colors.grey,
+                          ),
+                          title: Text(
+                            _user['work'].isEmpty ? 'Add Work' : _user['work'],
+                          ),
                           onTap: () => _editField('work', 'Work'),
                         ),
                         ListTile(
-                          leading: const Icon(Icons.location_on_outlined, color: Colors.grey),
-                          title: Text(_user['hometown'].isEmpty ? 'Add Hometown' : _user['hometown']),
+                          leading: const Icon(
+                            Icons.location_on_outlined,
+                            color: Colors.grey,
+                          ),
+                          title: Text(
+                            _user['hometown'].isEmpty
+                                ? 'Add Hometown'
+                                : _user['hometown'],
+                          ),
                           onTap: () => _editField('hometown', 'Hometown'),
                         ),
                         const SizedBox(height: 20),
-                        const Text('Interests', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                        const Text(
+                          'Interests',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         OutlinedButton.icon(
-                          onPressed: () => _editField('interests', 'Interests', isList: true),
-                          icon: Icon(Icons.add, color: Colors.lightGreen.shade800),
-                          label: Text('Add Interests', style: TextStyle(color: Colors.lightGreen.shade800)),
+                          onPressed:
+                              () => _editField(
+                                'interests',
+                                'Interests',
+                                isList: true,
+                              ),
+                          icon: Icon(
+                            Icons.add,
+                            color: Colors.lightGreen.shade800,
+                          ),
+                          label: Text(
+                            'Add Interests',
+                            style: TextStyle(color: Colors.lightGreen.shade800),
+                          ),
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: Colors.lightGreen.shade600),
                           ),
@@ -208,13 +284,21 @@ class _ProfilePageState extends State<ProfilePage> {
                     CircleAvatar(
                       radius: avatarRadius,
                       backgroundColor: Colors.white,
-                      backgroundImage: _avatarImage != null ? FileImage(_avatarImage!) : null,
-                      child: _avatarImage == null
-                          ? Text(
-                        _user['name'][0],
-                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.lightGreen.shade800),
-                      )
-                          : null,
+                      backgroundImage:
+                          _avatarImage != null
+                              ? FileImage(_avatarImage!)
+                              : null,
+                      child:
+                          _avatarImage == null
+                              ? Text(
+                                _user['name'][0],
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.lightGreen.shade800,
+                                ),
+                              )
+                              : null,
                     ),
                     Positioned(
                       bottom: 0,
@@ -224,11 +308,15 @@ class _ProfilePageState extends State<ProfilePage> {
                         backgroundColor: Colors.lightGreen.shade800,
                         child: IconButton(
                           padding: EdgeInsets.zero,
-                          icon: const Icon(Icons.edit, size: 16, color: Colors.white),
+                          icon: const Icon(
+                            Icons.edit,
+                            size: 16,
+                            color: Colors.white,
+                          ),
                           onPressed: () => _pickImage(false),
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),

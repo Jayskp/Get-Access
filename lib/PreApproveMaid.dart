@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PreApproveMaid extends StatefulWidget {
-  const PreApproveMaid({Key? key}) : super(key: key);
+  const PreApproveMaid({super.key});
 
   @override
   State<PreApproveMaid> createState() => _PreApproveMaidState();

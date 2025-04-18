@@ -3,6 +3,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:provider/provider.dart';
+import 'models/social_post.dart';
+import 'providers/social_post_provider.dart';
 
 class NewEventPage extends StatefulWidget {
   const NewEventPage({super.key});
@@ -138,8 +141,9 @@ class _NewEventPageState extends State<NewEventPage> {
                               );
                             }).toList(),
                         onChanged: (val) {
-                          if (val != null)
+                          if (val != null) {
                             setState(() => _selectedResident = val);
+                          }
                         },
                         icon: const Icon(Icons.keyboard_arrow_down, size: 18),
                       ),
@@ -228,7 +232,7 @@ class _NewEventPageState extends State<NewEventPage> {
                     ],
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () => _createEvent(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFAFE9C6),
                       shape: RoundedRectangleBorder(
@@ -459,5 +463,45 @@ class _NewEventPageState extends State<NewEventPage> {
             "${hour.toString().padLeft(2, '0')} : ${selectedTime.minute.toString().padLeft(2, '0')} $ampm";
       });
     }
+  }
+
+  void _createEvent(BuildContext context) {
+    if (_descriptionController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a description for your event'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    List<String>? imageUrls;
+    if (_pickedImage != null) {
+      // In a real app, we would upload the image and get the URL
+      // For this example, we'll just store the path
+      imageUrls = [_pickedImage!.path];
+    }
+
+    final event = SocialPost.fromEvent(
+      authorName: "Dhruv",
+      authorBlock: "C Block,104",
+      description: _descriptionController.text,
+      eventDate: selectedDate,
+      eventTime: _timeController.text,
+      eventVenue: _venueController.text,
+      imageUrls: imageUrls,
+    );
+
+    Provider.of<SocialPostProvider>(context, listen: false).addPost(event);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Your event has been created!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    Navigator.pop(context);
   }
 }

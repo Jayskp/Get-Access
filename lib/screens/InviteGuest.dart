@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class InviteGuest extends StatefulWidget {
+  const InviteGuest({super.key});
+
   @override
   _InviteGuestState createState() => _InviteGuestState();
 }
@@ -155,7 +157,7 @@ class _InviteGuestState extends State<InviteGuest> {
                                   ],
                                 ),
                               );
-                            }).toList(),
+                            }),
                             Align(
                               alignment: Alignment.centerRight,
                               child: TextButton(
@@ -231,19 +233,19 @@ class _InviteGuestState extends State<InviteGuest> {
                         height: 48,
                         child: ElevatedButton(
                           onPressed: () {},
-                          child: Text(
-                            'Add Guest',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFF28A745),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                             elevation: 0,
+                          ),
+                          child: Text(
+                            'Add Guest',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),

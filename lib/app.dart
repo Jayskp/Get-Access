@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:getaccess/splash_screen.dart';
 
@@ -17,7 +16,11 @@ class App extends StatelessWidget {
           backgroundColor: Colors.white,
           elevation: 1,
           iconTheme: IconThemeData(color: Colors.black),
-          titleTextStyle: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
+          titleTextStyle: TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         colorScheme: const ColorScheme.light(
           primary: Colors.grey,

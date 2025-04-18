@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MakePayment extends StatefulWidget {
+  const MakePayment({super.key});
+
   @override
   _MakePaymentState createState() => _MakePaymentState();
 }

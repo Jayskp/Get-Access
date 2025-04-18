@@ -35,7 +35,6 @@ class _NewListingState extends State<NewListing> {
     );
   }
 
-
   void _showCategoryDialog() {
     showDialog(
       context: context,
@@ -51,13 +50,13 @@ class _NewListingState extends State<NewListing> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 Text(
+                Text(
                   'Choose a category',
                   style: _archivoTextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
-                  )
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ..._categories.map((category) {
@@ -89,7 +88,7 @@ class _NewListingState extends State<NewListing> {
                             const SizedBox(width: 16),
                             Text(
                               category['name'],
-                              style:_archivoTextStyle(
+                              style: _archivoTextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
                                 color: Colors.black87,
@@ -100,7 +99,7 @@ class _NewListingState extends State<NewListing> {
                       ),
                     ),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),
@@ -157,7 +156,7 @@ class _NewListingState extends State<NewListing> {
                             backgroundColor: AppColors.primaryYellow,
                             child: Text(
                               'D',
-                              style:_archivoTextStyle(
+                              style: _archivoTextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
@@ -168,7 +167,7 @@ class _NewListingState extends State<NewListing> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                               Text(
+                              Text(
                                 'Dhruv',
                                 style: _archivoTextStyle(
                                   fontSize: 16,
@@ -193,7 +192,9 @@ class _NewListingState extends State<NewListing> {
                         maxLines: 8,
                         decoration: InputDecoration(
                           hintText: 'Write something about it.........',
-                          hintStyle: _archivoTextStyle(color: Colors.grey.shade500),
+                          hintStyle: _archivoTextStyle(
+                            color: Colors.grey.shade500,
+                          ),
                           filled: true,
                           fillColor: Colors.grey[200],
                           border: OutlineInputBorder(
@@ -217,7 +218,8 @@ class _NewListingState extends State<NewListing> {
                           child: Text(
                             _selectedCategory ?? 'Choose a Category',
                             style: _archivoTextStyle(
-                                color: Colors.grey, fontSize: 16
+                              color: Colors.grey,
+                              fontSize: 16,
                             ),
                           ),
                         ),
@@ -244,13 +246,13 @@ class _NewListingState extends State<NewListing> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child:  Text(
+                child: Text(
                   'Post',
                   style: _archivoTextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                  )
+                  ),
                 ),
               ),
             ),

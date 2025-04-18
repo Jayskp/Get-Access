@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ServiceCard extends StatelessWidget {
   final String image;
@@ -16,6 +17,18 @@ class ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextStyle archivoTextStyle({
+      double fontSize = 14,
+      FontWeight fontWeight = FontWeight.normal,
+      Color color = Colors.black,
+    }) {
+      return GoogleFonts.archivo(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+      );
+    }
+
     return Material(
       borderRadius: BorderRadius.circular(borderRadius),
       child: InkWell(
@@ -53,8 +66,8 @@ class ServiceCard extends StatelessWidget {
                   child: Text(
                     title,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 16,          // this is the max size
+                    style: archivoTextStyle(
+                      fontSize: 16, // this is the max size
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -66,6 +79,6 @@ class ServiceCard extends StatelessWidget {
           ),
         ),
       ),
-    );  
+    );
   }
 }

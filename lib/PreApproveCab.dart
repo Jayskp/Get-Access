@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 class PreApproveCab extends StatefulWidget {
-  const PreApproveCab({Key? key}) : super(key: key);
+  const PreApproveCab({super.key});
 
   @override
   State<PreApproveCab> createState() => _PreApproveCabState();

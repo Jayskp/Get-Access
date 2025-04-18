@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'models/social_post.dart';
+import 'providers/social_post_provider.dart';
 
 class NewPollPage extends StatefulWidget {
   const NewPollPage({super.key});
@@ -15,6 +18,7 @@ class _NewPollPageState extends State<NewPollPage> {
   ];
   final List<String> _residents = ["Residents", "Owners", "Tenants"];
   String _selectedResident = "Residents";
+  DateTime _endDate = DateTime.now().add(const Duration(days: 7));
 
   @override
   void dispose() {
@@ -29,6 +33,20 @@ class _NewPollPageState extends State<NewPollPage> {
     setState(() {
       _optionControllers.add(TextEditingController());
     });
+  }
+
+  Future<void> _selectEndDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _endDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 30)),
+    );
+    if (picked != null && picked != _endDate) {
+      setState(() {
+        _endDate = picked;
+      });
+    }
   }
 
   @override
@@ -140,8 +158,9 @@ class _NewPollPageState extends State<NewPollPage> {
                               );
                             }).toList(),
                         onChanged: (val) {
-                          if (val != null)
+                          if (val != null) {
                             setState(() => _selectedResident = val);
+                          }
                         },
                         icon: const Icon(Icons.keyboard_arrow_down, size: 18),
                       ),
@@ -215,11 +234,35 @@ class _NewPollPageState extends State<NewPollPage> {
                 ),
               ),
               const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: lightGreyColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.calendar_today, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Poll ends on: ${_endDate.day}/${_endDate.month}/${_endDate.year}",
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: _selectEndDate,
+                      child: const Text("Change"),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () => _createPoll(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFAFE9C6),
                       shape: RoundedRectangleBorder(
@@ -255,5 +298,52 @@ class _NewPollPageState extends State<NewPollPage> {
         ),
       ),
     );
+  }
+
+  void _createPoll(BuildContext context) {
+    if (_questionController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a question for your poll'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    final validOptions =
+        _optionControllers
+            .where((controller) => controller.text.isNotEmpty)
+            .map((controller) => PollOption(text: controller.text))
+            .toList();
+
+    if (validOptions.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please add at least two options for your poll'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    final poll = SocialPost.fromPoll(
+      authorName: "Dhruv",
+      authorBlock: "C Block,104",
+      question: _questionController.text,
+      options: validOptions,
+      endDate: _endDate,
+    );
+
+    Provider.of<SocialPostProvider>(context, listen: false).addPost(poll);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Your poll has been created!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    Navigator.pop(context);
   }
 }

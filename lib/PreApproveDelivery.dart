@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PreApproveDelivery extends StatefulWidget {
-  const PreApproveDelivery({Key? key}) : super(key: key);
+  const PreApproveDelivery({super.key});
 
   @override
   State<PreApproveDelivery> createState() => _PreApproveDeliveryState();

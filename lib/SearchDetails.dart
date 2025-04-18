@@ -26,7 +26,6 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final Color backgroundColor = Colors.white;
-    final Color textColor = Colors.black;
     final Color greyLineColor = const Color(0xFFEEEEEE);
     return Scaffold(
       backgroundColor: backgroundColor,

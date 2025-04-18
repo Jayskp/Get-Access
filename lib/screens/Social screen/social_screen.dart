@@ -4,11 +4,16 @@ import 'package:getaccess/PreApproveCab.dart';
 import 'package:getaccess/PreApproveDelivery.dart';
 import 'package:getaccess/PreApproveMaid.dart';
 import 'package:getaccess/Settings.dart';
+import 'package:getaccess/daily_help.dart';
+import 'package:getaccess/models/social_post.dart';
 import 'package:getaccess/notification.dart';
+import 'package:getaccess/providers/social_post_provider.dart';
 import 'package:getaccess/screens/InviteGuest.dart';
 import 'package:getaccess/screens/Social%20screen/social_shimmer.dart';
 import 'package:getaccess/util/constants/colors.dart';
+import 'package:getaccess/widgets/social_post_card.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import '../../NewEvent.dart';
 import '../../NewPoll.dart';
@@ -23,21 +28,33 @@ class SocialScreen extends StatefulWidget {
   _SocialScreenState createState() => _SocialScreenState();
 }
 
-class _SocialScreenState extends State<SocialScreen> {
+class _SocialScreenState extends State<SocialScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController searchController = TextEditingController();
   final PageController _noticePageController = PageController();
   int _currentNoticePage = 0;
   bool _isDropdownOpen = false;
   bool _showAddPropertyForm = false;
   bool _showQuickAccessPopup = false;
+  bool _isCustomizing = false;
   String _selectedPropertyType = 'Flat';
   final TextEditingController _propertyNameController = TextEditingController();
   final TextEditingController _propertyAddressController =
       TextEditingController();
+
+  // For sticky header
+  final ScrollController _scrollController = ScrollController();
+  bool _isQuickAccessSticky = false;
+  late final double _quickAccessThreshold =
+      150.0; // Position at which the tab becomes sticky
+
+  // For animations
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
   final List<Map<String, dynamic>> preApproveItems = [
-    {"icon": Icons.person_outline,
-      "title": "Guest"
-      , "page": InviteGuest()},
+    {"icon": Icons.person_outline, "title": "Guest", "page": InviteGuest()},
     {
       "icon": Icons.directions_car_outlined,
       "title": "Cab",
@@ -151,17 +168,46 @@ class _SocialScreenState extends State<SocialScreen> {
     ),
   ];
 
-  final List<Map<String, String>> quickAccessItems = [
-    {"iconPath": "assets/images/icons/All Icons.png", "title": "Pre-Approval"},
-    {"iconPath": "assets/images/icons/Vector (1).png", "title": "Daily help"},
+  // All available items for customization
+  List<Map<String, dynamic>> allAvailableItems = [];
+
+  // Fixed set of 4 quick access items
+  List<Map<String, dynamic>> quickAccessItems = [
     {
-      "iconPath": "assets/images/icons/car.side.arrowtriangle.down.png",
-      "title": "Cab",
+      "icon": Icons.person_outline,
+      "title": "Pre-Approval",
+      "function": "_showPreApprovalDialog",
+      "page": null,
     },
-    {"iconPath": "assets/images/icons/Group (2).png", "title": "Visit Home"},
+    {
+      "icon": Icons.build_outlined,
+      "title": "Daily help",
+      "function": null,
+      "page": DailyHelp(),
+    },
+    {
+      "icon": Icons.directions_car_outlined,
+      "title": "Cab",
+      "function": "_showCabDialog",
+      "page": null,
+    },
+    {
+      "icon": Icons.medical_services_outlined,
+      "title": "Visit Home",
+      "function": "_showVisitingHelpDialog",
+      "page": null,
+    },
   ];
 
-  // Add these sections data
+  // Items not in quick access
+  List<Map<String, dynamic>> get availableItemsForSwap {
+    return allAvailableItems.where((item) {
+      // Check if this item is not already in quickAccessItems
+      return !quickAccessItems.any(
+        (quickItem) => quickItem['title'] == item['title'],
+      );
+    }).toList();
+  }
 
   TextStyle _archivoTextStyle({
     double fontSize = 14,
@@ -172,32 +218,6 @@ class _SocialScreenState extends State<SocialScreen> {
       fontSize: fontSize,
       fontWeight: fontWeight,
       color: color,
-    );
-  }
-
-  Widget _buildQuickAccessCard(String imagePath, String label) {
-    return Container(
-      width: 100,
-      decoration: BoxDecoration(
-        color: AppColors.lightGrey,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 28,
-            width: 28,
-            child: Image.asset(imagePath, fit: BoxFit.contain),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: _archivoTextStyle(fontSize: 12),
-          ),
-        ],
-      ),
     );
   }
 
@@ -546,6 +566,27 @@ class _SocialScreenState extends State<SocialScreen> {
     searchController.addListener(() => setState(() {}));
     _noticePageController.addListener(_onPageChanged);
     loadData();
+    _initAllAvailableItems(); // Initialize available items
+
+    // Set up scroll controller and listener for sticky header
+    _scrollController.addListener(_updateHeaderPosition);
+
+    // Initialize animation controller
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, -0.5),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
   }
 
   void _onPageChanged() {
@@ -562,6 +603,12 @@ class _SocialScreenState extends State<SocialScreen> {
     setState(() {
       _isLoading = true;
     });
+
+    // Add sample posts if there are none yet
+    if (Provider.of<SocialPostProvider>(context, listen: false).posts.isEmpty) {
+      Provider.of<SocialPostProvider>(context, listen: false).addSamplePosts();
+    }
+
     await Future.delayed(const Duration(seconds: 1));
     setState(() {
       _isLoading = false;
@@ -575,6 +622,9 @@ class _SocialScreenState extends State<SocialScreen> {
     _noticePageController.dispose();
     _propertyNameController.dispose();
     _propertyAddressController.dispose();
+    _scrollController.removeListener(_updateHeaderPosition);
+    _scrollController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -625,193 +675,703 @@ class _SocialScreenState extends State<SocialScreen> {
       Navigator.pop(context);
       setState(() {
         _showQuickAccessPopup = false;
+        _isCustomizing = false;
       });
     } else {
       setState(() {
         _showQuickAccessPopup = true;
       });
+
+      // Content to show in the bottom sheet
+      Widget bottomSheetContent() {
+        return SingleChildScrollView(
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+            child:
+                _isCustomizing
+                    ? _buildCustomizationView()
+                    : _buildQuickAccessPopupContent(),
+          ),
+        );
+      }
+
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
-        builder: (BuildContext context) {
-          return SingleChildScrollView(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+        builder: (BuildContext context) => bottomSheetContent(),
+      ).then((_) {
+        setState(() {
+          _showQuickAccessPopup = false;
+          _isCustomizing = false;
+        });
+      });
+    }
+  }
+
+  Widget _buildCustomizationView() {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        // Get all available items without categorization
+        List<Map<String, dynamic>> availableItems = _getAvailableItems();
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Drag handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+            ),
+
+            // Title and Done button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildSectionTitle('Customize Quick Access'),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Done',
+                    style: TextStyle(
+                      color: Colors.blue[700],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            // Drag & Drop interface
+            Text(
+              'Drag items to rearrange your Quick Access bar:',
+              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Quick access items (draggable)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      margin: const EdgeInsets.only(bottom: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildSectionTitle('Pre-approve entry'),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black87),
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.mic, size: 20),
-                            const SizedBox(width: 8),
-                            const Text('Speak'),
-                          ],
-                        ),
-                      ),
-                    ],
+                  const Text(
+                    'Current Quick Access Items',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children:
-                          preApproveItems.map((item) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 24),
-                              child: _buildQuickAccessItem(
-                                item['icon'] as IconData,
-                                item['title'] as String,
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  setState(() {
-                                    _showQuickAccessPopup = false;
-                                  });
-                                  final Widget? page = item['page'] as Widget?;
-                                  if (page != null) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => page),
-                                    );
-                                  }
-                                },
-                              ),
-                            );
-                          }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildSectionTitle('Security'),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black87),
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.notifications_active_outlined,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            const Text('Raise Alert'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children:
-                          securityItems.map((item) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 24),
-                              child: _buildQuickAccessItem(
-                                item['icon'] as IconData,
-                                item['title'] as String,
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  setState(() {
-                                    _showQuickAccessPopup = false;
-                                  });
-                                  final Widget? page = item['page'] as Widget?;
-                                  if (page != null) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => page),
-                                    );
-                                  }
-                                },
-                              ),
-                            );
-                          }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  _buildSectionTitle('Create post'),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children:
-                          createPostItems.map((item) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 24),
-                              child: _buildQuickAccessItem(
-                                item['icon'] as IconData,
-                                item['title'] as String,
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  setState(() {
-                                    _showQuickAccessPopup = false;
-                                  });
-                                  final Widget? page = item['page'] as Widget?;
-                                  if (page != null) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => page),
-                                    );
-                                  }
-                                },
-                              ),
-                            );
-                          }).toList(),
-                    ),
+                  ReorderableGridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 4,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 1.0,
+                    children: List.generate(quickAccessItems.length, (index) {
+                      final item = quickAccessItems[index];
+                      return _buildDraggableQuickAccessItem(
+                        key: ValueKey('quickAccess$index'),
+                        item: item,
+                        index: index,
+                      );
+                    }),
+                    onReorder: (oldIndex, newIndex) {
+                      // Update the state
+                      this.setState(() {
+                        if (oldIndex < newIndex) {
+                          newIndex -= 1;
+                        }
+                        final item = quickAccessItems.removeAt(oldIndex);
+                        quickAccessItems.insert(newIndex, item);
+                      });
+                    },
                   ),
                 ],
               ),
             ),
-          );
-        },
-      ).then((_) {
-        setState(() {
-          _showQuickAccessPopup = false;
-        });
-      });
+
+            const SizedBox(height: 20),
+
+            // Available items section title
+            Text(
+              'Available items to swap (tap to add):',
+              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+            ),
+
+            const SizedBox(height: 16),
+
+            // All available items in a single horizontal scrollable row
+            Container(
+              height: 110, // Increased height to accommodate square cards
+              margin: const EdgeInsets.only(bottom: 8),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children:
+                      availableItems.map((item) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: _buildAvailableItem(
+                            item: item,
+                            onTap: () => _showReplaceItemDialog(context, item),
+                          ),
+                        );
+                      }).toList(),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  List<Map<String, dynamic>> _getAvailableItems() {
+    // Get items from allAvailableItems that are not in quickAccessItems
+    return allAvailableItems.where((item) {
+      return !quickAccessItems.any(
+        (quickItem) => quickItem['title'] == item['title'],
+      );
+    }).toList();
+  }
+
+  void _showReplaceItemDialog(
+    BuildContext context,
+    Map<String, dynamic> newItem,
+  ) {
+    // Check if the item is already in the quickAccessItems
+    final bool isAlreadyInQuickAccess = quickAccessItems.any(
+      (item) => item['title'] == newItem['title'],
+    );
+
+    if (isAlreadyInQuickAccess) {
+      // Show notification if the item already exists
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${newItem['title']} is already in your Quick Access'),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
     }
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Replace Item'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Select an item to replace:'),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: List.generate(quickAccessItems.length, (index) {
+                  final item = quickAccessItems[index];
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        quickAccessItems[index] = newItem;
+                      });
+                      Navigator.of(context).pop();
+
+                      // Show confirmation
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Quick Access updated'),
+                          backgroundColor: Colors.green,
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: AppColors.lightGrey,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(item['icon'] as IconData, size: 24),
+                        ),
+                        const SizedBox(height: 4),
+                        SizedBox(
+                          width: 70,
+                          child: Text(
+                            item['title'] as String,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 12),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildDraggableQuickAccessItem({
+    required Key key,
+    required Map<String, dynamic> item,
+    required int index,
+  }) {
+    return Container(
+      key: key,
+      width: 80, // Fixed width matching available items
+      height: 80, // Fixed height matching available items
+      decoration: BoxDecoration(
+        color: AppColors.lightGrey,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(item['icon'] as IconData, size: 28, color: Colors.black87),
+                const SizedBox(height: 4),
+                Text(
+                  item['title'] as String,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black87,
+                    height: 1.0,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            right: 0,
+            top: 0,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.blue[600],
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.drag_indicator,
+                color: Colors.white,
+                size: 14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvailableItem({
+    required Map<String, dynamic> item,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 80, // Fixed width for consistent appearance
+        height: 80, // Equal height to width for square appearance
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[300]!),
+        ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    item['icon'] as IconData,
+                    size: 28,
+                    color: Colors.black87,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    item['title'] as String,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.black87,
+                      height: 1.0,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              right: 0,
+              top: 0,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.green[600],
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.add, color: Colors.white, size: 14),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickAccessPopupContent() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Center(
+          child: Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 20),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildSectionTitle('Pre-approve entry'),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black87),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.mic, size: 20),
+                  const SizedBox(width: 8),
+                  const Text('Speak'),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children:
+                preApproveItems.map((item) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 24),
+                    child: _buildQuickAccessItem(
+                      item['icon'] as IconData,
+                      item['title'] as String,
+                      onTap: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          _showQuickAccessPopup = false;
+                        });
+                        final Widget? page = item['page'] as Widget?;
+                        if (page != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => page),
+                          );
+                        }
+                      },
+                    ),
+                  );
+                }).toList(),
+          ),
+        ),
+
+        const SizedBox(height: 32),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildSectionTitle('Security'),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black87),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.notifications_active_outlined, size: 20),
+                  const SizedBox(width: 8),
+                  const Text('Raise Alert'),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children:
+                securityItems.map((item) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 24),
+                    child: _buildQuickAccessItem(
+                      item['icon'] as IconData,
+                      item['title'] as String,
+                      onTap: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          _showQuickAccessPopup = false;
+                        });
+                        final Widget? page = item['page'] as Widget?;
+                        if (page != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => page),
+                          );
+                        }
+                      },
+                    ),
+                  );
+                }).toList(),
+          ),
+        ),
+        const SizedBox(height: 32),
+        _buildSectionTitle('Create post'),
+        const SizedBox(height: 16),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children:
+                createPostItems.map((item) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 24),
+                    child: _buildQuickAccessItem(
+                      item['icon'] as IconData,
+                      item['title'] as String,
+                      onTap: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          _showQuickAccessPopup = false;
+                        });
+                        final Widget? page = item['page'] as Widget?;
+                        if (page != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => page),
+                          );
+                        }
+                      },
+                    ),
+                  );
+                }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _executeQuickAccessAction(Map<String, dynamic> item) {
+    // Execute the correct action based on the item
+    if (item["function"] == "_showPreApprovalDialog") {
+      _showPreApprovalDialog();
+    } else if (item["function"] == "_showCabDialog") {
+      _showCabDialog();
+    } else if (item["function"] == "_showVisitingHelpDialog") {
+      _showVisitingHelpDialog();
+    } else if (item["page"] != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => item["page"]),
+      );
+    }
+  }
+
+  void _updateHeaderPosition() {
+    final isSticky =
+        _scrollController.hasClients &&
+        _scrollController.offset > _quickAccessThreshold;
+
+    if (isSticky != _isQuickAccessSticky) {
+      setState(() {
+        _isQuickAccessSticky = isSticky;
+      });
+
+      if (_isQuickAccessSticky) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    }
+  }
+
+  void _showCabDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (BuildContext dialogContext) {
+        return Center(
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 328,
+                padding: const EdgeInsets.fromLTRB(20, 60, 20, 24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'CAB',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF4A4A4A),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF2F2F2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            alignment: Alignment.center,
+                            child: const Text(
+                              'Allow Once',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF4A4A4A),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Container(
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF2F2F2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            alignment: Alignment.center,
+                            child: const Text(
+                              "Don't Allow",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF4A4A4A),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF2F2F2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        'Allow Frequently',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Color(0xFF4A4A4A),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                top: -40,
+                left: 0,
+                right: 0,
+                child: CircleAvatar(
+                  radius: 40,
+                  backgroundColor: AppColors.primaryGreen,
+                  child: const Icon(
+                    Icons.directions_car,
+                    size: 32,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 12,
+                right: 12,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(dialogContext).pop(),
+                  child: Image.asset("assets/images/icons/close-outline.png"),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -861,1044 +1421,589 @@ class _SocialScreenState extends State<SocialScreen> {
                               : null,
                       child: Stack(
                         children: [
-                          SingleChildScrollView(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: horizontalPadding,
-                              vertical: 16,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Header with location and notification
-                                Row(
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder:
-                                                (context) => SettingsPage(),
-                                          ),
-                                        );
-                                      },
-                                      child: CircleAvatar(
-                                        backgroundColor: const Color(
-                                          0xFFD4BE45,
-                                        ),
-                                        radius: 18,
-                                        child: const Text(
-                                          'D',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    GestureDetector(
-                                      onTap: _toggleDropdown,
-                                      child: Row(
+                          // Main scrollable content
+                          CustomScrollView(
+                            controller: _scrollController,
+                            slivers: [
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: horizontalPadding,
+                                    vertical: 16,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Header with location and notification
+                                      Row(
                                         children: [
-                                          Text(
-                                            'Block B,105',
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.titleMedium?.copyWith(
-                                              color: Colors.black87,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          Icon(
-                                            _isDropdownOpen
-                                                ? Icons.keyboard_arrow_up
-                                                : Icons.keyboard_arrow_down,
-                                            color: Colors.black87,
-                                            size: 20,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.1,
-                                            ),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: IconButton(
-                                        icon: InkWell(
-                                          onTap: (){
-                                            Navigator.push(context,MaterialPageRoute(builder: (context)=>NotificationPage()));
-                                          },
-                                          child: Icon(
-                                            Icons.notifications_none_outlined,
-                                            size: 24,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        onPressed: () {},
-                                        tooltip: 'Notifications',
-                                        padding: const EdgeInsets.all(8),
-                                        constraints: const BoxConstraints(),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                // Search bar
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.05,
-                                        ),
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                    border: Border.all(
-                                      color: Colors.grey[200]!,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                        ),
-                                        child: Icon(
-                                          Icons.search,
-                                          size: 24,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: TextField(
-                                          controller: searchController,
-                                          onSubmitted: _onSearchSubmitted,
-                                          decoration: InputDecoration(
-                                            hintText: 'Search',
-                                            hintStyle: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[600],
-                                            ),
-                                            border: InputBorder.none,
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                  vertical: 14,
-                                                ),
-                                          ),
-                                        ),
-                                      ),
-                                      if (searchController.text.isNotEmpty)
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.clear,
-                                            color: Colors.grey[600],
-                                          ),
-                                          onPressed: () {
-                                            searchController.clear();
-                                          },
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                // Quick Access section
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Quick Access',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleLarge?.copyWith(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {},
-                                      child: Text(
-                                        'Customize',
-                                        style: TextStyle(
-                                          color: Colors.blue[700],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                // Quick Access Cards (same row as before)
-                                SizedBox(
-                                  height: 100,
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: InkWell(
-                                          onTap: () {
-                                            showDialog(
-                                              context: context,
-                                              barrierDismissible: false,
-                                              barrierColor: Colors.black
-                                                  .withValues(alpha: 0.5),
-                                              builder:
-                                                  (dialogCtx) => Center(
-                                                    child: Container(
-                                                      width: 340,
-                                                      padding:
-                                                          const EdgeInsets.fromLTRB(
-                                                            20,
-                                                            20,
-                                                            20,
-                                                            24,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.white,
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              24,
-                                                            ),
-                                                      ),
-                                                      child: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          // header
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              const Text(
-                                                                'Guest Invite',
-                                                                style: TextStyle(
-                                                                  fontSize: 20,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                ),
-                                                              ),
-                                                              GestureDetector(
-                                                                onTap:
-                                                                    () =>
-                                                                        Navigator.of(
-                                                                          dialogCtx,
-                                                                        ).pop(),
-                                                                child: const Icon(
-                                                                  Icons.close,
-                                                                  size: 24,
-                                                                  color: Color(
-                                                                    0xFF666666,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const SizedBox(
-                                                            height: 8,
-                                                          ),
-                                                          const Text(
-                                                            'Pre-approve expected visitors for a seamless and\nhassle-free entry experience.',
-                                                            style: TextStyle(
-                                                              fontSize: 14,
-                                                              color: Color(
-                                                                0xFF666666,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                            height: 20,
-                                                          ),
-                                                          // options grid
-                                                          Row(
-                                                            children: [
-                                                              Expanded(
-                                                                child: Container(
-                                                                  height: 100,
-                                                                  padding:
-                                                                      const EdgeInsets.all(
-                                                                        12,
-                                                                      ),
-                                                                  decoration: BoxDecoration(
-                                                                    color: const Color(
-                                                                      0xFFF2F2F2,
-                                                                    ),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                          16,
-                                                                        ),
-                                                                  ),
-                                                                  child: Column(
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .start,
-                                                                    children: [
-                                                                      Row(
-                                                                        children: const [
-                                                                          Icon(
-                                                                            Icons.group_add,
-                                                                            size:
-                                                                                20,
-                                                                            color: Color(
-                                                                              0xFF4A4A4A,
-                                                                            ),
-                                                                          ),
-                                                                          SizedBox(
-                                                                            width:
-                                                                                8,
-                                                                          ),
-                                                                          Text(
-                                                                            'Quick Invite',
-                                                                            style: TextStyle(
-                                                                              fontSize:
-                                                                                  16,
-                                                                              fontWeight:
-                                                                                  FontWeight.w500,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        height:
-                                                                            6,
-                                                                      ),
-                                                                      const Text(
-                                                                        'Manually approve guests for\nsmooth entry. Ideal for small,\npersonal gatherings.',
-                                                                        style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color: Color(
-                                                                            0xFF666666,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 12,
-                                                              ),
-                                                              Expanded(
-                                                                child: Container(
-                                                                  height: 100,
-                                                                  padding:
-                                                                      const EdgeInsets.all(
-                                                                        12,
-                                                                      ),
-                                                                  decoration: BoxDecoration(
-                                                                    color: const Color(
-                                                                      0xFFF2F2F2,
-                                                                    ),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                          16,
-                                                                        ),
-                                                                  ),
-                                                                  child: Column(
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .start,
-                                                                    children: [
-                                                                      Row(
-                                                                        children: const [
-                                                                          Icon(
-                                                                            Icons.group,
-                                                                            size:
-                                                                                20,
-                                                                            color: Color(
-                                                                              0xFF4A4A4A,
-                                                                            ),
-                                                                          ),
-                                                                          SizedBox(
-                                                                            width:
-                                                                                8,
-                                                                          ),
-                                                                          Text(
-                                                                            'Party/Group Invite',
-                                                                            style: TextStyle(
-                                                                              fontSize:
-                                                                                  16,
-                                                                              fontWeight:
-                                                                                  FontWeight.w500,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        height:
-                                                                            6,
-                                                                      ),
-                                                                      const Text(
-                                                                        'Generate a shared invite link with\nguest limits for easy tracking\nduring large events.',
-                                                                        style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color: Color(
-                                                                            0xFF666666,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const SizedBox(
-                                                            height: 12,
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Expanded(
-                                                                child: Container(
-                                                                  height: 100,
-                                                                  padding:
-                                                                      const EdgeInsets.all(
-                                                                        12,
-                                                                      ),
-                                                                  decoration: BoxDecoration(
-                                                                    color: const Color(
-                                                                      0xFFF2F2F2,
-                                                                    ),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                          16,
-                                                                        ),
-                                                                  ),
-                                                                  child: Column(
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .start,
-                                                                    children: [
-                                                                      Row(
-                                                                        children: const [
-                                                                          Icon(
-                                                                            Icons.repeat,
-                                                                            size:
-                                                                                20,
-                                                                            color: Color(
-                                                                              0xFF4A4A4A,
-                                                                            ),
-                                                                          ),
-                                                                          SizedBox(
-                                                                            width:
-                                                                                8,
-                                                                          ),
-                                                                          Text(
-                                                                            'Frequent Invite',
-                                                                            style: TextStyle(
-                                                                              fontSize:
-                                                                                  16,
-                                                                              fontWeight:
-                                                                                  FontWeight.w500,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        height:
-                                                                            6,
-                                                                      ),
-                                                                      const Text(
-                                                                        'Provide regular visitors with a\nsingle passcode, avoiding the\nneed for repeated approvals.',
-                                                                        style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color: Color(
-                                                                            0xFF666666,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(
-                                                                width: 12,
-                                                              ),
-                                                              Expanded(
-                                                                child: Container(
-                                                                  height: 100,
-                                                                  padding:
-                                                                      const EdgeInsets.all(
-                                                                        12,
-                                                                      ),
-                                                                  decoration: BoxDecoration(
-                                                                    color: const Color(
-                                                                      0xFFF2F2F2,
-                                                                    ),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                          16,
-                                                                        ),
-                                                                  ),
-                                                                  child: Column(
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .start,
-                                                                    children: [
-                                                                      Row(
-                                                                        children: const [
-                                                                          Icon(
-                                                                            Icons.lock,
-                                                                            size:
-                                                                                20,
-                                                                            color: Color(
-                                                                              0xFF4A4A4A,
-                                                                            ),
-                                                                          ),
-                                                                          SizedBox(
-                                                                            width:
-                                                                                8,
-                                                                          ),
-                                                                          Text(
-                                                                            'Private Invite',
-                                                                            style: TextStyle(
-                                                                              fontSize:
-                                                                                  16,
-                                                                              fontWeight:
-                                                                                  FontWeight.w500,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        height:
-                                                                            6,
-                                                                      ),
-                                                                      const Text(
-                                                                        'Provide regular visitors with a\nsingle passcode, avoiding the\nneed for repeated approvals.',
-                                                                        style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color: Color(
-                                                                            0xFF666666,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                            );
-                                          },
-                                          child: InkWell(
+                                          InkWell(
                                             onTap: () {
-                                              _showPreApprovalDialog();
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          SettingsPage(),
+                                                ),
+                                              );
                                             },
-                                            child: _buildQuickAccessCard(
-                                              "assets/images/icons/All Icons.png",
-                                              "Pre-Approval",
+                                            child: CircleAvatar(
+                                              backgroundColor: const Color(
+                                                0xFFD4BE45,
+                                              ),
+                                              radius: 18,
+                                              child: const Text(
+                                                'D',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 15),
-                                      Expanded(
-                                        child: InkWell(
-                                          onTap: () {},
-                                          child: _buildQuickAccessCard(
-                                            "assets/images/icons/Vector (1).png",
-                                            "Daily help",
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 15),
-                                      Expanded(
-                                        child: InkWell(
-                                          onTap: () {
-                                            showDialog(
-                                              context: context,
-                                              barrierDismissible: false,
-                                              barrierColor: Colors.black
-                                                  .withValues(alpha: 0.5),
-                                              builder: (
-                                                BuildContext dialogContext,
-                                              ) {
-                                                return Center(
-                                                  child: Stack(
-                                                    clipBehavior: Clip.none,
-                                                    children: [
-                                                      Container(
-                                                        width: 328,
-                                                        padding:
-                                                            const EdgeInsets.fromLTRB(
-                                                              20,
-                                                              60,
-                                                              20,
-                                                              24,
-                                                            ),
-                                                        decoration: BoxDecoration(
-                                                          color: Colors.white,
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                24,
-                                                              ),
-                                                        ),
-                                                        child: Column(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: [
-                                                            const Text(
-                                                              'CAB',
-                                                              style: TextStyle(
-                                                                fontSize: 20,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                color: Color(
-                                                                  0xFF4A4A4A,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 24,
-                                                            ),
-                                                            Row(
-                                                              children: [
-                                                                Expanded(
-                                                                  child: Container(
-                                                                    height: 44,
-                                                                    decoration: BoxDecoration(
-                                                                      color: Color(
-                                                                        0xFFF2F2F2,
-                                                                      ),
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                            12,
-                                                                          ),
-                                                                    ),
-                                                                    alignment:
-                                                                        Alignment
-                                                                            .center,
-                                                                    child: const Text(
-                                                                      'Allow Once',
-                                                                      style: TextStyle(
-                                                                        fontSize:
-                                                                            16,
-                                                                        color: Color(
-                                                                          0xFF4A4A4A,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                const SizedBox(
-                                                                  width: 16,
-                                                                ),
-                                                                Expanded(
-                                                                  child: Container(
-                                                                    height: 44,
-                                                                    decoration: BoxDecoration(
-                                                                      color: Color(
-                                                                        0xFFF2F2F2,
-                                                                      ),
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                            12,
-                                                                          ),
-                                                                    ),
-                                                                    alignment:
-                                                                        Alignment
-                                                                            .center,
-                                                                    child: const Text(
-                                                                      "Don't Allow",
-                                                                      style: TextStyle(
-                                                                        fontSize:
-                                                                            16,
-                                                                        color: Color(
-                                                                          0xFF4A4A4A,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 16,
-                                                            ),
-                                                            Container(
-                                                              width:
-                                                                  double
-                                                                      .infinity,
-                                                              height: 44,
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                    color: Color(
-                                                                      0xFFF2F2F2,
-                                                                    ),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                          12,
-                                                                        ),
-                                                                  ),
-                                                              alignment:
-                                                                  Alignment
-                                                                      .center,
-                                                              child: const Text(
-                                                                'Allow Frequently',
-                                                                style: TextStyle(
-                                                                  fontSize: 16,
-                                                                  color: Color(
-                                                                    0xFF4A4A4A,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
+                                          const SizedBox(width: 8),
+                                          GestureDetector(
+                                            onTap: _toggleDropdown,
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  'Block B,105',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium
+                                                      ?.copyWith(
+                                                        color: Colors.black87,
+                                                        fontWeight:
+                                                            FontWeight.w500,
                                                       ),
-
-                                                      Positioned(
-                                                        top: -40,
-                                                        left: 0,
-                                                        right: 0,
-                                                        child: CircleAvatar(
-                                                          radius: 40,
-                                                          backgroundColor:
-                                                              AppColors
-                                                                  .primaryGreen,
-                                                          child: const Icon(
-                                                            Icons
-                                                                .directions_car,
-                                                            size: 32,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ),
-
-                                                      // ────── close button ──────
-                                                      Positioned(
-                                                        top: 12,
-                                                        right: 12,
-                                                        child: GestureDetector(
-                                                          onTap:
-                                                              () =>
-                                                                  Navigator.of(
-                                                                    dialogContext,
-                                                                  ).pop(),
-                                                          child: Image.asset(
-                                                            "assets/images/icons/close-outline.png",
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
-                                              },
-                                            );
-                                          },
-                                          child: _buildQuickAccessCard(
-                                            "assets/images/icons/car.side.arrowtriangle.down.png",
-                                            "Cab",
+                                                ),
+                                                Icon(
+                                                  _isDropdownOpen
+                                                      ? Icons.keyboard_arrow_up
+                                                      : Icons
+                                                          .keyboard_arrow_down,
+                                                  color: Colors.black87,
+                                                  size: 20,
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 15),
-                                      Expanded(
-                                        child: InkWell(
-                                          onTap: () {
-                                            _showVisitingHelpDialog();
-                                          },
-                                          child: _buildQuickAccessCard(
-                                            "assets/images/icons/Group (2).png",
-                                            "Visit Home",
+                                          const Spacer(),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.white,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withValues(alpha: 0.1),
+                                                  blurRadius: 4,
+                                                  offset: const Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: IconButton(
+                                              icon: InkWell(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder:
+                                                          (context) =>
+                                                              NotificationPage(),
+                                                    ),
+                                                  );
+                                                },
+                                                child: const Icon(
+                                                  Icons
+                                                      .notifications_none_outlined,
+                                                  size: 24,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              onPressed: () {},
+                                              tooltip: 'Notifications',
+                                              padding: const EdgeInsets.all(8),
+                                              constraints:
+                                                  const BoxConstraints(),
+                                            ),
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                // Notice section header
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Notices',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleLarge?.copyWith(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {},
-                                      child: Text(
-                                        'View All',
-                                        style: TextStyle(
-                                          color: Colors.blue[700],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                // Notice Carousel
-                                SizedBox(
-                                  height: isPortrait ? 230 : 170,
-                                  child: PageView.builder(
-                                    controller: _noticePageController,
-                                    itemCount: _notices.length,
-                                    onPageChanged: (index) {
-                                      setState(() {
-                                        _currentNoticePage = index;
-                                      });
-                                    },
-                                    itemBuilder: (context, index) {
-                                      final notice = _notices[index];
-                                      return Container(
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 2,
-                                        ),
+                                      const SizedBox(height: 16),
+                                      // Search bar
+                                      Container(
                                         decoration: BoxDecoration(
                                           color: AppColors.lightGrey,
                                           borderRadius: BorderRadius.circular(
-                                            16,
+                                            12,
                                           ),
                                           boxShadow: [
                                             BoxShadow(
                                               color: Colors.black.withValues(
                                                 alpha: 0.05,
                                               ),
+                                              blurRadius: 5,
                                               offset: const Offset(0, 2),
-                                              blurRadius: 10,
-                                              spreadRadius: 0,
                                             ),
                                           ],
                                           border: Border.all(
-                                            color: Colors.grey[100]!,
+                                            color: Colors.grey[200]!,
                                             width: 1,
                                           ),
                                         ),
-                                        padding: const EdgeInsets.all(16),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                        child: Row(
                                           children: [
-                                            Row(
-                                              children: [
-                                                Container(
-                                                  width: 40,
-                                                  height: 40,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey[300],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          8,
-                                                        ),
+                                            const Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                              ),
+                                              child: Icon(
+                                                Icons.search,
+                                                size: 24,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: TextField(
+                                                controller: searchController,
+                                                onSubmitted: _onSearchSubmitted,
+                                                decoration: InputDecoration(
+                                                  hintText: 'Search',
+                                                  hintStyle: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.grey[600],
                                                   ),
-                                                  child: const Center(
-                                                    child: Text(
-                                                      '=',
-                                                      style: TextStyle(
-                                                        fontSize: 24,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.black54,
+                                                  border: InputBorder.none,
+                                                  contentPadding:
+                                                      const EdgeInsets.symmetric(
+                                                        vertical: 14,
                                                       ),
-                                                    ),
-                                                  ),
                                                 ),
-                                                const SizedBox(width: 12),
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        const Text(
-                                                          'Notice',
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
+                                              ),
+                                            ),
+                                            if (searchController
+                                                .text
+                                                .isNotEmpty)
+                                              IconButton(
+                                                icon: Icon(
+                                                  Icons.clear,
+                                                  color: Colors.grey[600],
+                                                ),
+                                                onPressed: () {
+                                                  searchController.clear();
+                                                },
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 24),
+                                      // Quick Access section - original position
+                                      _buildQuickAccessSection(),
+                                      const SizedBox(height: 24),
+                                      // Notice section header
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Notices',
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.titleLarge?.copyWith(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {},
+                                            child: Text(
+                                              'View All',
+                                              style: TextStyle(
+                                                color: Colors.blue[700],
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      // Notice Carousel
+                                      SizedBox(
+                                        height: isPortrait ? 230 : 170,
+                                        child: PageView.builder(
+                                          controller: _noticePageController,
+                                          itemCount: _notices.length,
+                                          onPageChanged: (index) {
+                                            setState(() {
+                                              _currentNoticePage = index;
+                                            });
+                                          },
+                                          itemBuilder: (context, index) {
+                                            final notice = _notices[index];
+                                            return Container(
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 2,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.lightGrey,
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withValues(
+                                                          alpha: 0.05,
                                                         ),
-                                                        const SizedBox(
-                                                          width: 8,
-                                                        ),
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                horizontal: 8,
-                                                                vertical: 2,
+                                                    offset: const Offset(0, 2),
+                                                    blurRadius: 10,
+                                                    spreadRadius: 0,
+                                                  ),
+                                                ],
+                                                border: Border.all(
+                                                  color: Colors.grey[100]!,
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              padding: const EdgeInsets.all(16),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Container(
+                                                        width: 40,
+                                                        height: 40,
+                                                        decoration: BoxDecoration(
+                                                          color:
+                                                              Colors.grey[300],
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                8,
                                                               ),
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.black,
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  4,
-                                                                ),
-                                                          ),
-                                                          child: const Text(
-                                                            'Admin',
+                                                        ),
+                                                        child: const Center(
+                                                          child: Text(
+                                                            '=',
                                                             style: TextStyle(
+                                                              fontSize: 24,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
                                                               color:
-                                                                  Colors.white,
-                                                              fontSize: 12,
+                                                                  Colors
+                                                                      .black54,
                                                             ),
                                                           ),
                                                         ),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(height: 4),
-                                                    Text(
-                                                      '${notice['category']} • ${notice['timeAgo']}',
-                                                      style: TextStyle(
-                                                        color: Colors.grey[600],
-                                                        fontSize: 14,
                                                       ),
+                                                      const SizedBox(width: 12),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Row(
+                                                            children: [
+                                                              const Text(
+                                                                'Notice',
+                                                                style: TextStyle(
+                                                                  fontSize: 16,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 8,
+                                                              ),
+                                                              Container(
+                                                                padding:
+                                                                    const EdgeInsets.symmetric(
+                                                                      horizontal:
+                                                                          8,
+                                                                      vertical:
+                                                                          2,
+                                                                    ),
+                                                                decoration: BoxDecoration(
+                                                                  color:
+                                                                      Colors
+                                                                          .black,
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        4,
+                                                                      ),
+                                                                ),
+                                                                child: const Text(
+                                                                  'Admin',
+                                                                  style: TextStyle(
+                                                                    color:
+                                                                        Colors
+                                                                            .white,
+                                                                    fontSize:
+                                                                        12,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 4,
+                                                          ),
+                                                          Text(
+                                                            '${notice['category']} • ${notice['timeAgo']}',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors
+                                                                      .grey[600],
+                                                              fontSize: 14,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  Text(
+                                                    notice['title'],
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16,
                                                     ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 16),
-                                            Text(
-                                              notice['title'],
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    notice['content'],
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.black87,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              notice['content'],
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.black87,
-                                              ),
-                                            ),
-                                          ],
+                                            );
+                                          },
                                         ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                // Carousel indicators
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: List.generate(
-                                    _notices.length,
-                                    (index) => GestureDetector(
-                                      onTap: () {
-                                        _noticePageController.animateToPage(
-                                          index,
-                                          duration: const Duration(
-                                            milliseconds: 300,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      // Carousel indicators
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: List.generate(
+                                          _notices.length,
+                                          (index) => GestureDetector(
+                                            onTap: () {
+                                              _noticePageController
+                                                  .animateToPage(
+                                                    index,
+                                                    duration: const Duration(
+                                                      milliseconds: 300,
+                                                    ),
+                                                    curve: Curves.easeInOut,
+                                                  );
+                                            },
+                                            child: Container(
+                                              width: 8,
+                                              height: 8,
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 4,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color:
+                                                    _currentNoticePage == index
+                                                        ? Colors.black
+                                                        : Colors.grey[300],
+                                              ),
+                                            ),
                                           ),
-                                          curve: Curves.easeInOut,
-                                        );
-                                      },
-                                      child: Container(
-                                        width: 8,
-                                        height: 8,
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 4,
                                         ),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color:
-                                              _currentNoticePage == index
-                                                  ? Colors.black
-                                                  : Colors.grey[300],
+                                      ),
+                                      const SizedBox(height: 24),
+                                      // Social Feed Section
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Social Feed',
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.titleLarge?.copyWith(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      // Feed Posts
+                                      Consumer<SocialPostProvider>(
+                                        builder: (context, provider, child) {
+                                          final posts = provider.posts;
+                                          if (posts.isEmpty) {
+                                            return Container(
+                                              height: 150,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey[100],
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              alignment: Alignment.center,
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(
+                                                    Icons.article_outlined,
+                                                    size: 40,
+                                                    color: Colors.grey[400],
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    'No posts yet',
+                                                    style: TextStyle(
+                                                      color: Colors.grey[600],
+                                                    ),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder:
+                                                              (context) =>
+                                                                  const NewPostPage(),
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: const Text(
+                                                      'Create a post',
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }
+
+                                          return Column(
+                                            children:
+                                                posts
+                                                    .map(
+                                                      (post) => SocialPostCard(
+                                                        post: post,
+                                                      ),
+                                                    )
+                                                    .toList(),
+                                          );
+                                        },
+                                      ),
+                                      const SizedBox(height: 24),
+                                      // Services section
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Services',
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.titleLarge?.copyWith(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {},
+                                            child: Text(
+                                              'View All',
+                                              style: TextStyle(
+                                                color: Colors.blue[700],
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      GridView.builder(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        gridDelegate:
+                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount:
+                                                  screenWidth > 1024
+                                                      ? 4
+                                                      : (screenWidth > 600
+                                                          ? 3
+                                                          : 2),
+                                              childAspectRatio:
+                                                  screenWidth > 1024
+                                                      ? 0.98
+                                                      : (screenWidth > 600
+                                                          ? 0.8
+                                                          : 1),
+                                              crossAxisSpacing: 16,
+                                              mainAxisSpacing: 16,
+                                            ),
+                                        itemCount: serviceCards.length,
+                                        itemBuilder:
+                                            (context, index) =>
+                                                serviceCards[index],
+                                      ),
+                                      const SizedBox(height: 24),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          // Sticky header that appears when scrolling
+                          if (_isQuickAccessSticky)
+                            Positioned(
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              child: SlideTransition(
+                                position: _slideAnimation,
+                                child: FadeTransition(
+                                  opacity: _fadeAnimation,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.1,
+                                          ),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
                                         ),
+                                      ],
+                                    ),
+                                    child: SafeArea(
+                                      child: _buildQuickAccessSection(
+                                        inHeader: true,
                                       ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 24),
-                                // Services section
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Services',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleLarge?.copyWith(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {},
-                                      child: Text(
-                                        'View All',
-                                        style: TextStyle(
-                                          color: Colors.blue[700],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                        // responsive number of columns:
-                                        crossAxisCount:
-                                            screenWidth > 1024
-                                                ? 4
-                                                : (screenWidth > 600 ? 3 : 2),
-                                        // tweak this to match exactly the card shape in your mock:
-                                        childAspectRatio:
-                                            screenWidth > 1024
-                                                ? 0.98
-                                                : (screenWidth > 600 ? 0.8 : 1),
-                                        crossAxisSpacing: 16,
-                                        mainAxisSpacing: 16,
-                                      ),
-                                  // show all of them
-                                  itemCount: serviceCards.length,
-                                  itemBuilder:
-                                      (context, index) => serviceCards[index],
-                                ),
-                                const SizedBox(height: 24),
-                              ],
+                              ),
                             ),
-                          ),
+
                           // Dropdown overlay
                           if (_isDropdownOpen)
                             Positioned(
@@ -2030,6 +2135,7 @@ class _SocialScreenState extends State<SocialScreen> {
                                 ),
                               ),
                             ),
+
                           // Add Property Form overlay
                           if (_showAddPropertyForm)
                             Positioned.fill(
@@ -2232,6 +2338,302 @@ class _SocialScreenState extends State<SocialScreen> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
+
+  // Quick access section that can be reused
+  Widget _buildQuickAccessSection({bool inHeader = false}) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
+    // Calculate horizontal padding
+    final horizontalPadding =
+        inHeader ? (screenWidth > 600 ? 40.0 : 20.0) : 0.0;
+    final containerWidth = screenWidth - (horizontalPadding * 2);
+
+    // Adjust spacing based on screen width with minimal values
+    final cardSpacing = isSmallScreen ? 4.0 : 6.0;
+
+    // Calculate card width with a much larger margin of safety (40px) to account for any system-level padding
+    final safetyMargin = 40.0;
+    final adjustedWidth = containerWidth - safetyMargin;
+
+    // Calculate sizes precisely to avoid overflow
+    final cardWidth =
+        ((adjustedWidth - (cardSpacing * 3)) / 4).floor().toDouble();
+    final cardHeight = inHeader ? cardWidth : cardWidth * 1.05;
+
+    // Scale icon and text size
+    final iconSize =
+        inHeader
+            ? (isSmallScreen ? 16.0 : 20.0)
+            : (isSmallScreen ? 20.0 : 24.0);
+    final fontSize =
+        inHeader ? (isSmallScreen ? 8.0 : 9.0) : (isSmallScreen ? 9.0 : 10.0);
+
+    return Container(
+      color: inHeader ? Colors.white : Colors.transparent,
+      width: containerWidth,
+      padding: EdgeInsets.symmetric(
+        vertical: inHeader ? 8.0 : 0,
+        horizontal: horizontalPadding,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!inHeader)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Quick Access',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                    fontSize: isSmallScreen ? 16 : 18,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _isCustomizing = true;
+                    });
+                    _toggleQuickAccessPopup();
+                  },
+                  child: Text(
+                    'Customize',
+                    style: TextStyle(
+                      color: Colors.blue[700],
+                      fontWeight: FontWeight.w500,
+                      fontSize: isSmallScreen ? 11 : 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          if (!inHeader) SizedBox(height: isSmallScreen ? 6.0 : 10.0),
+          SizedBox(
+            height: cardHeight,
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(quickAccessItems.length, (index) {
+                  final item = quickAccessItems[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      right:
+                          index < quickAccessItems.length - 1 ? cardSpacing : 0,
+                    ),
+                    child: SizedBox(
+                      width: cardWidth,
+                      child: _buildQuickAccessCard(
+                        item,
+                        iconSize: iconSize,
+                        fontSize: fontSize,
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickAccessCard(
+    Map<String, dynamic> item, {
+    required double iconSize,
+    required double fontSize,
+  }) {
+    return InkWell(
+      onTap: () => _executeQuickAccessAction(item),
+      borderRadius: BorderRadius.circular(8),
+      child: AspectRatio(
+        aspectRatio: 1.0,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.lightGrey,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                item['icon'] as IconData,
+                size: iconSize,
+                color: Colors.black87,
+              ),
+              const SizedBox(height: 2),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 1),
+                child: Text(
+                  item['title'] as String,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    color: Colors.black87,
+                    height: 1.0,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // This method ensures that the items shown match those in the popup
+  void _initAllAvailableItems() {
+    // Clear existing items and start fresh
+    allAvailableItems = [];
+
+    // Add pre-approve items - first category in popup
+    for (var item in preApproveItems) {
+      allAvailableItems.add({
+        "icon": item["icon"] as IconData,
+        "title": item["title"] as String,
+        "function":
+            item["title"] == "Cab"
+                ? "_showCabDialog"
+                : item["title"] == "Visiting\nHelp"
+                ? "_showVisitingHelpDialog"
+                : null,
+        "page": item["page"],
+        "category": "Pre-approve entry",
+      });
+    }
+
+    // Add security items - second category in popup
+    for (var item in securityItems) {
+      allAvailableItems.add({
+        "icon": item["icon"] as IconData,
+        "title": item["title"] as String,
+        "function": null,
+        "page": item["page"],
+        "category": "Security",
+      });
+    }
+
+    // Add create post items - third category in popup
+    for (var item in createPostItems) {
+      allAvailableItems.add({
+        "icon": item["icon"] as IconData,
+        "title": item["title"] as String,
+        "function": null,
+        "page": item["page"],
+        "category": "Create post",
+      });
+    }
+  }
+}
+
+class ReorderableGridView extends StatefulWidget {
+  final List<Widget> children;
+  final int crossAxisCount;
+  final double mainAxisSpacing;
+  final double crossAxisSpacing;
+  final double childAspectRatio;
+  final Function(int oldIndex, int newIndex) onReorder;
+
+  const ReorderableGridView.count({
+    Key? key,
+    required this.children,
+    required this.crossAxisCount,
+    required this.mainAxisSpacing,
+    required this.crossAxisSpacing,
+    required this.childAspectRatio,
+    required this.onReorder,
+    required bool shrinkWrap,
+    required NeverScrollableScrollPhysics physics,
+  }) : super(key: key);
+
+  @override
+  _ReorderableGridViewState createState() => _ReorderableGridViewState();
+}
+
+class _ReorderableGridViewState extends State<ReorderableGridView> {
+  @override
+  Widget build(BuildContext context) {
+    return ReorderableWrap(
+      spacing: widget.crossAxisSpacing,
+      runSpacing: widget.mainAxisSpacing,
+      children: widget.children,
+      onReorder: widget.onReorder,
+      buildDraggableFeedback: (context, constraints, child) {
+        return Material(
+          elevation: 6.0,
+          color: Colors.transparent,
+          child: Container(
+            width:
+                (MediaQuery.of(context).size.width -
+                    (widget.crossAxisSpacing * (widget.crossAxisCount - 1)) -
+                    48) /
+                widget.crossAxisCount,
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+}
+
+// This is a simplified ReorderableWrap to make the drag-and-drop work
+class ReorderableWrap extends StatefulWidget {
+  final List<Widget> children;
+  final void Function(int oldIndex, int newIndex) onReorder;
+  final double spacing;
+  final double runSpacing;
+  final Widget Function(BuildContext, BoxConstraints, Widget)
+  buildDraggableFeedback;
+
+  const ReorderableWrap({
+    Key? key,
+    required this.children,
+    required this.onReorder,
+    this.spacing = 0,
+    this.runSpacing = 0,
+    required this.buildDraggableFeedback,
+  }) : super(key: key);
+
+  @override
+  _ReorderableWrapState createState() => _ReorderableWrapState();
+}
+
+class _ReorderableWrapState extends State<ReorderableWrap> {
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: widget.spacing,
+      runSpacing: widget.runSpacing,
+      children: List.generate(widget.children.length, (index) {
+        return LongPressDraggable<int>(
+          data: index,
+          child: DragTarget<int>(
+            onWillAcceptWithDetails: (data) => data.data != index,
+            onAccept: (data) {
+              widget.onReorder(data, index);
+            },
+            builder: (context, candidateData, rejectedData) {
+              return widget.children[index];
+            },
+          ),
+          feedback: widget.buildDraggableFeedback(
+            context,
+            BoxConstraints(),
+            widget.children[index],
+          ),
+          childWhenDragging: Opacity(
+            opacity: 0.2,
+            child: widget.children[index],
+          ),
+        );
+      }),
     );
   }
 }

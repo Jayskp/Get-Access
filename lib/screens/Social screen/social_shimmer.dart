@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:getaccess/util/constants/colors.dart';
 
 class SocialShimmer extends StatefulWidget {
   const SocialShimmer({super.key});

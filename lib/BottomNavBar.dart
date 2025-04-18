@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:getaccess/chat.dart';
-import 'package:getaccess/notification.dart';
 import 'package:getaccess/screens/Community/community_screen.dart';
 import 'package:getaccess/screens/Marketplace/marketplace.dart';
 import 'package:getaccess/screens/Search%20Home/search_home_screen.dart';
@@ -21,7 +19,7 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
     CommunityScreen(),
     SearchHomeScreen(),
     Marketplace(),
-    NotificationPage(),
+    ServiceScreen(),
   ];
 
   @override

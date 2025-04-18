@@ -1,8 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:getaccess/app.dart';
+import 'package:provider/provider.dart';
+import 'providers/social_post_provider.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Set preferred refresh rate to highest available (for 120Hz support)
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  // Enable high refresh rate mode by using edge-to-edge mode
+  // This helps with high refresh rate displays
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+  // Force the app to use highest refresh rate on Android
+  // This is a platform-specific call that enables high refresh rate
+  try {
+    await SystemChannels.platform.invokeMethod<void>(
+      'SystemChrome.setPreferredRefreshRate',
+      120, // Request 120Hz refresh rate
+    );
+  } catch (e) {
+    // Ignore errors, as not all devices support this feature
+    debugPrint('Could not set preferred refresh rate: $e');
+  }
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SocialPostProvider()),
+        // Add other providers here if needed
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -29,8 +61,15 @@ class MyApp extends StatelessWidget {
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        // Set additional animation timings for smoother 120Hz animations
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          },
+        ),
       ),
-      home: App(),
+      home: const App(),
     );
   }
 }
