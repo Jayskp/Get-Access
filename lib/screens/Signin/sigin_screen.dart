@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../auth_services.dart';
 import '../Login/login_screen.dart';
@@ -8,113 +8,235 @@ import 'email_screen.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
+
   @override
-  _SignUpPageState createState() => _SignUpPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final _phoneController = TextEditingController();
-  bool _valid = false, _loading = false;
+  final TextEditingController _phoneController = TextEditingController();
+  bool _isValid = false;
 
-  TextStyle _archivo(double size, [FontWeight w = FontWeight.normal, Color c = Colors.black87]) {
-    return GoogleFonts.archivo(fontSize: size, fontWeight: w, color: c);
-  }
+  static const Color primaryColor = Color(0xFF004D40);
+  static const Color grayText = Color(0xFF4A4A4A);
+  static const Color footerShade = Color(0xFFF3F3F3);
 
   @override
   void initState() {
     super.initState();
     _phoneController.addListener(() {
+      final phone = _phoneController.text.trim();
       setState(() {
-        _valid = RegExp(r"^[0-9]{10}$").hasMatch(_phoneController.text.trim());
+        // Ensure phone has exactly 10 digits (all numeric).
+        _isValid = RegExp(r"^[0-9]{10}$").hasMatch(phone);
       });
     });
   }
 
-  Future<void> _register() async {
-    if (!_valid) return;
-    setState(() => _loading = true);
+  /// Registers user with phone number using SharedPreferences
+  void _registerWithPhone(String phoneNumber) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_phone', '+91${_phoneController.text.trim()}');
+
+    // Store the phone number for future reference
+    await prefs.setString('user_phone', phoneNumber);
+
+    // Set registration flag
     await AuthService.register();
+
+    // Navigate to login screen
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      MaterialPageRoute(builder: (context) => LoginScreen()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: Center(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        title: const Text(
+          'Get Started',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+            fontSize: 18,
+          ),
+        ),
+        centerTitle: false,
+      ),
+      body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Create Account', style: _archivo(24, FontWeight.bold)),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Enter your phone number',
-                    style: _archivo(16, FontWeight.w400, Colors.grey[700]!),
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  'Please enter your mobile number to\nproceed further',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: grayText,
+                    fontWeight: FontWeight.w400,
                   ),
-                  const SizedBox(height: 24),
-                  TextField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.number,
-                    maxLength: 10,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      hintText: 'Mobile number',
-                      counterText: '',
-                      hintStyle: _archivo(14, FontWeight.w400, Colors.grey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+                ),
+              ),
+              const SizedBox(height: 32),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Container(
+                  height: 56,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: primaryColor, width: 1.5),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          '+91',
+                          style: TextStyle(fontSize: 16, color: Colors.black),
+                        ),
                       ),
-                      prefix: const Padding(
-                        padding: EdgeInsets.only(left: 12),
-                        child: Text('+91', style: TextStyle(fontSize: 16)),
+                      const VerticalDivider(
+                        width: 1,
+                        thickness: 1,
+                        color: primaryColor,
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _phoneController,
+                          keyboardType: TextInputType.number,
+                          maxLength: 10,
+                          decoration: const InputDecoration(
+                            counterText: '',
+                            hintText: 'Enter Mobile Number',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                          ),
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EmailSignInPage()),
+                  );
+                },
+                child: const Text(
+                  'Use Email',
+                  style: TextStyle(
+                    color: primaryColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _isValid
+                        ? () {
+                      // Concatenate the country code and phone number
+                      final phoneNumber = "+91" + _phoneController.text.trim();
+                      _registerWithPhone(phoneNumber);
+                    }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isValid ? Colors.black : Colors.grey.shade300,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                    ),
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
                       ),
                     ),
                   ),
-                  if (_loading) ...[
-                    const SizedBox(height: 16),
-                    const CircularProgressIndicator(),
-                  ] else ...[
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: _valid ? _register : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black87,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              // Footer content remains the same
+              const SizedBox(height: 210),
+              Container(
+                width: double.infinity,
+                color: footerShade,
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Row(
+                      children: [
+                        Icon(Icons.shield, size: 20, color: grayText),
+                        SizedBox(width: 8),
+                        Text(
+                          'mygate',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: grayText,
                           ),
                         ),
-                        child: Text('Continue', style: _archivo(16, FontWeight.w600, Colors.white)),
+                      ],
+                    ),
+                    SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '• ',
+                          style: TextStyle(fontSize: 14, color: grayText),
+                        ),
+                        Expanded(
+                          child: Text(
+                            'Does not sell or trade your data',
+                            style: TextStyle(fontSize: 14, color: grayText),
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Other bullet points remain the same
+                    SizedBox(height: 12),
+                    Text(
+                      'Privacy Policy',
+                      style: TextStyle(
+                        color: primaryColor,
+                        decoration: TextDecoration.underline,
+                        fontSize: 14,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const EmailSignInPage()),
+                    SizedBox(height: 4),
+                    Text(
+                      'Terms & Conditions',
+                      style: TextStyle(
+                        color: primaryColor,
+                        decoration: TextDecoration.underline,
+                        fontSize: 14,
                       ),
-                      child: Text('Use Email Instead', style: _archivo(14, FontWeight.w500, Colors.blue[700]!)),
                     ),
-                  ]
-                ],
+                    SizedBox(height: 8),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
