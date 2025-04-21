@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -273,16 +275,16 @@ class SocialPostCard extends StatelessWidget {
     if (post.imageUrls == null || post.imageUrls!.isEmpty) {
       return const SizedBox.shrink();
     }
-
-    return Container(
-      margin: const EdgeInsets.only(top: 16),
-      height: 200,
-      width: double.infinity,
-      child: PageView.builder(
-        itemCount: post.imageUrls!.length,
-        itemBuilder: (context, index) {
-          return Image.asset(post.imageUrls![index], fit: BoxFit.cover);
-        },
+    final String path = post.imageUrls!.first;
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12), // adjust the radius
+        child: Image.file(
+          File(path),
+          fit: BoxFit.cover,
+          width: double.infinity,
+        ),
       ),
     );
   }

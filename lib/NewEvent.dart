@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -479,9 +480,9 @@ class _NewEventPageState extends State<NewEventPage> {
 
     List<String>? imageUrls;
     if (_pickedImage != null) {
-      // In a real app, we would upload the image and get the URL
-      // For this example, we'll just store the path
+      print(_pickedImage);
       imageUrls = [_pickedImage!.path];
+      print(imageUrls);
     }
 
     final event = SocialPost.fromEvent(
