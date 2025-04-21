@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:getaccess/Milkman.dart';
+import 'package:getaccess/daily_help.dart';
 
 class SearchDetailsPage extends StatefulWidget {
   const SearchDetailsPage({super.key});
@@ -88,13 +89,33 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MilkmanPage(),
-                              ),
-                            );
+                            final title = _popularSearches[index]["title"];
+                            if (title == "Daily Help") {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DailyHelp(),
+                                ),
+                              );
+                            } else if (title == "Milkman") {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MilkmanPage(),
+                                ),
+                              );
+                            } else {
+                              // You can leave this empty or show a snackbar if you want
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '$title page is not available yet.',
+                                  ),
+                                ),
+                              );
+                            }
                           },
+
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Row(
