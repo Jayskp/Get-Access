@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:getaccess/screens/Community/community_screen.dart';
 import 'package:getaccess/screens/Marketplace/marketplace.dart';
 import 'package:getaccess/screens/Search%20Home/search_home_screen.dart';
@@ -22,80 +24,160 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
     ServiceScreen(),
   ];
 
+  // Theme colors
+  // static const Color primaryColor = Color(0xFF004D40);
+  // static const Color secondaryColor = Color(0xFF00796B);
+  // static const Color accentColor = Color(0xFF26A69A);
+  static const Color grayText = Color(0xFF4A4A4A);
+
+  TextStyle _archivoTextStyle({
+    double fontSize = 14,
+    FontWeight fontWeight = FontWeight.normal,
+    Color color = Colors.black,
+  }) {
+    return GoogleFonts.archivo(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: 0.2,
+    );
+  }
+
+  // Handle back button press
+  Future<bool> _onWillPop() async {
+    return await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Text(
+          'Exit App',
+          style: _archivoTextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to exit?',
+          style: _archivoTextStyle(
+            fontSize: 16,
+            color: grayText,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Cancel',
+              style: _archivoTextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: grayText,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+              SystemNavigator.pop(); // Close the app
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(28),
+              ),
+            ),
+            child: Text(
+              'Exit',
+              style: _archivoTextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isWeb = MediaQuery.of(context).size.width > 600;
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body:
-          isWeb
-              ? Row(
-                children: [
-                  NavigationRail(
-                    selectedIndex: _currentIndex,
-                    onDestinationSelected: (index) {
-                      setState(() => _currentIndex = index);
-                    },
-                    labelType: NavigationRailLabelType.all,
-                    destinations: [
-                      NavigationRailDestination(
-                        icon: _buildNavIcon(
-                          'assets/images/icons/Social.png',
-                          0,
-                        ),
-                        selectedIcon: _buildNavIcon(
-                          'assets/images/icons/Social.png',
-                          0,
-                        ),
-                        label: _buildNavLabel('Social', 0),
-                      ),
-                      NavigationRailDestination(
-                        icon: _buildNavIcon(
-                          'assets/images/icons/Community.png',
-                          1,
-                        ),
-                        selectedIcon: _buildNavIcon(
-                          'assets/images/icons/Community.png',
-                          1,
-                        ),
-                        label: _buildNavLabel('Community', 1),
-                      ),
-                      NavigationRailDestination(
-                        icon: _buildNavIcon('assets/images/icons/Homes.png', 2),
-                        selectedIcon: _buildNavIcon(
-                          'assets/images/icons/Homes.png',
-                          2,
-                        ),
-                        label: _buildNavLabel('Homes', 2),
-                      ),
-                      NavigationRailDestination(
-                        icon: _buildNavIcon(
-                          'assets/images/icons/Marketplace.png',
-                          3,
-                        ),
-                        selectedIcon: _buildNavIcon(
-                          'assets/images/icons/Marketplace.png',
-                          3,
-                        ),
-                        label: _buildNavLabel('Marketplace', 3),
-                      ),
-                      NavigationRailDestination(
-                        icon: _buildNavIcon(
-                          'assets/images/icons/Services.png',
-                          4,
-                        ),
-                        selectedIcon: _buildNavIcon(
-                          'assets/images/icons/Services.png',
-                          4,
-                        ),
-                        label: _buildNavLabel('Services', 4),
-                      ),
-                    ],
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: isWeb
+            ? Row(
+          children: [
+            NavigationRail(
+              selectedIndex: _currentIndex,
+              onDestinationSelected: (index) {
+                setState(() => _currentIndex = index);
+              },
+              labelType: NavigationRailLabelType.all,
+              destinations: [
+                NavigationRailDestination(
+                  icon: _buildNavIcon(
+                    'assets/images/icons/Social.png',
+                    0,
                   ),
-                  Expanded(child: _screens[_currentIndex]),
-                ],
-              )
-              : _buildMobileScaffold(),
+                  selectedIcon: _buildNavIcon(
+                    'assets/images/icons/Social.png',
+                    0,
+                  ),
+                  label: _buildNavLabel('Social', 0),
+                ),
+                NavigationRailDestination(
+                  icon: _buildNavIcon(
+                    'assets/images/icons/Community.png',
+                    1,
+                  ),
+                  selectedIcon: _buildNavIcon(
+                    'assets/images/icons/Community.png',
+                    1,
+                  ),
+                  label: _buildNavLabel('Community', 1),
+                ),
+                NavigationRailDestination(
+                  icon: _buildNavIcon('assets/images/icons/Homes.png', 2),
+                  selectedIcon: _buildNavIcon(
+                    'assets/images/icons/Homes.png',
+                    2,
+                  ),
+                  label: _buildNavLabel('Homes', 2),
+                ),
+                NavigationRailDestination(
+                  icon: _buildNavIcon(
+                    'assets/images/icons/Marketplace.png',
+                    3,
+                  ),
+                  selectedIcon: _buildNavIcon(
+                    'assets/images/icons/Marketplace.png',
+                    3,
+                  ),
+                  label: _buildNavLabel('Marketplace', 3),
+                ),
+                NavigationRailDestination(
+                  icon: _buildNavIcon(
+                    'assets/images/icons/Services.png',
+                    4,
+                  ),
+                  selectedIcon: _buildNavIcon(
+                    'assets/images/icons/Services.png',
+                    4,
+                  ),
+                  label: _buildNavLabel('Services', 4),
+                ),
+              ],
+            ),
+            Expanded(child: _screens[_currentIndex]),
+          ],
+        )
+            : _buildMobileScaffold(),
+      ),
     );
   }
 
@@ -106,6 +188,7 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
       bottomNavigationBar: SafeArea(
         child: BottomAppBar(
           color: Colors.white,
+          elevation: 8,
           child: SizedBox(
             height: 56,
             child: Row(
@@ -152,25 +235,22 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
     final Color color = isSelected ? Colors.black : Colors.grey;
     final FontWeight weight = isSelected ? FontWeight.bold : FontWeight.normal;
     return Expanded(
-      child: GestureDetector(
+      child: InkWell(
         onTap: () => setState(() => _currentIndex = index),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(imagePath, width: 24, height: 24, color: color),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: weight,
-                  fontSize: 10,
-                ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(imagePath, width: 24, height: 24, color: color),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: _archivoTextStyle(
+                fontSize: 10,
+                fontWeight: weight,
+                color: color,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -188,7 +268,11 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
     final FontWeight weight = isSelected ? FontWeight.bold : FontWeight.normal;
     return Text(
       label,
-      style: TextStyle(color: color, fontWeight: weight, fontSize: 12),
+      style: _archivoTextStyle(
+        fontSize: 12,
+        fontWeight: weight,
+        color: color,
+      ),
     );
   }
 }

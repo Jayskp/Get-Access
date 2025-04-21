@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../auth_services.dart';
@@ -18,8 +20,10 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
   bool _showError = false;
   bool _isLoading = false;
   String _errorMessage = '';
+
   static const Color primaryColor = Color(0xFF004D40);
   static const Color grayText = Color(0xFF4A4A4A);
+  static const Color footerShade = Color(0xFFF3F3F3);
 
   @override
   void initState() {
@@ -28,52 +32,59 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
     _passwordController.addListener(_validateInput);
   }
 
+  TextStyle _archivoTextStyle({
+    double fontSize = 14,
+    FontWeight fontWeight = FontWeight.normal,
+    Color color = Colors.black,
+  }) {
+    return GoogleFonts.archivo(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+    );
+  }
+
   void _validateInput() {
     setState(() {
       _showError = false;
-      final bool emailValid = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$")
+      final bool emailValid = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w]{2,4}\$")
           .hasMatch(_emailController.text.trim());
       final bool passwordValid = _passwordController.text.length >= 6;
       _isValid = emailValid && passwordValid;
     });
   }
 
-  void _signUpWithEmail() async {
-    if (_isValid) {
-      setState(() {
-        _isLoading = true;
-        _showError = false;
-      });
-
-      try {
-        final prefs = await SharedPreferences.getInstance();
-
-        // Store user email and password
-        await prefs.setString('user_email', _emailController.text.trim());
-        await prefs.setString('user_password', _passwordController.text);
-
-        // Set registration flag
-        await AuthService.register();
-
-        // Navigate to login screen
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => LoginScreen())
-        );
-      } catch (e) {
-        setState(() {
-          _showError = true;
-          _errorMessage = e.toString();
-        });
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    } else {
+  Future<void> _signUpWithEmail() async {
+    if (!_isValid) {
       setState(() {
         _showError = true;
         _errorMessage = 'Please enter valid email and password';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _showError = false;
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_email', _emailController.text.trim());
+      await prefs.setString('user_password', _passwordController.text);
+      await AuthService.register();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    } catch (e) {
+      setState(() {
+        _showError = true;
+        _errorMessage = e.toString();
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
       });
     }
   }
@@ -87,147 +98,134 @@ class _EmailSignInPageState extends State<EmailSignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    const borderColor = Color(0xFF004D40);
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
-          'Sign up with Email',
-          style: TextStyle(
-            fontFamily: 'Roboto',
-            fontWeight: FontWeight.w500,
-            fontSize: 20,
-            color: Colors.black,
-          ),
-        ),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
+        title: Text(
+          'Sign Up with Email',
+          style: _archivoTextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-            Text(
-              'Please enter your email to\nproceed further',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: grayText,
-                fontWeight: FontWeight.w400,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 40),
+              Text(
+                'Please enter your email to proceed further',
+                textAlign: TextAlign.center,
+                style: _archivoTextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: grayText,
+                ),
               ),
-            ),
-            const SizedBox(height: 32),
-            // Email TextField
-            Container(
-              height: 56,
-              decoration: BoxDecoration(
-                border: Border.all(color: borderColor, width: 1.5),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: TextField(
+              const SizedBox(height: 32),
+              _buildTextField(
                 controller: _emailController,
+                hint: 'Enter your Email',
                 keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(
-                  fontFamily: 'Roboto',
-                  fontSize: 16,
-                ),
-                decoration: const InputDecoration(
-                  hintText: 'Enter your Email',
-                  hintStyle: TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            // Password TextField
-            Container(
-              height: 56,
-              decoration: BoxDecoration(
-                border: Border.all(color: borderColor, width: 1.5),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: TextField(
+              const SizedBox(height: 16),
+              _buildTextField(
                 controller: _passwordController,
+                hint: 'Enter your Password',
                 obscureText: true,
-                style: const TextStyle(
-                  fontFamily: 'Roboto',
-                  fontSize: 16,
-                ),
-                decoration: const InputDecoration(
-                  hintText: 'Enter your Password',
-                  hintStyle: TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                ),
               ),
-            ),
-            if (_showError)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
+              if (_showError) ...[
+                const SizedBox(height: 8),
+                Text(
                   _errorMessage,
-                  style: const TextStyle(
-                    color: Colors.red,
+                  style: _archivoTextStyle(
                     fontSize: 12,
-                    fontFamily: 'Roboto',
+                    color: Colors.red,
                   ),
                 ),
-              ),
-            const SizedBox(height: 24),
-            // Submit Button
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : (_isValid ? _signUpWithEmail : null),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _isValid ? Colors.black : Colors.grey.shade300,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                  'Submit',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-            const Spacer(),
-            Center(
-              child: TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text(
-                  'Use Phone instead',
-                  style: TextStyle(
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                      color: Colors.black),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
+              ],
+              const SizedBox(height: 24),
+              _buildSubmitButton(),
+              const SizedBox(height: 100),
+              _buildFooter(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+  }) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        border: Border.all(color: primaryColor, width: 1.5),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        style: _archivoTextStyle(fontSize: 16),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: _archivoTextStyle(fontSize: 16, color: Colors.grey),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: ElevatedButton(
+        onPressed: _isLoading ? null : _signUpWithEmail,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isValid ? primaryColor : Colors.grey.shade300,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+        ),
+        child: _isLoading
+            ? const SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+        )
+            : Text(
+          'Submit',
+          style: _archivoTextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFooter() {
+    return Center(
+      child: TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: Text(
+          'Use Phone instead',
+          style: _archivoTextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
+          ),
         ),
       ),
     );
