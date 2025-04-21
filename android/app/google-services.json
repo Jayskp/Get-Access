@@ -1,0 +1,91 @@
+{
+  "project_info": {
+    "project_number": "574158406782",
+    "firebase_url": "https://mygate-54769-default-rtdb.firebaseio.com",
+    "project_id": "mygate-54769",
+    "storage_bucket": "mygate-54769.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:574158406782:android:dcda286a1f9ea02910042f",
+        "android_client_info": {
+          "package_name": "com.example.getaccess"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "574158406782-d25ee2dptfi9f1jaqf4bob7mh0smiev5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjUkIiTj8d1pAcvnmolnF_OfHGUIRW_zw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "574158406782-d25ee2dptfi9f1jaqf4bob7mh0smiev5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "574158406782-dqilj5u0ei01vub75dhsjvdrd0bfhfl9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mygate"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:574158406782:android:511106e8d8875c5210042f",
+        "android_client_info": {
+          "package_name": "com.example.mygate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "574158406782-qd7meqa22rg7h0a9t2v3vjuu5brno2c8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mygate",
+            "certificate_hash": "d8e890c0f5feeea723935a26a3cc1d97c7ca4386"
+          }
+        },
+        {
+          "client_id": "574158406782-d25ee2dptfi9f1jaqf4bob7mh0smiev5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjUkIiTj8d1pAcvnmolnF_OfHGUIRW_zw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "574158406782-d25ee2dptfi9f1jaqf4bob7mh0smiev5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "574158406782-dqilj5u0ei01vub75dhsjvdrd0bfhfl9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mygate"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
