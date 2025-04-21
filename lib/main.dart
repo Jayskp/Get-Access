@@ -1,37 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:getaccess/app.dart';
 import 'package:provider/provider.dart';
-
-// 1. Import the display‐mode plugin
-import 'package:flutter_displaymode/flutter_displaymode.dart';
-
-import 'package:getaccess/auth_services.dart';
-import 'package:getaccess/BottomNavBar.dart';
-import 'package:getaccess/providers/social_post_provider.dart';
-import 'package:getaccess/screens/Login/login_screen.dart';
-import 'package:getaccess/screens/Signin/sigin_screen.dart';
+import 'providers/social_post_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. Request the highest available refresh rate
-  //    On Android this switches you to the top mode if supported :contentReference[oaicite:0]{index=0}.
+  // Initialize Firebase (required for web and native)
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Lock orientation to portrait
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
+  // Enable edge-to-edge display mode
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+  // Request highest refresh rate when available
   try {
-    await FlutterDisplayMode.setHighRefreshRate();
-  } catch (e) {
-    debugPrint('Could not set high refresh rate: $e');
+    await SystemChannels.platform.invokeMethod<void>(
+      'SystemChrome.setPreferredRefreshRate',
+      120,
+    );
+  } catch (_) {
+    // Not all devices support this
   }
-
-  // 3. Lock to portrait
-  await SystemChrome.setPreferredOrientations(
-    [DeviceOrientation.portraitUp],
-  );
-
-  // 4. Edge-to-edge UI
-  await SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.edgeToEdge,
-  );
 
   runApp(
     MultiProvider(
@@ -44,11 +43,12 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GetAccess',
+      title: 'My Gate',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -59,72 +59,53 @@ class MyApp extends StatelessWidget {
           },
         ),
       ),
-      home: const LandingPage(),
+      home: const App(),
     );
   }
 }
 
-class LandingPage extends StatefulWidget {
-  const LandingPage({Key? key}) : super(key: key);
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
   @override
-  State<LandingPage> createState() => _LandingPageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _LandingPageState extends State<LandingPage> {
-  late final Future<Widget> _landingFuture;
+class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _landingFuture = _determineStartScreen();
-  }
-
-  Future<Widget> _determineStartScreen() async {
-    final isRegistered = await AuthService.isRegistered();
-    if (!isRegistered) return const SignUpPage();
-
-    final isLoggedIn = await AuthService.isLoggedIn();
-    if (!isLoggedIn) return const LoginScreen();
-
-    return const BottomNavBarDemo();
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Widget>(
-      future: _landingFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        return WillPopScope(
-          onWillPop: () async {
-            final exit = await showDialog<bool>(
-              context: context,
-              builder: (_) => AlertDialog(
-                title: const Text('Exit App'),
-                content: const Text('Do you want to exit the app?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: const Text('Exit'),
-                  ),
-                ],
-              ),
-            ) ??
-                false;
-            if (exit) SystemNavigator.pop();
-            return false;
-          },
-          child: snapshot.data!,
-        );
-      },
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text('You have pushed the button this many times:'),
+            Text(
+              '$_counter',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
