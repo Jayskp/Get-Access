@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -129,18 +128,18 @@ class _NewEventPageState extends State<NewEventPage> {
                       child: DropdownButton<String>(
                         value: _selectedResident,
                         items:
-                        _residents.map((String value) {
-                          return DropdownMenuItem(
-                            value: value,
-                            child: Text(
-                              value,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black,
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                            _residents.map((String value) {
+                              return DropdownMenuItem(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                         onChanged: (val) {
                           if (val != null)
                             if (val != null) {
@@ -228,7 +227,7 @@ class _NewEventPageState extends State<NewEventPage> {
                         onTap:
                             () => setState(
                               () => _showEmojiPicker = !_showEmojiPicker,
-                        ),
+                            ),
                         tooltip: "Pick an emoji",
                       ),
                     ],
@@ -443,7 +442,7 @@ class _NewEventPageState extends State<NewEventPage> {
       setState(() {
         selectedDate = newDate;
         _dateController.text =
-        "${selectedDate.month.toString().padLeft(2, '0')}/"
+            "${selectedDate.month.toString().padLeft(2, '0')}/"
             "${selectedDate.day.toString().padLeft(2, '0')}/"
             "${selectedDate.year}";
       });
@@ -459,10 +458,10 @@ class _NewEventPageState extends State<NewEventPage> {
       setState(() {
         selectedTime = newTime;
         final hour =
-        selectedTime.hourOfPeriod == 0 ? 12 : selectedTime.hourOfPeriod;
+            selectedTime.hourOfPeriod == 0 ? 12 : selectedTime.hourOfPeriod;
         final ampm = selectedTime.period == DayPeriod.am ? "AM" : "PM";
         _timeController.text =
-        "${hour.toString().padLeft(2, '0')} : ${selectedTime.minute.toString().padLeft(2, '0')} $ampm";
+            "${hour.toString().padLeft(2, '0')} : ${selectedTime.minute.toString().padLeft(2, '0')} $ampm";
       });
     }
   }

@@ -136,92 +136,94 @@ class SocialPostCard extends StatelessWidget {
 
   Widget _buildPollOptions(BuildContext context) {
     if (post.pollOptions == null || post.pollOptions!.isEmpty) {
-      return Container();
+      return SizedBox.shrink();
     }
 
+    final theme = Theme.of(context);
     final totalVotes = post.pollOptions!.fold<int>(
       0,
-      (sum, option) => sum + option.votes,
+      (sum, opt) => sum + opt.votes,
     );
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Total votes: $totalVotes',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-          ),
-          const SizedBox(height: 12),
-          ...post.pollOptions!.asMap().entries.map((entry) {
-            final index = entry.key;
-            final option = entry.value;
-            final percentage =
-                totalVotes > 0
-                    ? (option.votes / totalVotes * 100).toStringAsFixed(0)
-                    : '0';
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Text('Poll', style: theme.textTheme.titleLarge),
+            const SizedBox(height: 12),
 
-            return GestureDetector(
-              onTap: () {
-                Provider.of<SocialPostProvider>(
-                  context,
-                  listen: false,
-                ).votePoll(post.id, index);
-              },
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(option.text, style: const TextStyle(fontSize: 14)),
-                    const SizedBox(height: 4),
-                    Stack(
-                      children: [
-                        Container(
-                          height: 36,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+            // Options
+            ...post.pollOptions!.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final option = entry.value;
+              final pct = totalVotes > 0 ? option.votes / totalVotes : 0.0;
+              final pctLabel = '${(pct * 100).toStringAsFixed(0)}%';
+              final isSelected = post.additionalData?['selected'] == idx;
+
+              return Column(
+                children: [
+                  Row(
+                    children: [
+                      // Radio
+                      Radio<int>(
+                        value: idx,
+                        groupValue: post.additionalData?['selected'] as int?,
+                        onChanged: (_) {
+                          Provider.of<SocialPostProvider>(
+                            context,
+                            listen: false,
+                          ).votePoll(post.id, idx);
+                        },
+                      ),
+
+                      // Option text
+                      Expanded(
+                        child: Text(
+                          option.text,
+                          style: theme.textTheme.bodyLarge,
                         ),
-                        FractionallySizedBox(
-                          widthFactor:
-                              totalVotes > 0 ? option.votes / totalVotes : 0.0,
-                          child: Container(
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade300,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.only(right: 12),
-                            child: Text(
-                              '$percentage%',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                      ),
+
+                      // Percent
+                      Text(
+                        pctLabel,
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          color: Colors.grey[600],
                         ),
-                      ],
+                      ),
+
+                      const SizedBox(width: 8),
+                      // Overflow menu
+                      Icon(Icons.more_horiz, color: Colors.grey[400]),
+                    ],
+                  ),
+
+                  const SizedBox(height: 4),
+                  // Slim progress bar
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: pct,
+                      minHeight: 6,
+                      backgroundColor: Colors.grey.shade200,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        isSelected ? Colors.green : Colors.grey.shade200,
+                      ),
                     ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-          if (post.pollEndDate != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                'Poll ends on: ${_formatDate(post.pollEndDate!)}',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-              ),
-            ),
-        ],
+                  ),
+
+                  const SizedBox(height: 12),
+                ],
+              );
+            }).toList(),
+          ],
+        ),
       ),
     );
   }
@@ -427,7 +429,7 @@ class SocialPostCard extends StatelessWidget {
         break;
       case PostType.event:
         shareText =
-        '${post.authorName} is hosting an event: ${post.content}\n'
+            '${post.authorName} is hosting an event: ${post.content}\n'
             'Date: ${_formatDate(post.eventDate!)}\n'
             'Time: ${post.eventTime}\n'
             'Venue: ${post.eventVenue}';
@@ -439,8 +441,10 @@ class SocialPostCard extends StatelessWidget {
       await Share.share(shareText);
 
       // only after successful share, increment the counter
-      Provider.of<SocialPostProvider>(context, listen: false)
-          .incrementShares(post.id);
+      Provider.of<SocialPostProvider>(
+        context,
+        listen: false,
+      ).incrementShares(post.id);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
