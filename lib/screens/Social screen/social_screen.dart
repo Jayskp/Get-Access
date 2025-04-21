@@ -168,6 +168,7 @@ class _SocialScreenState extends State<SocialScreen>
     ),
   ];
 
+
   // All available items for customization
   List<Map<String, dynamic>> allAvailableItems = [];
 
@@ -597,22 +598,28 @@ class _SocialScreenState extends State<SocialScreen>
     }
   }
 
-  bool _isLoading = true;
+
+  bool _isLoading = false;
 
   Future<void> loadData() async {
+    print("Starting to load data...");
     setState(() {
       _isLoading = true;
     });
 
-    // Add sample posts if there are none yet
-    if (Provider.of<SocialPostProvider>(context, listen: false).posts.isEmpty) {
-      Provider.of<SocialPostProvider>(context, listen: false).addSamplePosts();
+    try {
+      await Future.delayed(const Duration(seconds: 2));
+      print("Data loading complete");
+    } catch (e) {
+      print("Error loading data: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        print("_isLoading set to false");
+      }
     }
-
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override
@@ -800,10 +807,8 @@ class _SocialScreenState extends State<SocialScreen>
                     }),
                     onReorder: (oldIndex, newIndex) {
                       // Update the state
-                      this.setState(() {
-                        if (oldIndex < newIndex) {
-                          newIndex -= 1;
-                        }
+                      setState(() {
+                        if (oldIndex < newIndex) newIndex -= 1;
                         final item = quickAccessItems.removeAt(oldIndex);
                         quickAccessItems.insert(newIndex, item);
                       });
@@ -1395,7 +1400,7 @@ class _SocialScreenState extends State<SocialScreen>
           child: Center(
             child:
                 _isLoading
-                    ? SocialShimmer()
+                    ? SizedBox.expand(child: SocialShimmer())
                     : Container(
                       // Professional website layout with centered content and subtle shadow
                       constraints: const BoxConstraints(

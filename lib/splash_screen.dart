@@ -96,8 +96,8 @@ class _ProcessCompletorIndicatorState extends State<ProcessCompletorIndicator>
                 borderRadius: BorderRadius.circular(4),
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFFFFF9C4),
-                    Color(0xFFBBDEFB),
+                    Color(0xFF31AF64),
+                    Color(0xFFFFB74D),
                   ], // light yellow → light blue
                 ),
               ),

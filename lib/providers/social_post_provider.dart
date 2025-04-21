@@ -53,7 +53,7 @@ class SocialPostProvider extends ChangeNotifier {
         authorBlock: '1402, Ansh Aarambh',
         createdAt: DateTime.now().subtract(const Duration(days: 2)),
         content:
-            'Available for Sell apartments at Ansh Aarambh, South Bopal available for Sale\n\n3 apartments each 3 BHK available for sale n ready possession at Ansh Aarambh Scheme at South Bopal, Ahmedabad\nB Tower, 1402, 1403 n 1404\n1460 sqft super built up',
+        'Available for Sell apartments at Ansh Aarambh, South Bopal available for Sale\n\n3 apartments each 3 BHK available for sale n ready possession at Ansh Aarambh Scheme at South Bopal, Ahmedabad\nB Tower, 1402, 1403 n 1404\n1460 sqft super built up',
         type: PostType.post,
         likes: 1,
         comments: 2,
@@ -90,7 +90,7 @@ class SocialPostProvider extends ChangeNotifier {
         authorBlock: 'A Block, 302',
         createdAt: DateTime.now().subtract(const Duration(days: 1)),
         content:
-            'Join us for the Diwali celebration in our society. There will be music, dance, and delicious food!',
+        'Join us for the Diwali celebration in our society. There will be music, dance, and delicious food!',
         type: PostType.event,
         eventDate: DateTime.now().add(const Duration(days: 5)),
         eventTime: '7:00 PM',

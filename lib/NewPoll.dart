@@ -145,22 +145,23 @@ class _NewPollPageState extends State<NewPollPage> {
                       child: DropdownButton<String>(
                         value: _selectedResident,
                         items:
-                            _residents.map((String value) {
-                              return DropdownMenuItem(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                        _residents.map((String value) {
+                          return DropdownMenuItem(
+                            value: value,
+                            child: Text(
+                              value,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.black,
+                              ),
+                            ),
+                          );
+                        }).toList(),
                         onChanged: (val) {
-                          if (val != null) {
-                            setState(() => _selectedResident = val);
-                          }
+                          if (val != null)
+                            if (val != null) {
+                              setState(() => _selectedResident = val);
+                            }
                         },
                         icon: const Icon(Icons.keyboard_arrow_down, size: 18),
                       ),
@@ -196,8 +197,8 @@ class _NewPollPageState extends State<NewPollPage> {
                     const SizedBox(height: 12),
                     Column(
                       children: List.generate(_optionControllers.length, (
-                        index,
-                      ) {
+                          index,
+                          ) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
                           child: TextField(
@@ -312,10 +313,10 @@ class _NewPollPageState extends State<NewPollPage> {
     }
 
     final validOptions =
-        _optionControllers
-            .where((controller) => controller.text.isNotEmpty)
-            .map((controller) => PollOption(text: controller.text))
-            .toList();
+    _optionControllers
+        .where((controller) => controller.text.isNotEmpty)
+        .map((controller) => PollOption(text: controller.text))
+        .toList();
 
     if (validOptions.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -407,7 +407,7 @@ class SocialPostCard extends StatelessWidget {
     );
   }
 
-  void _sharePost(BuildContext context) {
+  Future<void> _sharePost(BuildContext context) async {
     String shareText;
 
     switch (post.type) {
@@ -425,20 +425,20 @@ class SocialPostCard extends StatelessWidget {
         break;
       case PostType.event:
         shareText =
-            '${post.authorName} is hosting an event: ${post.content}\n'
+        '${post.authorName} is hosting an event: ${post.content}\n'
             'Date: ${_formatDate(post.eventDate!)}\n'
             'Time: ${post.eventTime}\n'
             'Venue: ${post.eventVenue}';
         break;
     }
 
-    Provider.of<SocialPostProvider>(
-      context,
-      listen: false,
-    ).incrementShares(post.id);
-
     try {
-      Share.share(shareText);
+      // show the native share sheet first
+      await Share.share(shareText);
+
+      // only after successful share, increment the counter
+      Provider.of<SocialPostProvider>(context, listen: false)
+          .incrementShares(post.id);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

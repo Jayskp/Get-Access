@@ -64,15 +64,15 @@ class _NewPostPageState extends State<NewPostPage> {
               child: DropdownButton<String>(
                 value: _selectedResident,
                 items:
-                    _residents.map((String val) {
-                      return DropdownMenuItem(
-                        value: val,
-                        child: Text(
-                          val,
-                          style: TextStyle(fontSize: 14, color: textColor),
-                        ),
-                      );
-                    }).toList(),
+                _residents.map((String val) {
+                  return DropdownMenuItem(
+                    value: val,
+                    child: Text(
+                      val,
+                      style: TextStyle(fontSize: 14, color: textColor),
+                    ),
+                  );
+                }).toList(),
                 onChanged: (val) {
                   if (val != null) setState(() => _selectedResident = val);
                 },
@@ -167,7 +167,7 @@ class _NewPostPageState extends State<NewPostPage> {
                           height: 48,
                           decoration: BoxDecoration(
                             color:
-                                _isSellSelected ? primaryColor : containerColor,
+                            _isSellSelected ? primaryColor : containerColor,
                             borderRadius: BorderRadius.circular(24),
                           ),
                           alignment: Alignment.center,
@@ -190,9 +190,9 @@ class _NewPostPageState extends State<NewPostPage> {
                           height: 48,
                           decoration: BoxDecoration(
                             color:
-                                !_isSellSelected
-                                    ? primaryColor
-                                    : containerColor,
+                            !_isSellSelected
+                                ? primaryColor
+                                : containerColor,
                             borderRadius: BorderRadius.circular(24),
                           ),
                           alignment: Alignment.center,
@@ -202,7 +202,7 @@ class _NewPostPageState extends State<NewPostPage> {
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                               color:
-                                  !_isSellSelected ? Colors.white : textColor,
+                              !_isSellSelected ? Colors.white : textColor,
                             ),
                           ),
                         ),
@@ -332,13 +332,13 @@ class _NewPostPageState extends State<NewPostPage> {
   void _createPost(BuildContext context) {
     if (_contentController.text.isEmpty) {
       _contentController.text =
-          "Available for ${_isSellSelected ? 'Sell' : 'Rent'} at ${_propertyController.text}";
+      "Available for ${_isSellSelected ? 'Sell' : 'Rent'} at ${_propertyController.text}";
     }
 
     final content =
         _contentController.text +
-        "\n\nPrice: ${_priceController.text}" +
-        "\nAvailable From: ${_dateController.text}";
+            "\n\nPrice: ${_priceController.text}" +
+            "\nAvailable From: ${_dateController.text}";
 
     final post = SocialPost.fromPost(
       authorName: "You",

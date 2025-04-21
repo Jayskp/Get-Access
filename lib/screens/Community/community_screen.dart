@@ -78,13 +78,24 @@ class _CommunityScreenState extends State<CommunityScreen> {
   ];
   bool _isLoading = true;
   Future<void> loadData() async {
+    print("Starting to load data...");
     setState(() {
       _isLoading = true;
     });
-    await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      _isLoading = false;
-    });
+
+    try {
+      await Future.delayed(const Duration(seconds: 2));
+      print("Data loading complete");
+    } catch (e) {
+      print("Error loading data: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        print("_isLoading set to false");
+      }
+    }
   }
 
   @override
