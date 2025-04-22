@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:getaccess/screens/My%20Visitors/my_visitors.dart';
 
 class InviteGuest extends StatefulWidget {
   const InviteGuest({super.key});
@@ -44,12 +45,22 @@ class _InviteGuestState extends State<InviteGuest> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Past Visitors',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF333333),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MyVisitors(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Past Visitors',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF333333),
+                          ),
                         ),
                       ),
                       SizedBox(height: 12),
