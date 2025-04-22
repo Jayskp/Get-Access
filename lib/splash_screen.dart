@@ -2,10 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:getaccess/BottomNavBar.dart';
 import 'package:getaccess/signin_screen.dart';
-// import 'package:mygate/screens/signin/signin_screen.dart';
+import 'package:getaccess/auth_serviices.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  const SplashScreen({Key? key}) : super(key: key);
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -14,12 +15,29 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SignUpPage()),
-      );
-    });
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    // Add a small delay to show the splash screen animation
+    await Future.delayed(const Duration(seconds: 3));
+
+    if (!mounted) return;
+
+    // Check if user is logged in
+    final isLoggedIn = await AuthService.isLoggedIn();
+
+    if (!mounted) return;
+
+    // Navigate to appropriate screen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) =>
+                isLoggedIn ? const BottomNavBarDemo() : const SignUpPage(),
+      ),
+    );
   }
 
   @override
@@ -33,7 +51,9 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Center(
-                  child: Image(image: AssetImage('assets/images/icons/logo.png')),
+                  child: Image(
+                    image: AssetImage('assets/images/icons/logo.png'),
+                  ),
                 ),
               ),
             ),
@@ -96,10 +116,7 @@ class _ProcessCompletorIndicatorState extends State<ProcessCompletorIndicator>
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
                 gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF31AF64),
-                    Color(0xFFFFB74D),
-                  ], // light yellow → light blue
+                  colors: [Color(0xFF31AF64), Color(0xFFFFB74D)],
                 ),
               ),
             );

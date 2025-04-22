@@ -14,7 +14,8 @@ class SignUpPage extends StatefulWidget {
   State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateMixin {
+class _SignUpPageState extends State<SignUpPage>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _phoneController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isValid = false;
@@ -43,20 +44,14 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.2),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOutCubic,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
 
     // Start the animations
@@ -96,11 +91,24 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
             Navigator.pushReplacement(
               context,
               PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) => BottomNavBarDemo(),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                pageBuilder:
+                    (context, animation, secondaryAnimation) =>
+                        BottomNavBarDemo(),
+                transitionsBuilder: (
+                  context,
+                  animation,
+                  secondaryAnimation,
+                  child,
+                ) {
                   var curve = Curves.easeInOut;
-                  var tween = Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: curve));
-                  return FadeTransition(opacity: animation.drive(tween), child: child);
+                  var tween = Tween(
+                    begin: 0.0,
+                    end: 1.0,
+                  ).chain(CurveTween(curve: curve));
+                  return FadeTransition(
+                    opacity: animation.drive(tween),
+                    child: child,
+                  );
                 },
                 transitionDuration: const Duration(milliseconds: 600),
               ),
@@ -115,7 +123,9 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
                 content: Text("Verification failed: ${e.message}"),
                 backgroundColor: Colors.red.shade700,
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 margin: const EdgeInsets.all(12),
               ),
             );
@@ -130,12 +140,24 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
             Navigator.push(
               context,
               PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    PhoneVerifyScreen(verificationID: verificationId),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                pageBuilder:
+                    (context, animation, secondaryAnimation) =>
+                        PhoneVerifyScreen(verificationID: verificationId),
+                transitionsBuilder: (
+                  context,
+                  animation,
+                  secondaryAnimation,
+                  child,
+                ) {
                   var curve = Curves.easeInOut;
-                  var tween = Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: curve));
-                  return FadeTransition(opacity: animation.drive(tween), child: child);
+                  var tween = Tween(
+                    begin: 0.0,
+                    end: 1.0,
+                  ).chain(CurveTween(curve: curve));
+                  return FadeTransition(
+                    opacity: animation.drive(tween),
+                    child: child,
+                  );
                 },
                 settings: RouteSettings(arguments: phoneNumber),
                 transitionDuration: const Duration(milliseconds: 500),
@@ -161,7 +183,9 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
             content: Text('An error occurred: ${e.toString()}'),
             backgroundColor: Colors.red.shade700,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             margin: const EdgeInsets.all(12),
           ),
         );
@@ -226,7 +250,9 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
 
                           const SizedBox(height: 30),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0,
+                            ),
                             child: Text(
                               'Please enter your mobile number to proceed further',
                               textAlign: TextAlign.center,
@@ -244,10 +270,16 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => EmailSignInPage()),
+                                MaterialPageRoute(
+                                  builder: (context) => EmailSignInPage(),
+                                ),
                               );
                             },
-                            icon: const Icon(Icons.email_outlined, size: 18, color: primaryColor),
+                            icon: const Icon(
+                              Icons.email_outlined,
+                              size: 18,
+                              color: primaryColor,
+                            ),
                             label: Text(
                               'Use Email Instead',
                               style: _archivoTextStyle(
@@ -291,10 +323,7 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SpinKitDoubleBounce(
-                        color: primaryColor,
-                        size: 60.0,
-                      ),
+                      SpinKitDoubleBounce(color: primaryColor, size: 60.0),
                       const SizedBox(height: 20),
                       Text(
                         'Sending OTP...',
@@ -332,11 +361,7 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Icon(
-                  Icons.phone_android,
-                  size: 64,
-                  color: primaryColor,
-                ),
+                child: Icon(Icons.phone_android, size: 64, color: primaryColor),
               ),
             ),
           ),
@@ -358,11 +383,17 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
             child: Container(
               height: 60,
               decoration: BoxDecoration(
-                border: Border.all(color: _isValid ? primaryColor : Colors.grey.shade400, width: 1.5),
+                border: Border.all(
+                  color: _isValid ? primaryColor : Colors.grey.shade400,
+                  width: 1.5,
+                ),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: _isValid ? primaryColor.withOpacity(0.1) : Colors.transparent,
+                    color:
+                        _isValid
+                            ? primaryColor.withOpacity(0.1)
+                            : Colors.transparent,
                     blurRadius: 8,
                     spreadRadius: 0,
                     offset: const Offset(0, 2),
@@ -391,7 +422,11 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
                       ),
                     ),
                   ),
-                  const VerticalDivider(color: primaryColor, thickness: 1, width: 1),
+                  const VerticalDivider(
+                    color: primaryColor,
+                    thickness: 1,
+                    width: 1,
+                  ),
                   Expanded(
                     child: TextField(
                       controller: _phoneController,
@@ -400,18 +435,30 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
                       decoration: InputDecoration(
                         counterText: '',
                         hintText: 'Enter Mobile Number',
-                        hintStyle: _archivoTextStyle(fontSize: 16, color: Colors.grey.shade400),
+                        hintStyle: _archivoTextStyle(
+                          fontSize: 16,
+                          color: Colors.grey.shade400,
+                        ),
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                        suffixIcon: _isValid
-                            ? AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          child: Icon(Icons.check_circle, color: Colors.green.shade600),
-                        )
-                            : null,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                        ),
+                        suffixIcon:
+                            _isValid
+                                ? AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                  child: Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green.shade600,
+                                  ),
+                                )
+                                : null,
                       ),
-                      style: _archivoTextStyle(fontSize: 16, color: Colors.black),
+                      style: _archivoTextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
                 ],
@@ -431,23 +478,25 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
         height: 56,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
-          boxShadow: _isValid
-              ? [
-            BoxShadow(
-              color: primaryColor.withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ]
-              : null,
+          boxShadow:
+              _isValid
+                  ? [
+                    BoxShadow(
+                      color: primaryColor.withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                  : null,
         ),
         child: ElevatedButton(
-          onPressed: _isValid && !_isLoading
-              ? () {
-            final phoneNumber = "+91${_phoneController.text.trim()}";
-            _verifyPhoneNumber(phoneNumber);
-          }
-              : null,
+          onPressed:
+              _isValid && !_isLoading
+                  ? () {
+                    final phoneNumber = "+91${_phoneController.text.trim()}";
+                    _verifyPhoneNumber(phoneNumber);
+                  }
+                  : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: _isValid ? Colors.black : Colors.grey.shade300,
             disabledBackgroundColor: Colors.grey.shade200,
@@ -456,30 +505,31 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
               borderRadius: BorderRadius.circular(28),
             ),
           ),
-          child: _isLoading
-              ? const SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 2.5,
-            ),
-          )
-              : Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Get OTP',
-                style: _archivoTextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward, size: 18),
-            ],
-          ),
+          child:
+              _isLoading
+                  ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.5,
+                    ),
+                  )
+                  : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Get OTP',
+                        style: _archivoTextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.arrow_forward, size: 18),
+                    ],
+                  ),
         ),
       ),
     );
@@ -493,13 +543,15 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        _buildFooterItem('Does not sell or trade your data'),
+          _buildFooterItem('Does not sell or trade your data'),
           const SizedBox(height: 8),
           _buildFooterItem('Is ISO 27001 certified for information security'),
           const SizedBox(height: 8),
           _buildFooterItem('Encrypts and secures your data'),
           const SizedBox(height: 8),
-          _buildFooterItem('Is certified GDPR ready, the gold standard in data privacy'),
+          _buildFooterItem(
+            'Is certified GDPR ready, the gold standard in data privacy',
+          ),
 
           const SizedBox(height: 16),
           const Divider(color: Colors.grey, height: 1),
@@ -509,8 +561,10 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
             onTap: () {},
             child: Text(
               'Privacy Policy',
-              style: _archivoTextStyle(fontSize: 14, color: primaryColor)
-                  .copyWith(decoration: TextDecoration.underline),
+              style: _archivoTextStyle(
+                fontSize: 14,
+                color: primaryColor,
+              ).copyWith(decoration: TextDecoration.underline),
             ),
           ),
           const SizedBox(height: 8),
@@ -518,8 +572,10 @@ class _SignUpPageState extends State<SignUpPage> with SingleTickerProviderStateM
             onTap: () {},
             child: Text(
               'Terms & Conditions',
-              style: _archivoTextStyle(fontSize: 14, color: primaryColor)
-                  .copyWith(decoration: TextDecoration.underline),
+              style: _archivoTextStyle(
+                fontSize: 14,
+                color: primaryColor,
+              ).copyWith(decoration: TextDecoration.underline),
             ),
           ),
           const SizedBox(height: 8),

@@ -1,42 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:getaccess/screens/Login/login_screen.dart';
+import 'package:getaccess/signin_screen.dart';
+import 'BottomNavBar.dart';
+import 'auth_serviices.dart';
 import 'firebase_options.dart';
 import 'package:getaccess/app.dart';
 import 'package:provider/provider.dart';
 import 'providers/social_post_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase (required for web and native)
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  // Lock orientation to portrait
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
-
-  // Enable edge-to-edge display mode
-  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
-  // Request highest refresh rate when available
   try {
-    await SystemChannels.platform.invokeMethod<void>(
-      'SystemChrome.setPreferredRefreshRate',
-      120,
-    );
-  } catch (_) {
-    // Not all devices support this
+    // Check if Firebase is already initialized
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } catch (e) {
+    print('Firebase initialization error: $e');
+    // Continue with the app even if Firebase fails
   }
 
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => SocialPostProvider()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => SocialPostProvider())],
       child: const MyApp(),
     ),
   );
@@ -48,18 +42,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My Gate',
+      title: 'Get Access',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        pageTransitionsTheme: const PageTransitionsTheme(
-          builders: {
-            TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          },
-        ),
+        primarySwatch: Colors.teal,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const App(),
+      home: const SplashScreen(),
     );
   }
 }
@@ -106,6 +95,56 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
+    );
+  }
+}
+
+Future<void> checkAuthAndRedirect(BuildContext context) async {
+  try {
+    // First check Firebase Auth
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      // User is already authenticated with Firebase
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const BottomNavBarDemo()),
+      );
+      return;
+    }
+
+    // Check if user is already logged in via AuthService
+    final isLoggedIn = await AuthService.isLoggedIn();
+    if (isLoggedIn) {
+      // User is already logged in through shared preferences
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const BottomNavBarDemo()),
+      );
+    } else {
+      // Check if user is registered but not logged in
+      final prefs = await SharedPreferences.getInstance();
+      final isRegistered = prefs.getBool('is_registered') ?? false;
+
+      if (isRegistered) {
+        // User is registered, navigate to login screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+      } else {
+        // New user, navigate to sign up screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const SignUpPage()),
+        );
+      }
+    }
+  } catch (e) {
+    print("Error during auth check: $e");
+    // Fallback to sign up screen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const SignUpPage()),
     );
   }
 }

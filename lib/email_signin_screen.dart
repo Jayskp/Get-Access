@@ -3,8 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:getaccess/BottomNavBar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../auth_serviices.dart';
+import 'auth_serviices.dart';
 
 class EmailSignInPage extends StatefulWidget {
   const EmailSignInPage({Key? key}) : super(key: key);
@@ -13,13 +14,15 @@ class EmailSignInPage extends StatefulWidget {
   _EmailSignInPageState createState() => _EmailSignInPageState();
 }
 
-class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProviderStateMixin {
+class _EmailSignInPageState extends State<EmailSignInPage>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isValid = false;
   bool _showError = false;
   bool _isLoading = false;
   String _errorMessage = '';
+  bool _isSignUp = false; // Determines if we're signing up or signing in
 
   // Theme colors - matching with SignUpPage
   static const Color primaryColor = Color(0xFF004D40);
@@ -46,37 +49,51 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.2),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOutCubic,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
 
     // Start the animations
     _animationController.forward();
+
+    // Check for existing user to determine if signing up or signing in
+    _checkExistingUser();
+  }
+
+  Future<void> _checkExistingUser() async {
+    setState(() => _isLoading = true);
+    try {
+      final userInfo = await AuthService.getCurrentUser();
+      if (userInfo['email'] != null) {
+        setState(() => _isSignUp = false);
+      } else {
+        setState(() => _isSignUp = true);
+      }
+    } catch (e) {
+      setState(() => _isSignUp = true);
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   void _validateInput() {
     setState(() {
       _showError = false;
-      final bool emailValid = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$")
-          .hasMatch(_emailController.text.trim());
+      final bool emailValid = RegExp(
+        r"^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$",
+      ).hasMatch(_emailController.text.trim());
       final bool passwordValid = _passwordController.text.length >= 6;
       _isValid = emailValid && passwordValid;
     });
   }
 
-  void _submit() async {
+  Future<void> _submit() async {
     if (_isValid) {
       setState(() {
         _isLoading = true;
@@ -84,33 +101,55 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
       });
 
       try {
-        await AuthService.signInWithEmail(
+        // Use the AuthService to sign in with email
+        final userCredential = await AuthService.signInWithEmail(
           _emailController.text.trim(),
           _passwordController.text,
+          isSignUp: _isSignUp,
         );
 
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => BottomNavBarDemo(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              var curve = Curves.easeInOut;
-              var tween = Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: curve));
-              return FadeTransition(opacity: animation.drive(tween), child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 600),
-          ),
-        );
+        if (userCredential.user != null) {
+          // Navigate to main app after successful authentication
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder:
+                  (context, animation, secondaryAnimation) =>
+                      BottomNavBarDemo(),
+              transitionsBuilder: (
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+              ) {
+                var curve = Curves.easeInOut;
+                var tween = Tween(
+                  begin: 0.0,
+                  end: 1.0,
+                ).chain(CurveTween(curve: curve));
+                return FadeTransition(
+                  opacity: animation.drive(tween),
+                  child: child,
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 600),
+            ),
+          );
+        }
       } on FirebaseAuthException catch (e) {
         setState(() {
           _showError = true;
           _errorMessage = _getErrorMessage(e.code);
         });
+
+        print("Firebase Auth Error: ${e.code} - ${e.message}");
       } catch (e) {
         setState(() {
           _showError = true;
-          _errorMessage = e.toString();
+          _errorMessage = "An unexpected error occurred. Please try again.";
         });
+
+        print("General Error: $e");
       } finally {
         setState(() {
           _isLoading = false;
@@ -136,6 +175,10 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
         return 'This email is already in use by another account.';
       case 'weak-password':
         return 'Password is too weak. Please use at least 6 characters.';
+      case 'network-request-failed':
+        return 'Network error. Please check your internet connection.';
+      case 'too-many-requests':
+        return 'Too many unsuccessful login attempts. Please try again later.';
       default:
         return 'Authentication failed. Please try again.';
     }
@@ -168,7 +211,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          'Sign in with Email',
+          _isSignUp ? 'Sign up with Email' : 'Sign in with Email',
           style: _archivoTextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w600,
@@ -235,15 +278,24 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
                               Padding(
                                 padding: const EdgeInsets.only(top: 12.0),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.red.shade50,
                                     borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: Colors.red.shade200),
+                                    border: Border.all(
+                                      color: Colors.red.shade200,
+                                    ),
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.error_outline, color: Colors.red.shade700, size: 18),
+                                      Icon(
+                                        Icons.error_outline,
+                                        color: Colors.red.shade700,
+                                        size: 18,
+                                      ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
@@ -265,6 +317,25 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
                             // Submit Button
                             _buildSubmitButton(),
 
+                            // Toggle between sign in and sign up
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  _isSignUp = !_isSignUp;
+                                  _showError = false;
+                                });
+                              },
+                              child: Text(
+                                _isSignUp
+                                    ? 'Already have an account? Sign in'
+                                    : 'Need an account? Sign up',
+                                style: _archivoTextStyle(
+                                  color: primaryColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+
                             const SizedBox(height: 24),
 
                             // Use Phone Instead
@@ -273,7 +344,11 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                icon: const Icon(Icons.phone_android, size: 18, color: primaryColor),
+                                icon: const Icon(
+                                  Icons.phone_android,
+                                  size: 18,
+                                  color: primaryColor,
+                                ),
                                 label: Text(
                                   'Use Phone Instead',
                                   style: _archivoTextStyle(
@@ -302,7 +377,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
           // Overlay loading indicator
           if (_isLoading)
             Container(
-              color: Colors.black.withValues(alpha: 0.5),
+              color: Colors.black.withOpacity(0.5),
               child: Center(
                 child: Container(
                   padding: const EdgeInsets.all(24),
@@ -311,7 +386,7 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
+                        color: Colors.black.withOpacity(0.1),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
@@ -320,13 +395,10 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SpinKitDoubleBounce(
-                        color: primaryColor,
-                        size: 60.0,
-                      ),
+                      SpinKitDoubleBounce(color: primaryColor, size: 60.0),
                       const SizedBox(height: 20),
                       Text(
-                        'Signing in...',
+                        _isSignUp ? 'Creating account...' : 'Signing in...',
                         style: _archivoTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -357,15 +429,11 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: primaryColor.withValues(alpha: 0.05),
+                color: primaryColor.withOpacity(0.05),
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Icon(
-                  Icons.email,
-                  size: 64,
-                  color: primaryColor,
-                ),
+                child: Icon(Icons.email, size: 64, color: primaryColor),
               ),
             ),
           ),
@@ -392,13 +460,19 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
             height: 60,
             decoration: BoxDecoration(
               border: Border.all(
-                  color: controller.text.isNotEmpty ? primaryColor : Colors.grey.shade400,
-                  width: 1.5
+                color:
+                    controller.text.isNotEmpty
+                        ? primaryColor
+                        : Colors.grey.shade400,
+                width: 1.5,
               ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: controller.text.isNotEmpty ? primaryColor.withValues(alpha: 0.1) : Colors.transparent,
+                  color:
+                      controller.text.isNotEmpty
+                          ? primaryColor.withOpacity(0.1)
+                          : Colors.transparent,
                   blurRadius: 8,
                   spreadRadius: 0,
                   offset: const Offset(0, 2),
@@ -410,21 +484,21 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
-                    color: primaryColor.withValues(alpha: 0.05),
+                    color: primaryColor.withOpacity(0.05),
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(10.5),
                       bottomLeft: Radius.circular(10.5),
                     ),
                   ),
                   child: Center(
-                    child: Icon(
-                      prefixIcon,
-                      size: 22,
-                      color: primaryColor,
-                    ),
+                    child: Icon(prefixIcon, size: 22, color: primaryColor),
                   ),
                 ),
-                const VerticalDivider(color: primaryColor, thickness: 1, width: 1),
+                const VerticalDivider(
+                  color: primaryColor,
+                  thickness: 1,
+                  width: 1,
+                ),
                 Expanded(
                   child: TextField(
                     controller: controller,
@@ -432,16 +506,25 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
                     obscureText: isPassword,
                     decoration: InputDecoration(
                       hintText: hintText,
-                      hintStyle: _archivoTextStyle(fontSize: 16, color: Colors.grey.shade400),
+                      hintStyle: _archivoTextStyle(
+                        fontSize: 16,
+                        color: Colors.grey.shade400,
+                      ),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      suffixIcon: controller.text.isNotEmpty && !_showError
-                          ? AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        child: Icon(Icons.check_circle, color: Colors.green.shade600),
-                      )
-                          : null,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                      ),
+                      suffixIcon:
+                          controller.text.isNotEmpty && !_showError
+                              ? AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                child: Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green.shade600,
+                                ),
+                              )
+                              : null,
                     ),
                     style: _archivoTextStyle(fontSize: 16, color: Colors.black),
                   ),
@@ -460,15 +543,16 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
-        boxShadow: _isValid
-            ? [
-          BoxShadow(
-            color: primaryColor.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ]
-            : null,
+        boxShadow:
+            _isValid
+                ? [
+                  BoxShadow(
+                    color: primaryColor.withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+                : null,
       ),
       child: ElevatedButton(
         onPressed: _isValid && !_isLoading ? _submit : null,
@@ -480,30 +564,31 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
             borderRadius: BorderRadius.circular(28),
           ),
         ),
-        child: _isLoading
-            ? const SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(
-            color: Colors.white,
-            strokeWidth: 2.5,
-          ),
-        )
-            : Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Sign In',
-              style: _archivoTextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.login, size: 18),
-          ],
-        ),
+        child:
+            _isLoading
+                ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.5,
+                  ),
+                )
+                : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _isSignUp ? 'Sign Up' : 'Sign In',
+                      style: _archivoTextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(_isSignUp ? Icons.person_add : Icons.login, size: 18),
+                  ],
+                ),
       ),
     );
   }
@@ -522,7 +607,9 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
           const SizedBox(height: 8),
           _buildFooterItem('Encrypts and secures your data'),
           const SizedBox(height: 8),
-          _buildFooterItem('Is certified GDPR ready, the gold standard in data privacy'),
+          _buildFooterItem(
+            'Is certified GDPR ready, the gold standard in data privacy',
+          ),
 
           const SizedBox(height: 16),
           const Divider(color: Colors.grey, height: 1),
@@ -532,8 +619,10 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
             onTap: () {},
             child: Text(
               'Privacy Policy',
-              style: _archivoTextStyle(fontSize: 14, color: primaryColor)
-                  .copyWith(decoration: TextDecoration.underline),
+              style: _archivoTextStyle(
+                fontSize: 14,
+                color: primaryColor,
+              ).copyWith(decoration: TextDecoration.underline),
             ),
           ),
           const SizedBox(height: 8),
@@ -541,8 +630,10 @@ class _EmailSignInPageState extends State<EmailSignInPage> with SingleTickerProv
             onTap: () {},
             child: Text(
               'Terms & Conditions',
-              style: _archivoTextStyle(fontSize: 14, color: primaryColor)
-                  .copyWith(decoration: TextDecoration.underline),
+              style: _archivoTextStyle(
+                fontSize: 14,
+                color: primaryColor,
+              ).copyWith(decoration: TextDecoration.underline),
             ),
           ),
           const SizedBox(height: 8),

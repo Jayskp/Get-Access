@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../BottomNavBar.dart';
-import '../../auth_services.dart';
+import '../../auth_serviices.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -22,6 +23,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
   static const Color primaryColor = Color(0xFF004D40);
   static const Color grayText = Color(0xFF4A4A4A);
+
+  TextStyle _archivoTextStyle({
+    double fontSize = 14,
+    FontWeight fontWeight = FontWeight.normal,
+    Color color = Colors.black,
+  }) {
+    return GoogleFonts.archivo(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+    );
+  }
 
   @override
   void initState() {
@@ -46,13 +59,15 @@ class _LoginScreenState extends State<LoginScreen> {
       _showError = false;
 
       if (_useEmail) {
-        final bool emailValid = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$")
-            .hasMatch(_emailOrPhoneController.text.trim());
+        final bool emailValid = RegExp(
+          r"^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$",
+        ).hasMatch(_emailOrPhoneController.text.trim());
         final bool passwordValid = _passwordController.text.length >= 6;
         _isValid = emailValid && passwordValid;
       } else {
-        final bool phoneValid = RegExp(r"^\+91[0-9]{10}$")
-            .hasMatch(_emailOrPhoneController.text.trim());
+        final bool phoneValid = RegExp(
+          r"^\+91[0-9]{10}$",
+        ).hasMatch(_emailOrPhoneController.text.trim());
         _isValid = phoneValid;
       }
     });
@@ -95,14 +110,15 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => BottomNavBarDemo()),
-                (route) => false, // Remove all previous routes
+            (route) => false, // Remove all previous routes
           );
         } else {
           setState(() {
             _showError = true;
-            _errorMessage = _useEmail
-                ? 'Invalid email or password'
-                : 'Invalid phone number';
+            _errorMessage =
+                _useEmail
+                    ? 'Invalid email or password'
+                    : 'Invalid phone number';
           });
         }
       } catch (e) {
@@ -128,6 +144,14 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     const borderColor = Color(0xFF004D40);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isLargeScreen = screenWidth > 768;
+    final isWebScreen = screenWidth > 1024;
+
+    // Responsive padding
+    final horizontalPadding =
+        isWebScreen ? 32.0 : (isLargeScreen ? 28.0 : 24.0);
+    final verticalSpacing = isLargeScreen ? 40.0 : 32.0;
 
     return WillPopScope(
       onWillPop: () async {
@@ -139,177 +163,195 @@ class _LoginScreenState extends State<LoginScreen> {
         appBar: AppBar(
           title: Text(
             'Login',
-            style: TextStyle(
+            style: _archivoTextStyle(
+              fontSize: isWebScreen ? 22 : 20,
               fontWeight: FontWeight.w500,
-              fontSize: 20,
               color: Colors.black,
             ),
           ),
           backgroundColor: Colors.white,
           elevation: 0,
           automaticallyImplyLeading: false, // Remove back button
+          toolbarHeight: isWebScreen ? 70 : 56,
+          centerTitle: isWebScreen ? true : false,
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              Text(
-                _useEmail
-                    ? 'Please enter your email and password to login'
-                    : 'Please enter your phone number to login',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: grayText,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Email/Phone TextField
-              Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  border: Border.all(color: borderColor, width: 1.5),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: !_useEmail
-                    ? Row(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        '+91',
-                        style: TextStyle(fontSize: 16, color: Colors.black),
-                      ),
-                    ),
-                    const VerticalDivider(
-                      width: 1,
-                      thickness: 1,
-                      color: primaryColor,
-                    ),
-                    Expanded(
-                      child: TextField(
-                        controller: _emailOrPhoneController,
-                        keyboardType: TextInputType.number,
-                        maxLength: 10,
-                        decoration: const InputDecoration(
-                          counterText: '',
-                          hintText: 'Enter Mobile Number',
-                          hintStyle: TextStyle(color: Colors.grey),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12),
-                        ),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ),
-                  ],
-                )
-                    : TextField(
-                  controller: _emailOrPhoneController,
-                  keyboardType: TextInputType.emailAddress,
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
-                  decoration: const InputDecoration(
-                    hintText: 'Enter your Email',
-                    hintStyle: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
+        body: Center(
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: isWebScreen ? 480 : double.infinity,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: isWebScreen ? 24 : 16,
+            ),
+            child: Column(
+              children: [
+                SizedBox(height: isWebScreen ? 50 : 40),
+                Text(
+                  _useEmail
+                      ? 'Please enter your email and password to login'
+                      : 'Please enter your phone number to login',
+                  textAlign: TextAlign.center,
+                  style: _archivoTextStyle(
+                    fontSize: isWebScreen ? 18 : 16,
+                    color: grayText,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
-              ),
+                SizedBox(height: verticalSpacing),
 
-              // Password TextField (only for email login)
-              if (_useEmail) ...[
-                const SizedBox(height: 16),
+                // Email/Phone TextField
                 Container(
                   height: 56,
                   decoration: BoxDecoration(
                     border: Border.all(color: borderColor, width: 1.5),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    style: const TextStyle(
-                      fontSize: 16,
+                  child:
+                      !_useEmail
+                          ? Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                child: Text(
+                                  '+91',
+                                  style: _archivoTextStyle(fontSize: 16),
+                                ),
+                              ),
+                              const VerticalDivider(
+                                width: 1,
+                                thickness: 1,
+                                color: primaryColor,
+                              ),
+                              Expanded(
+                                child: TextField(
+                                  controller: _emailOrPhoneController,
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 10,
+                                  decoration: InputDecoration(
+                                    counterText: '',
+                                    hintText: 'Enter Mobile Number',
+                                    hintStyle: _archivoTextStyle(
+                                      color: Colors.grey,
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                  ),
+                                  style: _archivoTextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ],
+                          )
+                          : TextField(
+                            controller: _emailOrPhoneController,
+                            keyboardType: TextInputType.emailAddress,
+                            style: _archivoTextStyle(fontSize: 16),
+                            decoration: InputDecoration(
+                              hintText: 'Enter your Email',
+                              hintStyle: _archivoTextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                            ),
+                          ),
+                ),
+
+                // Password TextField (only for email login)
+                if (_useEmail) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: borderColor, width: 1.5),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your Password',
-                      hintStyle: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
+                    child: TextField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      style: _archivoTextStyle(fontSize: 16),
+                      decoration: InputDecoration(
+                        hintText: 'Enter your Password',
+                        hintStyle: _archivoTextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                        ),
                       ),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                  ),
+                ],
+
+                if (_showError)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      _errorMessage,
+                      style: _archivoTextStyle(color: Colors.red, fontSize: 12),
+                    ),
+                  ),
+                SizedBox(height: isWebScreen ? 32 : 24),
+
+                // Login Button
+                SizedBox(
+                  width: isWebScreen ? 320 : double.infinity,
+                  height: isWebScreen ? 52 : 48,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : (_isValid ? _login : null),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          _isValid ? Colors.black : Colors.grey.shade300,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                    ),
+                    child:
+                        _isLoading
+                            ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                            : Text(
+                              'Login',
+                              style: _archivoTextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: isWebScreen ? 18 : 16,
+                              ),
+                            ),
+                  ),
+                ),
+
+                SizedBox(height: isWebScreen ? 24 : 20),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _useEmail = !_useEmail;
+                      _emailOrPhoneController.clear();
+                      _passwordController.clear();
+                      _isValid = false;
+                    });
+                  },
+                  child: Text(
+                    _useEmail ? 'Use Phone instead' : 'Use Email instead',
+                    style: _archivoTextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: isWebScreen ? 16 : 14,
+                      color: primaryColor,
                     ),
                   ),
                 ),
               ],
-
-              if (_showError)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    _errorMessage,
-                    style: const TextStyle(
-                      color: Colors.red,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 24),
-
-              // Login Button
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : (_isValid ? _login : null),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _isValid ? Colors.black : Colors.grey.shade300,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                    'Login',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _useEmail = !_useEmail;
-                    _emailOrPhoneController.clear();
-                    _passwordController.clear();
-                    _isValid = false;
-                  });
-                },
-                child: Text(
-                  _useEmail ? 'Use Phone instead' : 'Use Email instead',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                    color: primaryColor,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
