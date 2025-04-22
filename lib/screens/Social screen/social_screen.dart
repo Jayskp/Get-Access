@@ -1909,7 +1909,7 @@ class _SocialScreenState extends State<SocialScreen>
                                                 posts
                                                     .map(
                                                       (post) => SocialPostCard(
-                                                        post: post,
+                                                        post: post, onReport: (String ) {  },
                                                       ),
                                                     )
                                                     .toList(),

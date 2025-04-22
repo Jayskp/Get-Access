@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// Model class to represent social posts, polls, and events
 class SocialPost {
   final String id;
+  final String authorId;
   final String authorName;
   final String authorBlock;
   final String? authorAvatarUrl;
@@ -14,7 +16,10 @@ class SocialPost {
   int likes;
   int comments;
   int shares;
+  List<String> likedBy;
   bool isLiked;
+  bool isSaved;
+  List<String> savedBy;
 
   // Poll-specific fields
   List<PollOption>? pollOptions;
@@ -27,6 +32,7 @@ class SocialPost {
 
   SocialPost({
     required this.id,
+    required this.authorId,
     required this.authorName,
     required this.authorBlock,
     this.authorAvatarUrl,
@@ -38,13 +44,17 @@ class SocialPost {
     this.likes = 0,
     this.comments = 0,
     this.shares = 0,
+    List<String>? likedBy,
     this.isLiked = false,
+    this.isSaved = false,
+    List<String>? savedBy,
     this.pollOptions,
     this.pollEndDate,
     this.eventDate,
     this.eventTime,
     this.eventVenue,
-  });
+  }) : this.likedBy = likedBy != null ? List<String>.from(likedBy) : [],
+       this.savedBy = savedBy != null ? List<String>.from(savedBy) : [];
 
   String get timeAgo {
     final now = DateTime.now();
@@ -73,8 +83,10 @@ class SocialPost {
     required String content,
     List<String>? imageUrls,
   }) {
+    final userId = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
     return SocialPost(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
+      authorId: userId,
       authorName: authorName,
       authorBlock: authorBlock,
       authorAvatarUrl: authorAvatarUrl,
@@ -94,8 +106,10 @@ class SocialPost {
     required List<PollOption> options,
     DateTime? endDate,
   }) {
+    final userId = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
     return SocialPost(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
+      authorId: userId,
       authorName: authorName,
       authorBlock: authorBlock,
       authorAvatarUrl: authorAvatarUrl,
@@ -118,8 +132,10 @@ class SocialPost {
     required String eventVenue,
     List<String>? imageUrls,
   }) {
+    final userId = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
     return SocialPost(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
+      authorId: userId,
       authorName: authorName,
       authorBlock: authorBlock,
       authorAvatarUrl: authorAvatarUrl,
@@ -133,12 +149,14 @@ class SocialPost {
     );
   }
 
-  void toggleLike() {
-    if (isLiked) {
+  void toggleLike(String userId) {
+    if (likedBy.contains(userId)) {
       likes--;
+      likedBy.remove(userId);
       isLiked = false;
     } else {
       likes++;
+      likedBy.add(userId);
       isLiked = true;
     }
   }
@@ -146,17 +164,142 @@ class SocialPost {
   void incrementShares() {
     shares++;
   }
+
+  void incrementComments() {
+    comments++;
+  }
+
+  void toggleSave(String userId) {
+    if (savedBy.contains(userId)) {
+      savedBy.remove(userId);
+      isSaved = false;
+    } else {
+      savedBy.add(userId);
+      isSaved = true;
+    }
+  }
+
+  // For Firebase storage
+  Map<String, dynamic> toMap() {
+    Map<String, dynamic> data = {
+      'id': id,
+      'authorId': authorId,
+      'authorName': authorName,
+      'authorBlock': authorBlock,
+      'authorAvatarUrl': authorAvatarUrl,
+      'createdAt': createdAt.millisecondsSinceEpoch,
+      'content': content,
+      'imageUrls': imageUrls,
+      'type': type.name,
+      'additionalData': additionalData,
+      'likes': likes,
+      'comments': comments,
+      'shares': shares,
+      'likedBy': likedBy,
+      'savedBy': savedBy,
+    };
+
+    if (type == PostType.poll) {
+      data['pollOptions'] = pollOptions?.map((opt) => opt.toMap()).toList();
+      data['pollEndDate'] = pollEndDate?.millisecondsSinceEpoch;
+    } else if (type == PostType.event) {
+      data['eventDate'] = eventDate?.millisecondsSinceEpoch;
+      data['eventTime'] = eventTime;
+      data['eventVenue'] = eventVenue;
+    }
+
+    return data;
+  }
+
+  factory SocialPost.fromMap(Map<String, dynamic> map, String currentUserId) {
+    final type = PostType.values.firstWhere(
+      (e) => e.name == map['type'],
+      orElse: () => PostType.post,
+    );
+
+    List<PollOption>? pollOptions;
+    if (type == PostType.poll && map['pollOptions'] != null) {
+      pollOptions =
+          (map['pollOptions'] as List)
+              .map((opt) => PollOption.fromMap(opt))
+              .toList();
+    }
+
+    // Extract and ensure all lists are modifiable
+    List<String> extractedLikedBy = [];
+    if (map['likedBy'] != null) {
+      extractedLikedBy = List<String>.from(map['likedBy']);
+    }
+
+    List<String> extractedSavedBy = [];
+    if (map['savedBy'] != null) {
+      extractedSavedBy = List<String>.from(map['savedBy']);
+    }
+
+    List<String>? extractedImageUrls;
+    if (map['imageUrls'] != null) {
+      extractedImageUrls = List<String>.from(map['imageUrls']);
+    }
+
+    return SocialPost(
+      id: map['id'],
+      authorId: map['authorId'],
+      authorName: map['authorName'],
+      authorBlock: map['authorBlock'],
+      authorAvatarUrl: map['authorAvatarUrl'],
+      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt']),
+      content: map['content'],
+      imageUrls: extractedImageUrls,
+      type: type,
+      additionalData: map['additionalData'],
+      likes: map['likes'] ?? 0,
+      comments: map['comments'] ?? 0,
+      shares: map['shares'] ?? 0,
+      likedBy: extractedLikedBy,
+      isLiked: extractedLikedBy.contains(currentUserId),
+      isSaved: extractedSavedBy.contains(currentUserId),
+      savedBy: extractedSavedBy,
+      pollOptions: pollOptions,
+      pollEndDate:
+          map['pollEndDate'] != null
+              ? DateTime.fromMillisecondsSinceEpoch(map['pollEndDate'])
+              : null,
+      eventDate:
+          map['eventDate'] != null
+              ? DateTime.fromMillisecondsSinceEpoch(map['eventDate'])
+              : null,
+      eventTime: map['eventTime'],
+      eventVenue: map['eventVenue'],
+    );
+  }
 }
 
 /// Represents a poll option with text and vote count
 class PollOption {
   final String text;
   int votes;
+  List<String> votedBy;
 
-  PollOption({required this.text, this.votes = 0});
+  PollOption({required this.text, this.votes = 0, List<String>? votedBy})
+    : this.votedBy = votedBy != null ? List<String>.from(votedBy) : [];
 
-  void vote() {
-    votes++;
+  void vote(String userId) {
+    if (!votedBy.contains(userId)) {
+      votes++;
+      votedBy.add(userId);
+    }
+  }
+
+  Map<String, dynamic> toMap() {
+    return {'text': text, 'votes': votes, 'votedBy': votedBy};
+  }
+
+  factory PollOption.fromMap(Map<String, dynamic> map) {
+    return PollOption(
+      text: map['text'],
+      votes: map['votes'] ?? 0,
+      votedBy: map['votedBy'] != null ? List<String>.from(map['votedBy']) : [],
+    );
   }
 }
 
