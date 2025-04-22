@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:getaccess/Profile.dart';
 import 'package:getaccess/SearchDetails.dart';
+import 'package:getaccess/auth_serviices.dart';
+import 'package:getaccess/splash_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
 
@@ -481,7 +483,12 @@ class _SettingsPageState extends State<SettingsPage> {
           itemBuilder: (context, index) {
             final item = items[index];
             return InkWell(
-              onTap: () {},
+              onTap: () {
+                if(item['title']=='Logout') {
+                  AuthService.logout();
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SplashScreen()));
+                }
+              },
               child: Container(
                 decoration: BoxDecoration(
                   color: _lightGreyColor,
