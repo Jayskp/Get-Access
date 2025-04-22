@@ -48,6 +48,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        scaffoldBackgroundColor: Colors.white,
+        cardColor: Colors.white,
+        colorScheme: ColorScheme.light(
+          background: Colors.white,
+          surface: Colors.white,
+          primary: Colors.teal,
+        ),
       ),
       home: const SplashScreen(),
     );

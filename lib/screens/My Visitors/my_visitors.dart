@@ -374,6 +374,7 @@ class _MyVisitorsState extends State<MyVisitors> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leading: InkWell(
           onTap: () {
