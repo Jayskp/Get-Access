@@ -211,6 +211,7 @@ class _InviteGuestState extends State<InviteGuest> {
                                 label: Text(
                                   'Contacts',
                                   style: TextStyle(
+                                    color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -243,6 +244,7 @@ class _InviteGuestState extends State<InviteGuest> {
                           child: Text(
                             'Add Guest',
                             style: TextStyle(
+                              color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
