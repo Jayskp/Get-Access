@@ -26,7 +26,7 @@ Widget CategoriesCard({
         height: 68,
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: AppColors.lightGrey,
+          color: Colors.grey.shade200,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(

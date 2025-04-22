@@ -78,6 +78,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(

@@ -7,7 +7,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'My Gate',
+      title: 'Get Access',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.light().copyWith(
         primaryColor: Colors.white,

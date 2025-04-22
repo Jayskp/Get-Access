@@ -1,12 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:getaccess/screens/Login/login_screen.dart';
 import 'package:getaccess/signin_screen.dart';
 import 'BottomNavBar.dart';
 import 'auth_serviices.dart';
 import 'firebase_options.dart';
-import 'package:getaccess/app.dart';
 import 'package:provider/provider.dart';
 import 'providers/social_post_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,7 +23,9 @@ Future<void> main() async {
       );
     }
   } catch (e) {
-    print('Firebase initialization error: $e');
+    if (kDebugMode) {
+      print('Firebase initialization error: $e');
+    }
     // Continue with the app even if Firebase fails
   }
 
@@ -37,7 +38,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +55,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({super.key, required this.title});
 
   final String title;
 
@@ -140,7 +141,9 @@ Future<void> checkAuthAndRedirect(BuildContext context) async {
       }
     }
   } catch (e) {
-    print("Error during auth check: $e");
+    if (kDebugMode) {
+      print("Error during auth check: $e");
+    }
     // Fallback to sign up screen
     Navigator.pushReplacement(
       context,
