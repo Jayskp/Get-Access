@@ -94,6 +94,11 @@ class SocialPost {
       content: content,
       imageUrls: imageUrls,
       type: PostType.post,
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      likedBy: [],
+      savedBy: [],
     );
   }
 
@@ -118,6 +123,11 @@ class SocialPost {
       type: PostType.poll,
       pollOptions: options,
       pollEndDate: endDate ?? DateTime.now().add(const Duration(days: 7)),
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      likedBy: [],
+      savedBy: [],
     );
   }
 
@@ -146,6 +156,11 @@ class SocialPost {
       eventDate: eventDate,
       eventTime: eventTime,
       eventVenue: eventVenue,
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      likedBy: [],
+      savedBy: [],
     );
   }
 
@@ -159,10 +174,6 @@ class SocialPost {
       likedBy.add(userId);
       isLiked = true;
     }
-  }
-
-  void incrementShares() {
-    shares++;
   }
 
   void incrementComments() {
@@ -241,6 +252,11 @@ class SocialPost {
       extractedImageUrls = List<String>.from(map['imageUrls']);
     }
 
+    // Ensure counts are initialized properly
+    final int likes = map['likes'] ?? 0;
+    final int comments = map['comments'] ?? 0;
+    final int shares = map['shares'] ?? 0; // Explicitly default to 0
+
     return SocialPost(
       id: map['id'],
       authorId: map['authorId'],
@@ -252,9 +268,9 @@ class SocialPost {
       imageUrls: extractedImageUrls,
       type: type,
       additionalData: map['additionalData'],
-      likes: map['likes'] ?? 0,
-      comments: map['comments'] ?? 0,
-      shares: map['shares'] ?? 0,
+      likes: likes,
+      comments: comments,
+      shares: shares,
       likedBy: extractedLikedBy,
       isLiked: extractedLikedBy.contains(currentUserId),
       isSaved: extractedSavedBy.contains(currentUserId),

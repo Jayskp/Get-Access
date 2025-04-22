@@ -53,12 +53,27 @@ class _SocialPostCardState extends State<SocialPostCard>
   Future<void> _handleShare() async {
     setState(() => _isSharing = true);
     try {
+      // Share the content first
       await Share.share(
         'Check out this post by ${widget.post.authorName}: ${widget.post.content}\n\nShared via Get-Access App',
         subject: 'Interesting post from Get-Access',
       );
+
+      // Then increment the share count
+      await Provider.of<SocialPostProvider>(
+        context,
+        listen: false,
+      ).incrementShares(widget.post.id);
+    } catch (e) {
+      print('Error sharing: $e');
+      // Show error if needed
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to share: $e')));
     } finally {
-      setState(() => _isSharing = false);
+      if (mounted) {
+        setState(() => _isSharing = false);
+      }
     }
   }
 

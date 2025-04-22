@@ -134,21 +134,30 @@ class SocialPostProvider extends ChangeNotifier {
   }
 
   Future<void> incrementShares(String id) async {
+    final postIndex = _posts.indexWhere((post) => post.id == id);
+
+    if (postIndex == -1) {
+      print('Post not found: $id');
+      return;
+    }
+
     try {
-      final postIndex = _posts.indexWhere((post) => post.id == id);
+      // Increment share count locally first (optimistic update)
+      _posts[postIndex].shares++;
+      notifyListeners();
 
-      if (postIndex != -1) {
-        _posts[postIndex].incrementShares();
-
-        // Update in Firebase
-        await _database.child('Posts').child(id).update({
-          'shares': _posts[postIndex].shares,
-        });
-
+      // Update in Firebase
+      await _database.child('Posts').child(id).update({
+        'shares': _posts[postIndex].shares,
+      });
+    } catch (e) {
+      // Revert on error
+      print('Error incrementing shares: $e');
+      if (postIndex != -1 && _posts[postIndex].shares > 0) {
+        _posts[postIndex].shares--;
         notifyListeners();
       }
-    } catch (e) {
-      print('Error incrementing shares: $e');
+      throw Exception('Failed to update share count: $e');
     }
   }
 
@@ -250,7 +259,7 @@ class SocialPostProvider extends ChangeNotifier {
         type: PostType.post,
         likes: 1,
         comments: 2,
-        shares: 3,
+        shares: 0,
       );
 
       // Sample poll
@@ -271,6 +280,7 @@ class SocialPostProvider extends ChangeNotifier {
         pollEndDate: DateTime.now().add(const Duration(days: 2)),
         likes: 5,
         comments: 3,
+        shares: 0,
       );
 
       // Sample event
@@ -288,7 +298,7 @@ class SocialPostProvider extends ChangeNotifier {
         eventVenue: 'Society Clubhouse',
         likes: 25,
         comments: 10,
-        shares: 8,
+        shares: 0,
       );
 
       await addPost(post1);
