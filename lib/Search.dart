@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:getaccess/ServicesDirectory.dart';
+import 'package:getaccess/messages.dart';
 
 import 'chat.dart';
 
@@ -237,7 +238,7 @@ class _SearchPageState extends State<SearchPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => Chat(),
+                                    builder: (context) => Messages(),
                                   ),
                                 );
                               },

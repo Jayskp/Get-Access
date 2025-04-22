@@ -45,10 +45,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Get Access',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      theme: ThemeData(),
       home: const SplashScreen(),
     );
   }

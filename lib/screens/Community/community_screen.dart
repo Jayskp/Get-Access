@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:getaccess/ResidentDirectory.dart';
 import 'package:getaccess/Search.dart';
+import 'package:getaccess/chat.dart';
 import 'package:getaccess/screens/Community/community_shimmer.dart';
 import 'package:getaccess/util/constants/colors.dart';
 import 'package:getaccess/widgets/helpers_card.dart';
@@ -180,7 +182,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   ),
                                   const Spacer(),
                                   IconButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => SearchPage(),
+                                        ),
+                                      );
+                                    },
                                     icon: Icon(Icons.search_rounded, size: 24),
                                     tooltip: 'Search',
                                   ),
@@ -190,7 +199,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => SearchPage(),
+                                          builder: (context) => Chat(),
                                         ),
                                       );
                                     },
@@ -310,71 +319,82 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               ),
                               const SizedBox(height: 16),
                               // Resident Directory Card
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.lightGrey,
-                                  borderRadius: BorderRadius.circular(15),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
-                                      blurRadius: 5,
-                                      offset: const Offset(0, 2),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ResidentDirectory(),
                                     ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.all(23),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  "Resident Directory",
-                                                  style: _archivoTextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                SizedBox(width: 10),
-                                                Icon(
-                                                  Icons.arrow_forward_ios,
-                                                  size: 20,
-                                                  color: Colors.black,
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 5),
-                                            Text(
-                                              "Discover,connect and engage",
-                                              style: _archivoTextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                          ],
+                                  );
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.lightGrey,
+                                    borderRadius: BorderRadius.circular(15),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.05,
                                         ),
-                                      ),
-                                      Image(
-                                        image: AssetImage(
-                                          "assets/images/icons/Group 56.png",
-                                        ),
-                                      ),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        "+350",
-                                        style: _archivoTextStyle(
-                                          fontSize: 18,
-                                          color: Colors.black,
-                                        ),
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 2),
                                       ),
                                     ],
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(23),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "Resident Directory",
+                                                    style: _archivoTextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Icon(
+                                                    Icons.arrow_forward_ios,
+                                                    size: 20,
+                                                    color: Colors.black,
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 5),
+                                              Text(
+                                                "Discover,connect and engage",
+                                                style: _archivoTextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Image(
+                                          image: AssetImage(
+                                            "assets/images/icons/Group 56.png",
+                                          ),
+                                        ),
+                                        SizedBox(width: 5),
+                                        Text(
+                                          "+350",
+                                          style: _archivoTextStyle(
+                                            fontSize: 18,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
