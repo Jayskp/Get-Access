@@ -27,7 +27,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -41,57 +44,39 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCFtX94gpgvEAQuJuvquXeKW1nNJKigyV8',
-    appId: '1:574158406782:web:30151ee54258cfac10042f',
-    messagingSenderId: '574158406782',
-    projectId: 'mygate-54769',
-    authDomain: 'mygate-54769.firebaseapp.com',
-    databaseURL: 'https://mygate-54769-default-rtdb.firebaseio.com',
-    storageBucket: 'mygate-54769.firebasestorage.app',
-    measurementId: 'G-0ZS0NRZLPG',
+    apiKey: 'YOUR-WEB-API-KEY',
+    appId: 'YOUR-WEB-APP-ID',
+    messagingSenderId: 'YOUR-SENDER-ID',
+    projectId: 'YOUR-PROJECT-ID',
+    authDomain: 'YOUR-AUTH-DOMAIN',
+    storageBucket: 'YOUR-STORAGE-BUCKET',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBjUkIiTj8d1pAcvnmolnF_OfHGUIRW_zw',
-    appId: '1:574158406782:android:dcda286a1f9ea02910042f',
-    messagingSenderId: '574158406782',
-    projectId: 'mygate-54769',
-    databaseURL: 'https://mygate-54769-default-rtdb.firebaseio.com',
-    storageBucket: 'mygate-54769.firebasestorage.app',
+    apiKey: 'YOUR-ANDROID-API-KEY',
+    appId: 'YOUR-ANDROID-APP-ID',
+    messagingSenderId: 'YOUR-SENDER-ID',
+    projectId: 'YOUR-PROJECT-ID',
+    storageBucket: 'YOUR-STORAGE-BUCKET',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBw6h5JUdFKQL8ElnSv6yVGIl-vI6mgwzo',
-    appId: '1:574158406782:ios:6022874c8c84a27310042f',
-    messagingSenderId: '574158406782',
-    projectId: 'mygate-54769',
-    databaseURL: 'https://mygate-54769-default-rtdb.firebaseio.com',
-    storageBucket: 'mygate-54769.firebasestorage.app',
-    androidClientId: '574158406782-qd7meqa22rg7h0a9t2v3vjuu5brno2c8.apps.googleusercontent.com',
-    iosClientId: '574158406782-cpml3enrvpd9upj3joe88itshmv4gj5n.apps.googleusercontent.com',
-    iosBundleId: 'com.example.getaccess',
+    apiKey: 'YOUR-IOS-API-KEY',
+    appId: 'YOUR-IOS-APP-ID',
+    messagingSenderId: 'YOUR-SENDER-ID',
+    projectId: 'YOUR-PROJECT-ID',
+    storageBucket: 'YOUR-STORAGE-BUCKET',
+    iosClientId: 'YOUR-IOS-CLIENT-ID',
+    iosBundleId: 'YOUR-IOS-BUNDLE-ID',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBw6h5JUdFKQL8ElnSv6yVGIl-vI6mgwzo',
-    appId: '1:574158406782:ios:6022874c8c84a27310042f',
-    messagingSenderId: '574158406782',
-    projectId: 'mygate-54769',
-    databaseURL: 'https://mygate-54769-default-rtdb.firebaseio.com',
-    storageBucket: 'mygate-54769.firebasestorage.app',
-    androidClientId: '574158406782-qd7meqa22rg7h0a9t2v3vjuu5brno2c8.apps.googleusercontent.com',
-    iosClientId: '574158406782-cpml3enrvpd9upj3joe88itshmv4gj5n.apps.googleusercontent.com',
-    iosBundleId: 'com.example.getaccess',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCFtX94gpgvEAQuJuvquXeKW1nNJKigyV8',
-    appId: '1:574158406782:web:b2f16f0c2a937c8f10042f',
-    messagingSenderId: '574158406782',
-    projectId: 'mygate-54769',
-    authDomain: 'mygate-54769.firebaseapp.com',
-    databaseURL: 'https://mygate-54769-default-rtdb.firebaseio.com',
-    storageBucket: 'mygate-54769.firebasestorage.app',
-    measurementId: 'G-64HF9B6006',
+    apiKey: 'YOUR-MACOS-API-KEY',
+    appId: 'YOUR-MACOS-APP-ID',
+    messagingSenderId: 'YOUR-SENDER-ID',
+    projectId: 'YOUR-PROJECT-ID',
+    storageBucket: 'YOUR-STORAGE-BUCKET',
+    iosClientId: 'YOUR-MACOS-CLIENT-ID',
+    iosBundleId: 'YOUR-MACOS-BUNDLE-ID',
   );
 }

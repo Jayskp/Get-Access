@@ -5,7 +5,7 @@ import 'package:getaccess/PreApproveDelivery.dart';
 import 'package:getaccess/PreApproveMaid.dart';
 import 'package:getaccess/Settings.dart';
 import 'package:getaccess/daily_help.dart';
-import 'package:getaccess/models/social_post.dart';
+// import 'package:getaccess/models/social_post.dart';
 import 'package:getaccess/notification.dart';
 import 'package:getaccess/providers/social_post_provider.dart';
 import 'package:getaccess/screens/InviteGuest.dart';
@@ -167,7 +167,6 @@ class _SocialScreenState extends State<SocialScreen>
       onTap: () {},
     ),
   ];
-
 
   // All available items for customization
   List<Map<String, dynamic>> allAvailableItems = [];
@@ -588,6 +587,11 @@ class _SocialScreenState extends State<SocialScreen>
     ).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
+
+    // Initialize sample posts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<SocialPostProvider>(context, listen: false).addSamplePosts();
+    });
   }
 
   void _onPageChanged() {
@@ -597,7 +601,6 @@ class _SocialScreenState extends State<SocialScreen>
       });
     }
   }
-
 
   bool _isLoading = false;
 
@@ -2349,102 +2352,129 @@ class _SocialScreenState extends State<SocialScreen>
   // Quick access section that can be reused
   Widget _buildQuickAccessSection({bool inHeader = false}) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 360;
+    final isLargeScreen = screenWidth > 768;
+    final isWebScreen = screenWidth > 1024;
 
-    // Calculate horizontal padding
+    // Calculate horizontal padding - more for web
     final horizontalPadding =
-        inHeader ? (screenWidth > 600 ? 40.0 : 20.0) : 0.0;
-    final containerWidth = screenWidth - (horizontalPadding * 2);
+        inHeader ? (isWebScreen ? 60.0 : (isLargeScreen ? 40.0 : 20.0)) : 0.0;
 
-    // Adjust spacing based on screen width with minimal values
-    final cardSpacing = isSmallScreen ? 4.0 : 6.0;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Get available width
+        final availableWidth =
+            constraints.maxWidth != double.infinity
+                ? constraints.maxWidth
+                : screenWidth - (horizontalPadding * 2);
 
-    // Calculate card width with a much larger margin of safety (40px) to account for any system-level padding
-    final safetyMargin = 40.0;
-    final adjustedWidth = containerWidth - safetyMargin;
+        // Fixed card sizing (don't increase for web)
+        final cardWidth = 100.0;
+        final cardHeight = inHeader ? 70.0 : 80.0;
 
-    // Calculate sizes precisely to avoid overflow
-    final cardWidth =
-        ((adjustedWidth - (cardSpacing * 3)) / 4).floor().toDouble();
-    final cardHeight = inHeader ? cardWidth : cardWidth * 1.05;
+        // Calculate spacing to distribute cards evenly across full width
+        // For web, calculate spacing that makes cards use the full width
+        final totalCardWidth = cardWidth * quickAccessItems.length;
+        final remainingSpace = availableWidth - totalCardWidth;
+        final cardSpacing =
+            isWebScreen ? remainingSpace / (quickAccessItems.length - 1) : 10.0;
 
-    // Scale icon and text size
-    final iconSize =
-        inHeader
-            ? (isSmallScreen ? 16.0 : 20.0)
-            : (isSmallScreen ? 20.0 : 24.0);
-    final fontSize =
-        inHeader ? (isSmallScreen ? 8.0 : 9.0) : (isSmallScreen ? 9.0 : 10.0);
-
-    return Container(
-      color: inHeader ? Colors.white : Colors.transparent,
-      width: containerWidth,
-      padding: EdgeInsets.symmetric(
-        vertical: inHeader ? 8.0 : 0,
-        horizontal: horizontalPadding,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!inHeader)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Quick Access',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: isSmallScreen ? 16 : 18,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _isCustomizing = true;
-                    });
-                    _toggleQuickAccessPopup();
-                  },
-                  child: Text(
-                    'Customize',
-                    style: TextStyle(
-                      color: Colors.blue[700],
-                      fontWeight: FontWeight.w500,
-                      fontSize: isSmallScreen ? 11 : 13,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          if (!inHeader) SizedBox(height: isSmallScreen ? 6.0 : 10.0),
-          SizedBox(
-            height: cardHeight,
-            child: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(quickAccessItems.length, (index) {
-                  final item = quickAccessItems[index];
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      right:
-                          index < quickAccessItems.length - 1 ? cardSpacing : 0,
-                    ),
-                    child: SizedBox(
-                      width: cardWidth,
-                      child: _buildQuickAccessCard(
-                        item,
-                        iconSize: iconSize,
-                        fontSize: fontSize,
+        return Container(
+          color: inHeader ? Colors.white : Colors.transparent,
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            vertical: inHeader ? (isWebScreen ? 6.0 : 12.0) : 0,
+            horizontal: horizontalPadding,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!inHeader)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Quick Access',
+                      style: _archivoTextStyle(
+                        fontSize: isWebScreen ? 22 : 20,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  );
-                }),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _isCustomizing = true;
+                        });
+                        _toggleQuickAccessPopup();
+                      },
+                      child: Text(
+                        'Customize',
+                        style: _archivoTextStyle(
+                          fontSize: isWebScreen ? 14 : 13,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.blue.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              if (!inHeader) SizedBox(height: isWebScreen ? 12.0 : 10.0),
+
+              // Use a centered row for web view and SingleChildScrollView for mobile
+              Container(
+                height: cardHeight,
+                child:
+                    isWebScreen
+                        ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: List.generate(quickAccessItems.length, (
+                            index,
+                          ) {
+                            final item = quickAccessItems[index];
+                            return SizedBox(
+                              width: cardWidth,
+                              height: cardHeight,
+                              child: _buildQuickAccessCard(
+                                item,
+                                iconSize: isWebScreen ? 24.0 : 20.0,
+                                fontSize: isWebScreen ? 12.0 : 10.0,
+                                isWebView: true,
+                              ),
+                            );
+                          }),
+                        )
+                        : SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(quickAccessItems.length, (
+                              index,
+                            ) {
+                              final item = quickAccessItems[index];
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  right:
+                                      index < quickAccessItems.length - 1
+                                          ? 10.0
+                                          : 0,
+                                ),
+                                child: SizedBox(
+                                  width: cardWidth,
+                                  height: cardHeight,
+                                  child: _buildQuickAccessCard(
+                                    item,
+                                    iconSize: 20.0,
+                                    fontSize: 10.0,
+                                  ),
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -2452,42 +2482,48 @@ class _SocialScreenState extends State<SocialScreen>
     Map<String, dynamic> item, {
     required double iconSize,
     required double fontSize,
+    bool isWebView = false,
   }) {
     return InkWell(
       onTap: () => _executeQuickAccessAction(item),
-      borderRadius: BorderRadius.circular(8),
-      child: AspectRatio(
-        aspectRatio: 1.0,
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.lightGrey,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                item['icon'] as IconData,
-                size: iconSize,
-                color: Colors.black87,
-              ),
-              const SizedBox(height: 2),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: Text(
-                  item['title'] as String,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    color: Colors.black87,
-                    height: 1.0,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+      borderRadius: BorderRadius.circular(isWebView ? 8 : 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.lightGrey,
+          borderRadius: BorderRadius.circular(isWebView ? 8 : 12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              item['icon'] as IconData,
+              size: iconSize,
+              color: Colors.black87,
+            ),
+            SizedBox(height: isWebView ? 2 : 4),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: isWebView ? 2 : 4),
+              child: Text(
+                item['title'] as String,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  color: Colors.black87,
+                  height: 1.1,
+                  fontWeight: isWebView ? FontWeight.w500 : FontWeight.normal,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -2621,8 +2657,8 @@ class _ReorderableWrapState extends State<ReorderableWrap> {
           data: index,
           child: DragTarget<int>(
             onWillAcceptWithDetails: (data) => data.data != index,
-            onAccept: (data) {
-              widget.onReorder(data, index);
+            onAcceptWithDetails: (data) {
+              widget.onReorder(data as int, index);
             },
             builder: (context, candidateData, rejectedData) {
               return widget.children[index];
