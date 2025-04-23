@@ -10,9 +10,9 @@ class Comment {
   final String? authorAvatarUrl;
   final String content;
   final DateTime createdAt;
-  int likes;
-  List<String> likedBy;
-  bool isLiked;
+  final int likes;
+  final List<String> likedBy;
+  final bool isLiked;
 
   Comment({
     required this.id,
@@ -47,6 +47,14 @@ class Comment {
     }
   }
 
+  // Method to get time ago string
+  String getTimeAgo() {
+    return timeAgo;
+  }
+
+  // Method to check if comment is liked by current user
+  bool get isLikedByCurrentUser => isLiked;
+
   factory Comment.create({
     required String postId,
     required String authorName,
@@ -70,22 +78,9 @@ class Comment {
     );
   }
 
-  void toggleLike(String userId) {
-    if (likedBy.contains(userId)) {
-      likes--;
-      likedBy.remove(userId);
-      isLiked = false;
-    } else {
-      likes++;
-      likedBy.add(userId);
-      isLiked = true;
-    }
-  }
-
   // For Firebase storage
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'postId': postId,
       'authorId': authorId,
       'authorName': authorName,
@@ -98,7 +93,59 @@ class Comment {
     };
   }
 
-  factory Comment.fromMap(Map<String, dynamic> map, String currentUserId) {
+  // Create a copy with updated values
+  Comment copyWith({
+    String? id,
+    String? postId,
+    String? authorId,
+    String? authorName,
+    String? authorBlock,
+    String? authorAvatarUrl,
+    String? content,
+    DateTime? createdAt,
+    int? likes,
+    List<String>? likedBy,
+    bool? isLiked,
+  }) {
+    return Comment(
+      id: id ?? this.id,
+      postId: postId ?? this.postId,
+      authorId: authorId ?? this.authorId,
+      authorName: authorName ?? this.authorName,
+      authorBlock: authorBlock ?? this.authorBlock,
+      authorAvatarUrl: authorAvatarUrl ?? this.authorAvatarUrl,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      likes: likes ?? this.likes,
+      likedBy: likedBy ?? List.from(this.likedBy),
+      isLiked: isLiked ?? this.isLiked,
+    );
+  }
+
+  // Toggle like status and return a new Comment instance
+  Comment toggleLike(String userId) {
+    List<String> newLikedBy = List.from(likedBy);
+    int newLikes = likes;
+    bool newIsLiked = isLiked;
+
+    if (likedBy.contains(userId)) {
+      newLikes--;
+      newLikedBy.remove(userId);
+      newIsLiked = false;
+    } else {
+      newLikes++;
+      newLikedBy.add(userId);
+      newIsLiked = true;
+    }
+
+    return copyWith(likes: newLikes, likedBy: newLikedBy, isLiked: newIsLiked);
+  }
+
+  factory Comment.fromMap(
+    Map<String, dynamic> map,
+    String documentId,
+    String currentUserId,
+  ) {
     // Ensure all required fields have default values if missing or invalid
     final String safeAuthorName =
         (map['authorName'] is String &&
@@ -127,7 +174,7 @@ class Comment {
         map['likedBy'] != null ? List<String>.from(map['likedBy']) : [];
 
     return Comment(
-      id: map['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      id: documentId,
       postId: safePostId,
       authorId: safeAuthorId,
       authorName: safeAuthorName,

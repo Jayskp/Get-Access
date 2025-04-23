@@ -63,7 +63,9 @@ class CommentProvider extends ChangeNotifier {
                     commentData['authorName'] = 'Anonymous';
                   }
 
-                  comments.add(Comment.fromMap(commentData, currentUserId));
+                  comments.add(
+                    Comment.fromMap(commentData, key, currentUserId),
+                  );
                 }
               } catch (e) {
                 print('Error parsing individual comment: $e');

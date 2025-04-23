@@ -9,6 +9,11 @@ class AuthService {
   static const String _userEmailKey = "userEmail";
   static const String _userPhoneKey = "userPhone";
   static const String _lastLoginTimeKey = "lastLoginTime";
+  static const String _isAdminKey = "isAdmin";
+
+  // Admin credentials
+  static const String adminEmail = "admin@example.com";
+  static const String adminPassword = "admin123";
 
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final DatabaseReference _database = FirebaseDatabase.instance.ref();
@@ -54,6 +59,7 @@ class AuthService {
     String email,
     String password, {
     bool isSignUp = false,
+    bool isAdmin = false,
   }) async {
     try {
       UserCredential userCredential;
@@ -96,7 +102,11 @@ class AuthService {
       }
 
       // Save to SharedPreferences
-      await _saveUserDataToPrefs(userCredential.user!.uid, email: email);
+      await _saveUserDataToPrefs(
+        userCredential.user!.uid,
+        email: email,
+        isAdmin: isAdmin,
+      );
 
       return userCredential;
     } catch (e) {
@@ -165,6 +175,7 @@ class AuthService {
     String userId, {
     String? email,
     String? phone,
+    bool isAdmin = false,
   }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -183,8 +194,10 @@ class AuthService {
         await prefs.setString(_userPhoneKey, phone);
       }
 
+      await prefs.setBool(_isAdminKey, isAdmin);
+
       print(
-        "User data saved to preferences. UserId: $userId, Email: $email, Phone: $phone",
+        "User data saved to preferences. UserId: $userId, Email: $email, Phone: $phone, Admin: $isAdmin",
       );
     } catch (e) {
       print("Error saving user data to prefs: $e");
@@ -287,6 +300,103 @@ class AuthService {
     } catch (e) {
       print("Error sending password reset email: $e");
       rethrow;
+    }
+  }
+
+  // Check if current user is an admin
+  static Future<bool> isAdmin() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // First check if user has admin flag set in preferences
+      final isAdminFlagSet = prefs.getBool(_isAdminKey) ?? false;
+      if (isAdminFlagSet) return true;
+
+      final userEmail = prefs.getString(_userEmailKey);
+
+      // Check if user is logged in and has an admin email
+      if (userEmail != null) {
+        // Check if email matches admin email
+        if (userEmail.toLowerCase() == adminEmail.toLowerCase()) {
+          // Update admin flag in preferences
+          await prefs.setBool(_isAdminKey, true);
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      print("Error checking admin status: $e");
+      return false;
+    }
+  }
+
+  // Toggle post feature status (admin only)
+  static Future<bool> toggleFeaturePost(String postId, bool featured) async {
+    try {
+      // Verify admin status
+      final isAdminUser = await isAdmin();
+      if (!isAdminUser) {
+        print("Unauthorized attempt to feature post");
+        return false;
+      }
+
+      // Update post in Firebase
+      await FirebaseDatabase.instance.ref().child('Posts').child(postId).update(
+        {'isFeatured': featured},
+      );
+
+      print("Post $postId featured status changed to $featured");
+      return true;
+    } catch (e) {
+      print("Error toggling feature post: $e");
+      return false;
+    }
+  }
+
+  // Delete a post (admin only)
+  static Future<bool> deletePost(String postId) async {
+    try {
+      // Verify admin status
+      final isAdminUser = await isAdmin();
+      if (!isAdminUser) {
+        print("Unauthorized attempt to delete post");
+        return false;
+      }
+
+      // Delete post from Firebase
+      await FirebaseDatabase.instance
+          .ref()
+          .child('Posts')
+          .child(postId)
+          .remove();
+
+      // Also delete associated comments
+      final commentsSnapshot =
+          await FirebaseDatabase.instance
+              .ref()
+              .child('Comments')
+              .orderByChild('postId')
+              .equalTo(postId)
+              .once();
+
+      if (commentsSnapshot.snapshot.value != null) {
+        final commentsData =
+            commentsSnapshot.snapshot.value as Map<dynamic, dynamic>;
+
+        for (var commentId in commentsData.keys) {
+          await FirebaseDatabase.instance
+              .ref()
+              .child('Comments')
+              .child(commentId.toString())
+              .remove();
+        }
+      }
+
+      print("Post $postId and its comments deleted successfully");
+      return true;
+    } catch (e) {
+      print("Error deleting post: $e");
+      return false;
     }
   }
 }

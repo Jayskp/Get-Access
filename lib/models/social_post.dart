@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Model class to represent social posts, polls, and events
 class SocialPost {
@@ -19,6 +20,7 @@ class SocialPost {
   List<String> likedBy;
   bool isLiked;
   bool isSaved;
+  bool isFeatured;
   List<String> savedBy;
 
   // Poll-specific fields
@@ -47,6 +49,7 @@ class SocialPost {
     List<String>? likedBy,
     this.isLiked = false,
     this.isSaved = false,
+    this.isFeatured = false,
     List<String>? savedBy,
     this.pollOptions,
     this.pollEndDate,
@@ -190,6 +193,59 @@ class SocialPost {
     }
   }
 
+  // Create a copy with updated values
+  SocialPost copyWith({
+    String? id,
+    String? authorId,
+    String? authorName,
+    String? authorBlock,
+    String? authorAvatarUrl,
+    DateTime? createdAt,
+    String? content,
+    List<String>? imageUrls,
+    PostType? type,
+    Map<String, dynamic>? additionalData,
+    int? likes,
+    int? comments,
+    int? shares,
+    List<String>? likedBy,
+    bool? isLiked,
+    bool? isSaved,
+    bool? isFeatured,
+    List<String>? savedBy,
+    List<PollOption>? pollOptions,
+    DateTime? pollEndDate,
+    DateTime? eventDate,
+    String? eventTime,
+    String? eventVenue,
+  }) {
+    return SocialPost(
+      id: id ?? this.id,
+      authorId: authorId ?? this.authorId,
+      authorName: authorName ?? this.authorName,
+      authorBlock: authorBlock ?? this.authorBlock,
+      authorAvatarUrl: authorAvatarUrl ?? this.authorAvatarUrl,
+      createdAt: createdAt ?? this.createdAt,
+      content: content ?? this.content,
+      imageUrls: imageUrls ?? this.imageUrls,
+      type: type ?? this.type,
+      additionalData: additionalData ?? this.additionalData,
+      likes: likes ?? this.likes,
+      comments: comments ?? this.comments,
+      shares: shares ?? this.shares,
+      likedBy: likedBy ?? List.from(this.likedBy),
+      isLiked: isLiked ?? this.isLiked,
+      isSaved: isSaved ?? this.isSaved,
+      isFeatured: isFeatured ?? this.isFeatured,
+      savedBy: savedBy ?? List.from(this.savedBy),
+      pollOptions: pollOptions ?? this.pollOptions,
+      pollEndDate: pollEndDate ?? this.pollEndDate,
+      eventDate: eventDate ?? this.eventDate,
+      eventTime: eventTime ?? this.eventTime,
+      eventVenue: eventVenue ?? this.eventVenue,
+    );
+  }
+
   // For Firebase storage
   Map<String, dynamic> toMap() {
     Map<String, dynamic> data = {
@@ -208,6 +264,7 @@ class SocialPost {
       'shares': shares,
       'likedBy': likedBy,
       'savedBy': savedBy,
+      'isFeatured': isFeatured,
     };
 
     if (type == PostType.poll) {
@@ -274,6 +331,7 @@ class SocialPost {
       likedBy: extractedLikedBy,
       isLiked: extractedLikedBy.contains(currentUserId),
       isSaved: extractedSavedBy.contains(currentUserId),
+      isFeatured: map['isFeatured'] ?? false,
       savedBy: extractedSavedBy,
       pollOptions: pollOptions,
       pollEndDate:
