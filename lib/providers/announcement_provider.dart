@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class Announcement {
   final String id;
@@ -20,21 +20,21 @@ class Announcement {
     this.category = 'Society',
   });
 
-  factory Announcement.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-
-    // Handle timestamp from Firestore
-    var createdAtTimestamp = data['createdAt'];
+  factory Announcement.fromRTDB(Map<dynamic, dynamic> data, String id) {
+    // Convert timestamp from milliseconds since epoch to DateTime
     DateTime createdAt;
-
-    if (createdAtTimestamp is Timestamp) {
-      createdAt = createdAtTimestamp.toDate();
-    } else {
+    try {
+      if (data['createdAt'] is int) {
+        createdAt = DateTime.fromMillisecondsSinceEpoch(data['createdAt']);
+      } else {
+        createdAt = DateTime.now();
+      }
+    } catch (e) {
       createdAt = DateTime.now();
     }
 
     return Announcement(
-      id: doc.id,
+      id: id,
       title: data['title'] ?? 'No Title',
       content: data['content'] ?? 'No Content',
       imageUrl: data['imageUrl'],
@@ -42,6 +42,17 @@ class Announcement {
       createdAt: createdAt,
       category: data['category'] ?? 'Society',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'content': content,
+      'imageUrl': imageUrl,
+      'isImportant': isImportant,
+      'createdAt': createdAt.millisecondsSinceEpoch,
+      'category': category,
+    };
   }
 
   String get timeAgo {
@@ -64,7 +75,9 @@ class Announcement {
 }
 
 class AnnouncementProvider with ChangeNotifier {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final DatabaseReference _dbRef = FirebaseDatabase.instance.ref().child(
+    'announcements',
+  );
   List<Announcement> _announcements = [];
   bool _isLoading = false;
 
@@ -73,6 +86,33 @@ class AnnouncementProvider with ChangeNotifier {
 
   AnnouncementProvider() {
     loadAnnouncements();
+    // Listen for real-time updates
+    _setupRealtimeListener();
+  }
+
+  void _setupRealtimeListener() {
+    _dbRef.onValue.listen((event) {
+      if (event.snapshot.value != null) {
+        _loadFromSnapshot(event.snapshot);
+      }
+    });
+  }
+
+  void _loadFromSnapshot(DataSnapshot snapshot) {
+    _announcements = [];
+    final data = snapshot.value as Map<dynamic, dynamic>?;
+
+    if (data != null) {
+      data.forEach((key, value) {
+        if (value is Map<dynamic, dynamic>) {
+          _announcements.add(Announcement.fromRTDB(value, key));
+        }
+      });
+
+      // Sort by date
+      _announcements.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      notifyListeners();
+    }
   }
 
   Future<void> loadAnnouncements() async {
@@ -80,25 +120,10 @@ class AnnouncementProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final snapshot =
-          await FirebaseFirestore.instance
-              .collection('announcements')
-              .orderBy('createdAt', descending: true)
-              .get();
-
-      _announcements =
-          snapshot.docs.map((doc) {
-            final data = doc.data();
-            return Announcement(
-              id: doc.id,
-              title: data['title'] ?? '',
-              content: data['content'] ?? '',
-              isImportant: data['important'] ?? data['isImportant'] ?? false,
-              imageUrl: data['imageUrl'],
-              createdAt:
-                  (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-            );
-          }).toList();
+      final snapshot = await _dbRef.get();
+      if (snapshot.value != null) {
+        _loadFromSnapshot(snapshot);
+      }
     } catch (e) {
       print("Error loading announcements: $e");
     } finally {
@@ -107,8 +132,61 @@ class AnnouncementProvider with ChangeNotifier {
     }
   }
 
-  // Get announcements count
-  int get count => _announcements.length;
+  Future<String> addAnnouncement(
+    String title,
+    String content,
+    bool isImportant,
+  ) async {
+    try {
+      // Create a new announcement
+      final newAnnouncement = Announcement(
+        id: '',
+        title: title,
+        content: content,
+        isImportant: isImportant,
+        createdAt: DateTime.now(),
+      );
+
+      // Push to Realtime Database and get the key
+      final newRef = _dbRef.push();
+      await newRef.set(newAnnouncement.toJson());
+
+      // No need to update local list as the listener will do it
+      return newRef.key ?? '';
+    } catch (e) {
+      print("Error adding announcement: $e");
+      return '';
+    }
+  }
+
+  Future<void> updateAnnouncement(
+    String id,
+    String title,
+    String content,
+    bool isImportant,
+  ) async {
+    try {
+      await _dbRef.child(id).update({
+        'title': title,
+        'content': content,
+        'isImportant': isImportant,
+        'lastUpdated': DateTime.now().millisecondsSinceEpoch,
+      });
+
+      // The listener will update the local list
+    } catch (e) {
+      print("Error updating announcement: $e");
+    }
+  }
+
+  Future<void> deleteAnnouncement(String id) async {
+    try {
+      await _dbRef.child(id).remove();
+      // The listener will update the local list
+    } catch (e) {
+      print("Error deleting announcement: $e");
+    }
+  }
 
   // Get important announcements
   List<Announcement> get importantAnnouncements =>

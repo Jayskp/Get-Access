@@ -7,6 +7,8 @@ import 'package:getaccess/util/constants/colors.dart';
 import 'package:getaccess/widgets/helpers_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:provider/provider.dart';
+import 'package:getaccess/providers/announcement_provider.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -31,30 +33,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
       color: color,
     );
   }
-
-  final List<Map<String, dynamic>> _notices = [
-    {
-      'category': 'Society',
-      'timeAgo': '6d ago',
-      'title': 'Attention Residents',
-      'content':
-          'Water tank cleaning is scheduled for Friday, 10 AM - 2 PM. Water supply may be interrupted during this time. Please plan accordingly',
-    },
-    {
-      'category': 'Society',
-      'timeAgo': '2d ago',
-      'title': 'Monthly Meeting',
-      'content':
-          'Monthly society meeting will be held on Sunday at 11 AM in the community hall. All residents are requested to attend.',
-    },
-    {
-      'category': 'Maintenance',
-      'timeAgo': '1d ago',
-      'title': 'Elevator Maintenance',
-      'content':
-          'Elevator maintenance is scheduled for Saturday from 9 AM to 12 PM. Please use stairs during this period.',
-    },
-  ];
 
   final List<Map<String, String>> categoryItems = [
     {
@@ -107,6 +85,19 @@ class _CommunityScreenState extends State<CommunityScreen> {
     loadData();
     // Add listener for page changes in carousel
     _noticePageController.addListener(_onPageChanged);
+
+    // Load announcements
+    Future.microtask(() {
+      print("Loading announcements in Community");
+      Provider.of<AnnouncementProvider>(
+        context,
+        listen: false,
+      ).loadAnnouncements().then(
+        (_) => print(
+          "Announcements loaded: ${Provider.of<AnnouncementProvider>(context, listen: false).announcements.length}",
+        ),
+      );
+    });
   }
 
   void _onPageChanged() {
@@ -150,7 +141,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                 color: Colors.white,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.05),
+                                    color: Colors.black.withOpacity(0.05),
                                     offset: const Offset(0, 0),
                                     blurRadius: 10,
                                     spreadRadius: 0,
@@ -235,9 +226,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                       color: Colors.white,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.05,
-                                          ),
+                                          color: Colors.black.withOpacity(0.05),
                                           blurRadius: 5,
                                           offset: const Offset(0, 2),
                                         ),
@@ -278,9 +267,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   borderRadius: BorderRadius.circular(15),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
+                                      color: Colors.black.withOpacity(0.05),
                                       blurRadius: 5,
                                       offset: const Offset(0, 2),
                                     ),
@@ -334,9 +321,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                     borderRadius: BorderRadius.circular(15),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.05,
-                                        ),
+                                        color: Colors.black.withOpacity(0.05),
                                         blurRadius: 5,
                                         offset: const Offset(0, 2),
                                       ),
@@ -466,9 +451,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.1,
-                                          ),
+                                          color: Colors.black.withOpacity(0.1),
                                           blurRadius: 5,
                                           offset: const Offset(0, 2),
                                         ),
@@ -490,9 +473,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.1,
-                                          ),
+                                          color: Colors.black.withOpacity(0.1),
                                           blurRadius: 5,
                                           offset: const Offset(0, 2),
                                         ),
@@ -521,104 +502,162 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               SizedBox(height: 16),
                               SizedBox(
                                 height: isLargeScreen ? 130.0 : 160.0,
-                                child: PageView.builder(
-                                  controller: _noticePageController,
-                                  itemCount: _notices.length,
-                                  onPageChanged: (index) {
-                                    setState(() {
-                                      _currentNoticePage = index;
-                                    });
-                                  },
-                                  itemBuilder: (context, index) {
-                                    final notice = _notices[index];
-                                    return Container(
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.lightGrey,
-                                        borderRadius: BorderRadius.circular(16),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.05,
-                                            ),
-                                            blurRadius: 5,
-                                            offset: const Offset(0, 2),
+                                child: Consumer<AnnouncementProvider>(
+                                  builder: (context, provider, child) {
+                                    final announcements =
+                                        provider.announcements;
+
+                                    if (provider.isLoading) {
+                                      return Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+
+                                    if (announcements.isEmpty) {
+                                      return Center(
+                                        child: Text(
+                                          'No announcements available',
+                                          style: _archivoTextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey,
                                           ),
-                                        ],
-                                      ),
-                                      padding: const EdgeInsets.all(16),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(
-                                                notice['title'],
-                                                style: _archivoTextStyle(
-                                                  fontSize: 16.0,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black,
+                                        ),
+                                      );
+                                    }
+
+                                    return PageView.builder(
+                                      controller: _noticePageController,
+                                      itemCount: announcements.length,
+                                      onPageChanged: (index) {
+                                        setState(() {
+                                          _currentNoticePage = index;
+                                        });
+                                      },
+                                      itemBuilder: (context, index) {
+                                        final announcement =
+                                            announcements[index];
+                                        return Container(
+                                          margin: const EdgeInsets.symmetric(
+                                            horizontal: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.lightGrey,
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(
+                                                  0.05,
                                                 ),
+                                                blurRadius: 5,
+                                                offset: const Offset(0, 2),
                                               ),
-                                              Spacer(),
-                                              Text(
-                                                '${notice['timeAgo']}',
-                                                style: TextStyle(
-                                                  color: Colors.grey[600],
-                                                  fontSize: 14.0,
+                                            ],
+                                          ),
+                                          padding: const EdgeInsets.all(16),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  if (announcement
+                                                      .isImportant) ...[
+                                                    const Icon(
+                                                      Icons.priority_high,
+                                                      color: Colors.red,
+                                                      size: 16,
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                  ],
+                                                  Expanded(
+                                                    child: Text(
+                                                      announcement.title,
+                                                      style: _archivoTextStyle(
+                                                        fontSize: 16.0,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color:
+                                                            announcement
+                                                                    .isImportant
+                                                                ? Colors.red
+                                                                : Colors.black,
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    announcement.timeAgo,
+                                                    style: TextStyle(
+                                                      color: Colors.grey[600],
+                                                      fontSize: 14.0,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  announcement.content,
+                                                  style: const TextStyle(
+                                                    fontSize: 14.0,
+                                                    color: Colors.grey,
+                                                  ),
+                                                  maxLines: 3,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               ),
                                             ],
                                           ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            notice['content'],
-                                            style: const TextStyle(
-                                              fontSize: 14.0,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                        );
+                                      },
                                     );
                                   },
                                 ),
                               ),
                               const SizedBox(height: 12),
                               // Carousel indicators
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(
-                                  _notices.length,
-                                  (index) => GestureDetector(
-                                    onTap: () {
-                                      _noticePageController.animateToPage(
-                                        index,
-                                        duration: const Duration(
-                                          milliseconds: 300,
+                              Consumer<AnnouncementProvider>(
+                                builder: (context, provider, _) {
+                                  final count = provider.announcements.length;
+                                  if (count == 0) return Container();
+
+                                  return Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: List.generate(
+                                      count,
+                                      (index) => GestureDetector(
+                                        onTap: () {
+                                          _noticePageController.animateToPage(
+                                            index,
+                                            duration: const Duration(
+                                              milliseconds: 300,
+                                            ),
+                                            curve: Curves.easeInOut,
+                                          );
+                                        },
+                                        child: Container(
+                                          width: 8.0,
+                                          height: 8.0,
+                                          margin: const EdgeInsets.symmetric(
+                                            horizontal: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color:
+                                                _currentNoticePage == index
+                                                    ? Colors.black
+                                                    : Colors.grey[300],
+                                          ),
                                         ),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    },
-                                    child: Container(
-                                      width: 8.0,
-                                      height: 8.0,
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color:
-                                            _currentNoticePage == index
-                                                ? Colors.black
-                                                : Colors.grey[300],
                                       ),
                                     ),
-                                  ),
-                                ),
+                                  );
+                                },
                               ),
                               SizedBox(height: 24),
                               // Community Needs Section
@@ -637,9 +676,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   color: Colors.white,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
+                                      color: Colors.black.withOpacity(0.05),
                                       blurRadius: 5,
                                       offset: Offset(0, 2),
                                     ),
@@ -767,9 +804,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
+                                      color: Colors.black.withOpacity(0.05),
                                       blurRadius: 5,
                                       offset: const Offset(0, 2),
                                     ),
@@ -785,8 +820,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.1,
+                                            color: Colors.black.withOpacity(
+                                              0.1,
                                             ),
                                             blurRadius: 5,
                                             offset: const Offset(0, 2),
@@ -850,9 +885,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
+                                      color: Colors.black.withOpacity(0.05),
                                       blurRadius: 5,
                                       offset: const Offset(0, 2),
                                     ),
@@ -868,8 +901,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.1,
+                                            color: Colors.black.withOpacity(
+                                              0.1,
                                             ),
                                             blurRadius: 5,
                                             offset: const Offset(0, 2),

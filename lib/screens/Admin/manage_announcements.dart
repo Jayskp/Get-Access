@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:getaccess/providers/announcement_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ManageAnnouncementsScreen extends StatefulWidget {
   final bool createNew;
 
   const ManageAnnouncementsScreen({Key? key, this.createNew = false})
-      : super(key: key);
+    : super(key: key);
 
   @override
   _ManageAnnouncementsScreenState createState() =>
@@ -20,37 +22,6 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
 
-  List<Map<String, dynamic>> announcements = [
-    {
-      'id': '1',
-      'title': 'Annual General Meeting',
-      'content': 'Discussion on annual budget and infrastructure improvements.',
-      'date': '2024-07-15',
-      'time': '18:00',
-      'location': 'Community Hall',
-      'featured': true,
-    },
-    {
-      'id': '2',
-      'title': 'Summer Festival',
-      'content':
-      'Join us for games, food, and entertainment. All residents welcome!',
-      'date': '2024-07-25',
-      'time': '10:00',
-      'location': 'Community Garden',
-      'featured': true,
-    },
-    {
-      'id': '3',
-      'title': 'Maintenance Workshop',
-      'content': 'Learn basic home maintenance tips from our maintenance team.',
-      'date': '2024-07-10',
-      'time': '16:30',
-      'location': 'Block B Meeting Room',
-      'featured': false,
-    },
-  ];
-
   bool _isEditing = false;
   String? _editingId;
   bool _isFeatured = false;
@@ -59,6 +30,13 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Load initial data
+    Provider.of<AnnouncementProvider>(
+      context,
+      listen: false,
+    ).loadAnnouncements();
+
     if (widget.createNew) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showAnnouncementForm();
@@ -128,7 +106,7 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
     if (picked != null) {
       setState(() {
         _timeController.text =
-        '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+            '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
       });
     }
   }
@@ -153,143 +131,146 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (BuildContext context, StateSetter setDialogState) {
-          return AlertDialog(
-            title: Text(
-              _isEditing ? 'Edit Announcement' : 'Create Announcement',
-              style: _archivoTextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: _titleController,
-                    decoration: InputDecoration(
-                      labelText: 'Title',
-                      border: OutlineInputBorder(),
-                    ),
-                    maxLines: 1,
+      builder:
+          (context) => StatefulBuilder(
+            builder: (BuildContext context, StateSetter setDialogState) {
+              return AlertDialog(
+                title: Text(
+                  _isEditing ? 'Edit Announcement' : 'Create Announcement',
+                  style: _archivoTextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: _contentController,
-                    decoration: InputDecoration(
-                      labelText: 'Content',
-                      border: OutlineInputBorder(),
-                      alignLabelWithHint: true,
-                    ),
-                    maxLines: 4,
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: _dateController,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: 'Date',
-                      border: OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(Icons.calendar_today),
-                        onPressed: () => _selectDate(context),
-                      ),
-                    ),
-                    onTap: () => _selectDate(context),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: _timeController,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: 'Time',
-                      border: OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(Icons.access_time),
-                        onPressed: () => _selectTime(context),
-                      ),
-                    ),
-                    onTap: () => _selectTime(context),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: _locationController,
-                    decoration: InputDecoration(
-                      labelText: 'Location',
-                      border: OutlineInputBorder(),
-                    ),
-                    maxLines: 1,
-                  ),
-                  SizedBox(height: 16),
-                  Row(
+                ),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Checkbox(
-                        value: _isFeatured,
-                        onChanged: (value) {
-                          // Update the state directly within the dialog
-                          setDialogState(() {
-                            _isFeatured = value ?? false;
-                          });
-                          // Also update parent state
-                          setState(() {
-                            _isFeatured = value ?? false;
-                          });
-                        },
-                        activeColor: Colors.red,
+                      TextField(
+                        controller: _titleController,
+                        decoration: InputDecoration(
+                          labelText: 'Title',
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 1,
                       ),
-                      Text(
-                        'Feature this announcement',
-                        style: _archivoTextStyle(fontSize: 14),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: _contentController,
+                        decoration: InputDecoration(
+                          labelText: 'Content',
+                          border: OutlineInputBorder(),
+                          alignLabelWithHint: true,
+                        ),
+                        maxLines: 4,
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: _dateController,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Date',
+                          border: OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.calendar_today),
+                            onPressed: () => _selectDate(context),
+                          ),
+                        ),
+                        onTap: () => _selectDate(context),
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: _timeController,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Time',
+                          border: OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.access_time),
+                            onPressed: () => _selectTime(context),
+                          ),
+                        ),
+                        onTap: () => _selectTime(context),
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: _locationController,
+                        decoration: InputDecoration(
+                          labelText: 'Location',
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 1,
+                      ),
+                      SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _isFeatured,
+                            onChanged: (value) {
+                              // Update the state directly within the dialog
+                              setDialogState(() {
+                                _isFeatured = value ?? false;
+                              });
+                              // Also update parent state
+                              setState(() {
+                                _isFeatured = value ?? false;
+                              });
+                            },
+                            activeColor: Colors.red,
+                          ),
+                          Text(
+                            'Feature this announcement',
+                            style: _archivoTextStyle(fontSize: 14),
+                          ),
+                        ],
                       ),
                     ],
                   ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _clearForm();
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: _archivoTextStyle(color: Colors.grey.shade700),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_titleController.text.isEmpty ||
+                          _contentController.text.isEmpty ||
+                          _dateController.text.isEmpty ||
+                          _timeController.text.isEmpty ||
+                          _locationController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Please fill all fields')),
+                        );
+                        return;
+                      }
+
+                      if (_isEditing) {
+                        _updateAnnouncement();
+                      } else {
+                        _createAnnouncement();
+                      }
+
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: Text(
+                      _isEditing ? 'Update' : 'Create',
+                      style: _archivoTextStyle(color: Colors.white),
+                    ),
+                  ),
                 ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _clearForm();
-                },
-                child: Text(
-                  'Cancel',
-                  style: _archivoTextStyle(color: Colors.grey.shade700),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  if (_titleController.text.isEmpty ||
-                      _contentController.text.isEmpty ||
-                      _dateController.text.isEmpty ||
-                      _timeController.text.isEmpty ||
-                      _locationController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Please fill all fields')),
-                    );
-                    return;
-                  }
-
-                  if (_isEditing) {
-                    _updateAnnouncement();
-                  } else {
-                    _createAnnouncement();
-                  }
-
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: Text(
-                  _isEditing ? 'Update' : 'Create',
-                  style: _archivoTextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+              );
+            },
+          ),
     );
   }
 
@@ -306,93 +287,75 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
   }
 
   void _createAnnouncement() {
-    final newAnnouncement = {
-      'id': DateTime.now().millisecondsSinceEpoch.toString(),
-      'title': _titleController.text,
-      'content': _contentController.text,
-      'date': _dateController.text,
-      'time': _timeController.text,
-      'location': _locationController.text,
-      'featured': _isFeatured,
-    };
+    final provider = Provider.of<AnnouncementProvider>(context, listen: false);
 
-    setState(() {
-      announcements.add(newAnnouncement);
-      _clearForm();
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Announcement created successfully')),
-    );
+    provider
+        .addAnnouncement(
+          _titleController.text,
+          _contentController.text,
+          _isFeatured,
+        )
+        .then((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Announcement created successfully')),
+          );
+          _clearForm();
+        });
   }
 
   void _updateAnnouncement() {
-    final index = announcements.indexWhere(
-          (announcement) => announcement['id'] == _editingId,
-    );
-    if (index != -1) {
-      setState(() {
-        announcements[index] = {
-          'id': _editingId,
-          'title': _titleController.text,
-          'content': _contentController.text,
-          'date': _dateController.text,
-          'time': _timeController.text,
-          'location': _locationController.text,
-          'featured': _isFeatured,
-        };
-        _clearForm();
-        _editingId = null;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Announcement updated successfully')),
-      );
+    if (_editingId != null) {
+      Provider.of<AnnouncementProvider>(context, listen: false)
+          .updateAnnouncement(
+            _editingId!,
+            _titleController.text,
+            _contentController.text,
+            _isFeatured,
+          )
+          .then((_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Announcement updated successfully')),
+            );
+            _clearForm();
+          });
     }
   }
 
   void _deleteAnnouncement(String id) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Delete Announcement'),
-        content: Text('Are you sure you want to delete this announcement?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+      builder:
+          (context) => AlertDialog(
+            title: Text('Delete Announcement'),
+            content: Text('Are you sure you want to delete this announcement?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Provider.of<AnnouncementProvider>(
+                    context,
+                    listen: false,
+                  ).deleteAnnouncement(id).then((_) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Announcement deleted successfully'),
+                      ),
+                    );
+                  });
+                },
+                child: Text('Delete', style: TextStyle(color: Colors.red)),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                announcements.removeWhere(
-                      (announcement) => announcement['id'] == id,
-                );
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Announcement deleted successfully'),
-                ),
-              );
-            },
-            child: Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Sort announcements: featured first, then by date
-    final sortedAnnouncements = [...announcements];
-    sortedAnnouncements.sort((a, b) {
-      if (a['featured'] && !b['featured']) return -1;
-      if (!a['featured'] && b['featured']) return 1;
-      return a['date'].compareTo(b['date']);
-    });
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -436,41 +399,60 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
         ],
       ),
       body: SafeArea(
-        child: sortedAnnouncements.isEmpty
-            ? Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.event_note,
-                size: 80,
-                color: Colors.grey.shade400,
-              ),
-              SizedBox(height: 16),
-              Text(
-                'No announcements yet',
-                style: _archivoTextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade700,
+        child: Consumer<AnnouncementProvider>(
+          builder: (context, provider, child) {
+            final announcements = provider.announcements;
+
+            if (provider.isLoading) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            if (announcements.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.event_note,
+                      size: 80,
+                      color: Colors.grey.shade400,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'No announcements yet',
+                      style: _archivoTextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Create your first announcement by tapping the + button below',
+                      textAlign: TextAlign.center,
+                      style: _archivoTextStyle(color: Colors.grey.shade600),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Create your first announcement by tapping the + button below',
-                textAlign: TextAlign.center,
-                style: _archivoTextStyle(color: Colors.grey.shade600),
-              ),
-            ],
-          ),
-        )
-            : ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemCount: sortedAnnouncements.length,
-          separatorBuilder: (context, index) => SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final announcement = sortedAnnouncements[index];
-            return _buildAnnouncementCard(announcement);
+              );
+            }
+
+            // Sort announcements
+            final sortedAnnouncements = [...announcements];
+            sortedAnnouncements.sort((a, b) {
+              if (a.isImportant && !b.isImportant) return -1;
+              if (!a.isImportant && b.isImportant) return 1;
+              return b.createdAt.compareTo(a.createdAt);
+            });
+
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: sortedAnnouncements.length,
+              separatorBuilder: (context, index) => SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                return _buildAnnouncementCard(sortedAnnouncements[index]);
+              },
+            );
           },
         ),
       ),
@@ -483,21 +465,16 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
     );
   }
 
-  Widget _buildAnnouncementCard(Map<String, dynamic> announcement) {
+  Widget _buildAnnouncementCard(Announcement announcement) {
     // Parse the date and format it for display
-    final DateTime date = DateTime.parse(announcement['date']);
-    final String formattedDate = DateFormat('EEE, MMM d, yyyy').format(date);
+    final String formattedDate = DateFormat('EEE, MMM d, yyyy').format(announcement.createdAt);
 
     return Container(
       decoration: BoxDecoration(
-        color: announcement['featured']
-            ? Colors.amber.shade50
-            : Colors.grey.shade50,
+        color: announcement.isImportant ? Colors.amber.shade50 : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: announcement['featured']
-              ? Colors.amber.shade300
-              : Colors.grey.shade300,
+          color: announcement.isImportant ? Colors.amber.shade300 : Colors.grey.shade300,
         ),
         boxShadow: [
           BoxShadow(
@@ -513,9 +490,7 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: announcement['featured']
-                  ? Colors.amber.shade100
-                  : Colors.grey.shade200,
+              color: announcement.isImportant ? Colors.amber.shade100 : Colors.grey.shade200,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
@@ -525,17 +500,15 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    announcement['title'],
+                    announcement.title,
                     style: _archivoTextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: announcement['featured']
-                          ? Colors.orange.shade900
-                          : Colors.black87,
+                      color: announcement.isImportant ? Colors.orange.shade900 : Colors.black87,
                     ),
                   ),
                 ),
-                if (announcement['featured'])
+                if (announcement.isImportant)
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
@@ -560,23 +533,22 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  announcement['content'],
+                  announcement.content,
                   style: _archivoTextStyle(fontSize: 14, color: Colors.black87),
                 ),
                 SizedBox(height: 16),
                 _buildInfoRow(Icons.calendar_today, formattedDate),
-                SizedBox(height: 8),
-                _buildInfoRow(Icons.access_time, announcement['time']),
-                SizedBox(height: 8),
-                _buildInfoRow(Icons.location_on, announcement['location']),
+                // Remove or modify these lines if the properties don't exist
+                // SizedBox(height: 8),
+                // _buildInfoRow(Icons.access_time, announcement.time),
+                // SizedBox(height: 8),
+                // _buildInfoRow(Icons.location_on, announcement.location),
               ],
             ),
           ),
           Divider(
             height: 1,
-            color: announcement['featured']
-                ? Colors.amber.shade200
-                : Colors.grey.shade300,
+            color: announcement.isImportant ? Colors.amber.shade200 : Colors.grey.shade300,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -584,12 +556,21 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  onPressed: () => _showAnnouncementForm(announcement: announcement),
+                  onPressed: () => _showAnnouncementForm(
+                    announcement: <String, dynamic>{
+                      'id': announcement.id,
+                      'title': announcement.title,
+                      'content': announcement.content,
+                      'date': DateFormat('yyyy-MM-dd').format(announcement.createdAt),
+                      'featured': announcement.isImportant,
+                      // Don't include properties that don't exist in Announcement class
+                    },
+                  ),
                   icon: Icon(Icons.edit, color: Colors.blue),
                   tooltip: 'Edit',
                 ),
                 IconButton(
-                  onPressed: () => _deleteAnnouncement(announcement['id']),
+                  onPressed: () => _deleteAnnouncement(announcement.id),
                   icon: Icon(Icons.delete, color: Colors.red),
                   tooltip: 'Delete',
                 ),
@@ -599,9 +580,7 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
         ],
       ),
     );
-  }
-
-  Widget _buildInfoRow(IconData icon, String text) {
+  }  Widget _buildInfoRow(IconData icon, String text) {
     return Row(
       children: [
         Icon(icon, size: 16, color: Colors.grey.shade600),
