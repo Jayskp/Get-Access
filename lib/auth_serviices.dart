@@ -160,7 +160,7 @@ class AuthService {
 
       // Save user info to Realtime Database
       await _database.child('Users').child(userCredential.user!.uid).set({
-        'Phone no.': phoneNumber,
+        'phoneNumber': phoneNumber,
         'createdAt': ServerValue.timestamp,
       });
 
