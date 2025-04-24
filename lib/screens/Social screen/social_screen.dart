@@ -2459,6 +2459,12 @@ class _SocialScreenState extends State<SocialScreen>
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        onPressed: _toggleQuickAccessPopup,
+        backgroundColor: AppColors.primaryGreen,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
     );
   }
 

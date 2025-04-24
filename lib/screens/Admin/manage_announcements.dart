@@ -6,7 +6,7 @@ class ManageAnnouncementsScreen extends StatefulWidget {
   final bool createNew;
 
   const ManageAnnouncementsScreen({Key? key, this.createNew = false})
-    : super(key: key);
+      : super(key: key);
 
   @override
   _ManageAnnouncementsScreenState createState() =>
@@ -34,7 +34,7 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
       'id': '2',
       'title': 'Summer Festival',
       'content':
-          'Join us for games, food, and entertainment. All residents welcome!',
+      'Join us for games, food, and entertainment. All residents welcome!',
       'date': '2024-07-25',
       'time': '10:00',
       'location': 'Community Garden',
@@ -128,7 +128,7 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
     if (picked != null) {
       setState(() {
         _timeController.text =
-            '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+        '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
       });
     }
   }
@@ -153,8 +153,9 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
 
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
+      builder: (context) => StatefulBuilder(
+        builder: (BuildContext context, StateSetter setDialogState) {
+          return AlertDialog(
             title: Text(
               _isEditing ? 'Edit Announcement' : 'Create Announcement',
               style: _archivoTextStyle(
@@ -227,16 +228,14 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
                       Checkbox(
                         value: _isFeatured,
                         onChanged: (value) {
+                          // Update the state directly within the dialog
+                          setDialogState(() {
+                            _isFeatured = value ?? false;
+                          });
+                          // Also update parent state
                           setState(() {
                             _isFeatured = value ?? false;
                           });
-                          Navigator.pop(context);
-                          _showAnnouncementForm(
-                            announcement:
-                                announcement != null
-                                    ? {...announcement, 'featured': _isFeatured}
-                                    : null,
-                          );
                         },
                         activeColor: Colors.red,
                       ),
@@ -288,7 +287,9 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
                 ),
               ),
             ],
-          ),
+          );
+        },
+      ),
     );
   }
 
@@ -327,7 +328,7 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
 
   void _updateAnnouncement() {
     final index = announcements.indexWhere(
-      (announcement) => announcement['id'] == _editingId,
+          (announcement) => announcement['id'] == _editingId,
     );
     if (index != -1) {
       setState(() {
@@ -353,33 +354,32 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
   void _deleteAnnouncement(String id) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('Delete Announcement'),
-            content: Text('Are you sure you want to delete this announcement?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    announcements.removeWhere(
-                      (announcement) => announcement['id'] == id,
-                    );
-                  });
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Announcement deleted successfully'),
-                    ),
-                  );
-                },
-                child: Text('Delete', style: TextStyle(color: Colors.red)),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text('Delete Announcement'),
+        content: Text('Are you sure you want to delete this announcement?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
           ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                announcements.removeWhere(
+                      (announcement) => announcement['id'] == id,
+                );
+              });
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Announcement deleted successfully'),
+                ),
+              );
+            },
+            child: Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -436,44 +436,43 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
         ],
       ),
       body: SafeArea(
-        child:
-            sortedAnnouncements.isEmpty
-                ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.event_note,
-                        size: 80,
-                        color: Colors.grey.shade400,
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        'No announcements yet',
-                        style: _archivoTextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Create your first announcement by tapping the + button below',
-                        textAlign: TextAlign.center,
-                        style: _archivoTextStyle(color: Colors.grey.shade600),
-                      ),
-                    ],
-                  ),
-                )
-                : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: sortedAnnouncements.length,
-                  separatorBuilder: (context, index) => SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final announcement = sortedAnnouncements[index];
-                    return _buildAnnouncementCard(announcement);
-                  },
+        child: sortedAnnouncements.isEmpty
+            ? Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.event_note,
+                size: 80,
+                color: Colors.grey.shade400,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'No announcements yet',
+                style: _archivoTextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade700,
                 ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Create your first announcement by tapping the + button below',
+                textAlign: TextAlign.center,
+                style: _archivoTextStyle(color: Colors.grey.shade600),
+              ),
+            ],
+          ),
+        )
+            : ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: sortedAnnouncements.length,
+          separatorBuilder: (context, index) => SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final announcement = sortedAnnouncements[index];
+            return _buildAnnouncementCard(announcement);
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAnnouncementForm(),
@@ -491,16 +490,14 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color:
-            announcement['featured']
-                ? Colors.amber.shade50
-                : Colors.grey.shade50,
+        color: announcement['featured']
+            ? Colors.amber.shade50
+            : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color:
-              announcement['featured']
-                  ? Colors.amber.shade300
-                  : Colors.grey.shade300,
+          color: announcement['featured']
+              ? Colors.amber.shade300
+              : Colors.grey.shade300,
         ),
         boxShadow: [
           BoxShadow(
@@ -516,10 +513,9 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color:
-                  announcement['featured']
-                      ? Colors.amber.shade100
-                      : Colors.grey.shade200,
+              color: announcement['featured']
+                  ? Colors.amber.shade100
+                  : Colors.grey.shade200,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
@@ -533,10 +529,9 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
                     style: _archivoTextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color:
-                          announcement['featured']
-                              ? Colors.orange.shade900
-                              : Colors.black87,
+                      color: announcement['featured']
+                          ? Colors.orange.shade900
+                          : Colors.black87,
                     ),
                   ),
                 ),
@@ -579,10 +574,9 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
           ),
           Divider(
             height: 1,
-            color:
-                announcement['featured']
-                    ? Colors.amber.shade200
-                    : Colors.grey.shade300,
+            color: announcement['featured']
+                ? Colors.amber.shade200
+                : Colors.grey.shade300,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -590,8 +584,7 @@ class _ManageAnnouncementsScreenState extends State<ManageAnnouncementsScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  onPressed:
-                      () => _showAnnouncementForm(announcement: announcement),
+                  onPressed: () => _showAnnouncementForm(announcement: announcement),
                   icon: Icon(Icons.edit, color: Colors.blue),
                   tooltip: 'Edit',
                 ),
