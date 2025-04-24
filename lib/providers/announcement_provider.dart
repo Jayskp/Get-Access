@@ -63,7 +63,7 @@ class Announcement {
   }
 }
 
-class AnnouncementProvider extends ChangeNotifier {
+class AnnouncementProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<Announcement> _announcements = [];
   bool _isLoading = false;
@@ -80,18 +80,27 @@ class AnnouncementProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final querySnapshot =
-          await _firestore
+      final snapshot =
+          await FirebaseFirestore.instance
               .collection('announcements')
               .orderBy('createdAt', descending: true)
               .get();
 
       _announcements =
-          querySnapshot.docs
-              .map((doc) => Announcement.fromFirestore(doc))
-              .toList();
+          snapshot.docs.map((doc) {
+            final data = doc.data();
+            return Announcement(
+              id: doc.id,
+              title: data['title'] ?? '',
+              content: data['content'] ?? '',
+              isImportant: data['important'] ?? data['isImportant'] ?? false,
+              imageUrl: data['imageUrl'],
+              createdAt:
+                  (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+            );
+          }).toList();
     } catch (e) {
-      print('Error loading announcements: $e');
+      print("Error loading announcements: $e");
     } finally {
       _isLoading = false;
       notifyListeners();

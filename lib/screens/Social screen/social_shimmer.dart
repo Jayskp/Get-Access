@@ -222,22 +222,6 @@ class _SocialShimmerState extends State<SocialShimmer> {
         ),
       ),
       // Shimmer FAB
-      floatingActionButton: Container(
-        margin: const EdgeInsets.only(bottom: 16.0),
-        child: Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            width: 56,
-            height: 56,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
