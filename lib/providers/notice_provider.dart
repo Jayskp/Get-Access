@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class Notice {
   final String id;
@@ -23,7 +23,9 @@ class Notice {
       title: data['title'] ?? '',
       content: data['content'] ?? '',
       isPinned: data['pinned'] ?? false,
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      createdAt: data['createdAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(data['createdAt'])
+          : DateTime.now(),
     );
   }
 
@@ -32,7 +34,7 @@ class Notice {
       'title': title,
       'content': content,
       'pinned': isPinned,
-      'createdAt': Timestamp.fromDate(createdAt),
+      'createdAt': createdAt.millisecondsSinceEpoch,
     };
   }
 
@@ -57,11 +59,11 @@ class Notice {
 class NoticeProvider with ChangeNotifier {
   List<Notice> _notices = [];
   bool _isLoading = false;
+  final DatabaseReference _noticesRef = FirebaseDatabase.instance.ref().child('notices');
 
   List<Notice> get notices => _notices;
   List<Notice> get pinnedNotices => _notices.where((n) => n.isPinned).toList();
-  List<Notice> get regularNotices =>
-      _notices.where((n) => !n.isPinned).toList();
+  List<Notice> get regularNotices => _notices.where((n) => !n.isPinned).toList();
   bool get isLoading => _isLoading;
 
   Future<void> loadNotices() async {
@@ -69,16 +71,20 @@ class NoticeProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final snapshot =
-          await FirebaseFirestore.instance
-              .collection('notices')
-              .orderBy('createdAt', descending: true)
-              .get();
+      final snapshot = await _noticesRef.get();
 
-      _notices =
-          snapshot.docs
-              .map((doc) => Notice.fromMap(doc.data(), doc.id))
-              .toList();
+      if (snapshot.exists) {
+        _notices = [];
+        Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) {
+          _notices.add(Notice.fromMap(Map<String, dynamic>.from(value), key));
+        });
+
+        // Sort by createdAt, descending order (newest first)
+        _notices.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      } else {
+        _notices = [];
+      }
     } catch (e) {
       print("Error loading notices: $e");
     } finally {
@@ -90,19 +96,20 @@ class NoticeProvider with ChangeNotifier {
   Future<String> addNotice(String title, String content, bool isPinned) async {
     try {
       final notice = Notice(
-        id: '', // Temporary ID, will be replaced with Firestore ID
+        id: '', // Temporary ID, will be replaced with database key
         title: title,
         content: content,
         isPinned: isPinned,
         createdAt: DateTime.now(),
       );
 
-      final docRef = await FirebaseFirestore.instance
-          .collection('notices')
-          .add(notice.toMap());
+      // Generate a new key
+      final newNoticeRef = _noticesRef.push();
+      await newNoticeRef.set(notice.toMap());
+      String newId = newNoticeRef.key!;
 
       final newNotice = Notice(
-        id: docRef.id,
+        id: newId,
         title: title,
         content: content,
         isPinned: isPinned,
@@ -110,8 +117,8 @@ class NoticeProvider with ChangeNotifier {
       );
 
       _notices.insert(0, newNotice); // Add to the beginning of the list
-      notifyListeners(); // Make sure this is called
-      return docRef.id;
+      notifyListeners();
+      return newId;
     } catch (e) {
       print("Error adding notice: $e");
       return '';
@@ -119,13 +126,13 @@ class NoticeProvider with ChangeNotifier {
   }
 
   Future<void> updateNotice(
-    String id,
-    String title,
-    String content,
-    bool isPinned,
-  ) async {
+      String id,
+      String title,
+      String content,
+      bool isPinned,
+      ) async {
     try {
-      await FirebaseFirestore.instance.collection('notices').doc(id).update({
+      await _noticesRef.child(id).update({
         'title': title,
         'content': content,
         'pinned': isPinned,
@@ -149,7 +156,7 @@ class NoticeProvider with ChangeNotifier {
 
   Future<void> deleteNotice(String id) async {
     try {
-      await FirebaseFirestore.instance.collection('notices').doc(id).delete();
+      await _noticesRef.child(id).remove();
 
       _notices.removeWhere((n) => n.id == id);
       notifyListeners();

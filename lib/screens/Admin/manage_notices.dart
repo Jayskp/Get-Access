@@ -8,7 +8,7 @@ class ManageNoticesScreen extends StatefulWidget {
   final bool createNew;
 
   const ManageNoticesScreen({Key? key, this.createNew = false})
-    : super(key: key);
+      : super(key: key);
 
   @override
   _ManageNoticesScreenState createState() => _ManageNoticesScreenState();
@@ -30,8 +30,8 @@ class _ManageNoticesScreenState extends State<ManageNoticesScreen> {
     // Load notices from provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<NoticeProvider>(context, listen: false).loadNotices().then((
-        _,
-      ) {
+          _,
+          ) {
         setState(() {
           _isLoading = false;
         });
@@ -63,13 +63,13 @@ class _ManageNoticesScreenState extends State<ManageNoticesScreen> {
     );
   }
 
-  void _showNoticeForm({Map<String, dynamic>? notice}) {
+  void _showNoticeForm({Notice? notice}) {
     // Prepare for editing or creating
     _isEditing = notice != null;
-    _editingId = notice?['id'];
-    _titleController.text = notice?['title'] ?? '';
-    _contentController.text = notice?['content'] ?? '';
-    _isPinned = notice?['pinned'] ?? false;
+    _editingId = notice?.id;
+    _titleController.text = notice?.title ?? '';
+    _contentController.text = notice?.content ?? '';
+    _isPinned = notice?.isPinned ?? false;
 
     showDialog(
       context: context,
@@ -186,20 +186,20 @@ class _ManageNoticesScreenState extends State<ManageNoticesScreen> {
     Provider.of<NoticeProvider>(context, listen: false)
         .addNotice(title, content, pinned)
         .then((_) {
-          return Provider.of<NoticeProvider>(
-            context,
-            listen: false,
-          ).loadNotices();
-        })
+      return Provider.of<NoticeProvider>(
+        context,
+        listen: false,
+      ).loadNotices();
+    })
         .then((_) {
-          setState(() {
-            _isLoading = false;
-          });
+      setState(() {
+        _isLoading = false;
+      });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Notice created successfully')),
-          );
-        });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Notice created successfully')),
+      );
+    });
   }
 
   void _updateNotice(String title, String content, bool pinned) {
@@ -211,67 +211,66 @@ class _ManageNoticesScreenState extends State<ManageNoticesScreen> {
       Provider.of<NoticeProvider>(context, listen: false)
           .updateNotice(_editingId!, title, content, pinned)
           .then((_) {
-            return Provider.of<NoticeProvider>(
-              context,
-              listen: false,
-            ).loadNotices();
-          })
+        return Provider.of<NoticeProvider>(
+          context,
+          listen: false,
+        ).loadNotices();
+      })
           .then((_) {
-            setState(() {
-              _isLoading = false;
-            });
+        setState(() {
+          _isLoading = false;
+        });
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Notice updated successfully')),
-            );
-          });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Notice updated successfully')),
+        );
+      });
     }
   }
 
   void _deleteNotice(String id) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('Delete Notice'),
-            content: Text('Are you sure you want to delete this notice?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-
-                  setState(() {
-                    _isLoading = true;
-                  });
-
-                  Provider.of<NoticeProvider>(context, listen: false)
-                      .deleteNotice(id)
-                      .then((_) {
-                        return Provider.of<NoticeProvider>(
-                          context,
-                          listen: false,
-                        ).loadNotices();
-                      })
-                      .then((_) {
-                        setState(() {
-                          _isLoading = false;
-                        });
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Notice deleted successfully'),
-                          ),
-                        );
-                      });
-                },
-                child: Text('Delete', style: TextStyle(color: Colors.red)),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text('Delete Notice'),
+        content: Text('Are you sure you want to delete this notice?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
           ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+
+              setState(() {
+                _isLoading = true;
+              });
+
+              Provider.of<NoticeProvider>(context, listen: false)
+                  .deleteNotice(id)
+                  .then((_) {
+                return Provider.of<NoticeProvider>(
+                  context,
+                  listen: false,
+                ).loadNotices();
+              })
+                  .then((_) {
+                setState(() {
+                  _isLoading = false;
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Notice deleted successfully'),
+                  ),
+                );
+              });
+            },
+            child: Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -320,54 +319,52 @@ class _ManageNoticesScreenState extends State<ManageNoticesScreen> {
         ],
       ),
       body: SafeArea(
-        child:
-            _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : Consumer<NoticeProvider>(
-                  builder: (context, noticeProvider, child) {
-                    final notices = noticeProvider.notices;
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Consumer<NoticeProvider>(
+          builder: (context, noticeProvider, child) {
+            final notices = noticeProvider.notices;
 
-                    if (notices.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.announcement_outlined,
-                              size: 80,
-                              color: Colors.grey.shade400,
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              'No notices yet',
-                              style: _archivoTextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Create your first notice by tapping the + button below',
-                              textAlign: TextAlign.center,
-                              style: _archivoTextStyle(
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    return ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: notices.length,
-                      separatorBuilder: (_, __) => SizedBox(height: 12),
-                      itemBuilder:
-                          (_, index) => _buildNoticeCard(notices[index]),
-                    );
-                  },
+            if (notices.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.announcement_outlined,
+                      size: 80,
+                      color: Colors.grey.shade400,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'No notices yet',
+                      style: _archivoTextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Create your first notice by tapping the + button below',
+                      textAlign: TextAlign.center,
+                      style: _archivoTextStyle(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
                 ),
+              );
+            }
+
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: notices.length,
+              separatorBuilder: (_, __) => SizedBox(height: 12),
+              itemBuilder: (_, index) => _buildNoticeCard(notices[index]),
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showNoticeForm(),
@@ -400,8 +397,7 @@ class _ManageNoticesScreenState extends State<ManageNoticesScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color:
-                  notice.isPinned ? Colors.red.shade100 : Colors.grey.shade200,
+              color: notice.isPinned ? Colors.red.shade100 : Colors.grey.shade200,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
@@ -419,10 +415,7 @@ class _ManageNoticesScreenState extends State<ManageNoticesScreen> {
                     style: _archivoTextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color:
-                          notice.isPinned
-                              ? Colors.red.shade900
-                              : Colors.black87,
+                      color: notice.isPinned ? Colors.red.shade900 : Colors.black87,
                     ),
                   ),
                 ),
@@ -453,7 +446,7 @@ class _ManageNoticesScreenState extends State<ManageNoticesScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  onPressed: () => _showNoticeForm(notice: notice.toMap()),
+                  onPressed: () => _showNoticeForm(notice: notice),
                   icon: Icon(Icons.edit, color: Colors.blue),
                   tooltip: 'Edit',
                 ),
