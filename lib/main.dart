@@ -13,6 +13,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'splash_screen.dart';
 import 'providers/comment_provider.dart';
 import 'providers/announcement_provider.dart';
+import 'providers/notice_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => SocialPostProvider()),
         ChangeNotifierProvider(create: (_) => CommentProvider()),
         ChangeNotifierProvider(create: (_) => AnnouncementProvider()),
+        ChangeNotifierProvider(create: (context) => NoticeProvider()),
       ],
       child: const MyApp(),
     ),

@@ -21,6 +21,7 @@ import '../../NewEvent.dart';
 import '../../NewPoll.dart';
 import '../../NewPost.dart';
 import '../../messages.dart';
+import '../../providers/notice_provider.dart';
 import '../../widgets/social_services_card.dart';
 
 class SocialScreen extends StatefulWidget {
@@ -579,6 +580,11 @@ class _SocialScreenState extends State<SocialScreen>
         context,
         listen: false,
       ).loadAnnouncements();
+    });
+
+    // Load notices when screen initializes
+    Future.microtask(() {
+      Provider.of<NoticeProvider>(context, listen: false).loadNotices();
     });
   }
 
@@ -1719,51 +1725,6 @@ class _SocialScreenState extends State<SocialScreen>
                                           ),
                                           Row(
                                             children: [
-                                              if (widget.isAdmin)
-                                                Container(
-                                                  margin: EdgeInsets.only(
-                                                    right: 12,
-                                                  ),
-                                                  child: ElevatedButton.icon(
-                                                    onPressed: () {
-                                                      // Admin action to add new notice
-                                                      ScaffoldMessenger.of(
-                                                        context,
-                                                      ).showSnackBar(
-                                                        SnackBar(
-                                                          content: Text(
-                                                            'Add Notice feature coming soon',
-                                                          ),
-                                                          backgroundColor:
-                                                              Colors.blue,
-                                                        ),
-                                                      );
-                                                    },
-                                                    icon: Icon(
-                                                      Icons.add,
-                                                      size: 16,
-                                                    ),
-                                                    label: Text('Add'),
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          Colors.green.shade600,
-                                                      foregroundColor:
-                                                          Colors.white,
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                            horizontal: 12,
-                                                            vertical: 0,
-                                                          ),
-                                                      minimumSize: Size(0, 32),
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              16,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
                                               TextButton(
                                                 onPressed: () {},
                                                 child: Text(
@@ -1782,25 +1743,23 @@ class _SocialScreenState extends State<SocialScreen>
                                       // Notice Carousel
                                       SizedBox(
                                         height: isLargeScreen ? 130.0 : 160.0,
-                                        child: Consumer<AnnouncementProvider>(
+                                        child: Consumer<NoticeProvider>(
                                           builder: (
                                             context,
-                                            announcementProvider,
+                                            noticeProvider,
                                             child,
                                           ) {
                                             final notices =
-                                                announcementProvider
-                                                    .announcements;
+                                                noticeProvider?.notices;
 
-                                            if (announcementProvider
-                                                .isLoading) {
+                                            if (noticeProvider!.isLoading) {
                                               return const Center(
                                                 child:
                                                     CircularProgressIndicator(),
                                               );
                                             }
 
-                                            if (notices.isEmpty) {
+                                            if (notices!.isEmpty) {
                                               return Center(
                                                 child: Text(
                                                   'No Notices available',
@@ -1856,7 +1815,7 @@ class _SocialScreenState extends State<SocialScreen>
                                                       Row(
                                                         children: [
                                                           if (notice
-                                                              .isImportant) ...[
+                                                              .isPinned) ...[
                                                             const Icon(
                                                               Icons
                                                                   .priority_high,
@@ -1876,7 +1835,7 @@ class _SocialScreenState extends State<SocialScreen>
                                                                     FontWeight
                                                                         .w600,
                                                                 color:
-                                                                    notice.isImportant
+                                                                    notice.isPinned
                                                                         ? Colors
                                                                             .red
                                                                         : Colors
@@ -1925,10 +1884,9 @@ class _SocialScreenState extends State<SocialScreen>
                                       ),
                                       const SizedBox(height: 12),
                                       // Carousel indicators
-                                      Consumer<AnnouncementProvider>(
+                                      Consumer<NoticeProvider>(
                                         builder: (context, provider, child) {
-                                          final count =
-                                              provider.announcements.length;
+                                          final count = provider.notices.length;
 
                                           if (count == 0) {
                                             return Container(); // Return empty container if no announcements
