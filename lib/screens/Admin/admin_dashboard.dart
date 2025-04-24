@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:getaccess/screens/Admin/manage_notices.dart';
 import 'package:getaccess/screens/Admin/manage_announcements.dart';
 import 'package:getaccess/screens/Admin/manage_posts.dart';
+import 'package:firebase_database/firebase_database.dart';
 // TODO: Create ManageUsersScreen
 // import 'package:getaccess/screens/Admin/manage_users.dart';
 
@@ -19,6 +20,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   static const Color accentColor = Color(0xFF26A69A);
   static const Color adminColor = Colors.redAccent;
   static const Color lightGrey = Color(0xFFF7F7F7);
+  final DatabaseReference _database = FirebaseDatabase.instance.ref();
 
   TextStyle _archivoTextStyle({
     double fontSize = 14,
@@ -31,6 +33,39 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       color: color,
       letterSpacing: 0.2,
     );
+  }
+
+  Future<int> getUserCount() async {
+    DatabaseEvent event = await _database.child('Users').once();
+    DataSnapshot snapshot = event.snapshot;
+    return snapshot.children.length;
+  }
+
+  Future<int> getPostCount() async {
+    DatabaseEvent event = await _database.child('Posts').once();
+    DataSnapshot snapshot = event.snapshot;
+    return snapshot.children.length;
+  }
+
+  Future<int> getNoticeCount() async {
+    DatabaseEvent event = await _database.child('notices').once();
+    DataSnapshot snapshot = event.snapshot;
+    return snapshot.children.length;
+  }
+
+  Future<Map<String, int>> getCounts() async {
+    List<Future<int>> futures = [
+      getUserCount(),
+      getPostCount(),
+      getNoticeCount(),
+    ];
+    List<int> results = await Future.wait(futures);
+    return {
+      'users': results[0],
+      'posts': results[1],
+      'notices': results[2],
+      'reports': 6,
+    };
   }
 
   @override
@@ -141,14 +176,45 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ],
           ),
           SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStatCard('Users', '142', Icons.people_outline),
-              _buildStatCard('Posts', '87', Icons.post_add_outlined),
-              _buildStatCard('Notices', '12', Icons.announcement_outlined),
-              _buildStatCard('Reports', '6', Icons.flag_outlined),
-            ],
+          FutureBuilder<Map<String, int>>(
+            future: getCounts(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                print('Error fetching data, $snapshot');
+                return Center(child: Text('Error fetching data, $snapshot'));
+              } else if (snapshot.hasData) {
+                final counts = snapshot.data!;
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatCard(
+                      'Users',
+                      counts['users'].toString(),
+                      Icons.people_outline,
+                    ),
+                    _buildStatCard(
+                      'Posts',
+                      counts['posts'].toString(),
+                      Icons.post_add_outlined,
+                    ),
+                    _buildStatCard(
+                      'Notices',
+                      counts['notices'].toString(),
+                      Icons.announcement_outlined,
+                    ),
+                    _buildStatCard(
+                      'Reports',
+                      counts['reports'].toString(),
+                      Icons.flag_outlined,
+                    ),
+                  ],
+                );
+              } else {
+                return Center(child: Text('No data available'));
+              }
+            },
           ),
         ],
       ),
