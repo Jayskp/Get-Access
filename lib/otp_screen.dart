@@ -4,23 +4,31 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'BottomNavBar.dart';
+import 'auth_serviices.dart';
 
 class PhoneVerifyScreen extends StatefulWidget {
   final String verificationID;
+  final bool isAdmin;
 
-  const PhoneVerifyScreen({Key? key, required this.verificationID}) : super(key: key);
+  const PhoneVerifyScreen({
+    Key? key,
+    required this.verificationID,
+    this.isAdmin = false,
+  }) : super(key: key);
 
   @override
   _PhoneVerifyScreenState createState() => _PhoneVerifyScreenState();
 }
 
-class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTickerProviderStateMixin {
+class _PhoneVerifyScreenState extends State<PhoneVerifyScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _otpController = TextEditingController();
   late String _verificationId;
   bool _isLoading = false;
   String _errorMessage = '';
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isValid = false;
+  bool _isAdminLogin = false;
 
   // Animation controller for elements
   late AnimationController _animationController;
@@ -37,6 +45,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
   void initState() {
     super.initState();
     _verificationId = widget.verificationID;
+    _isAdminLogin = widget.isAdmin;
 
     // Setup animations
     _animationController = AnimationController(
@@ -45,20 +54,14 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.2),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOutCubic,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
 
     // Start the animations
@@ -92,16 +95,51 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
         verificationId: _verificationId,
         smsCode: smsCode,
       );
-      await _auth.signInWithCredential(credential);
+
+      // Get the phone number from route arguments
+      final phoneNumber =
+          ModalRoute.of(context)?.settings.arguments as String? ?? '';
+
+      UserCredential userCredential;
+
+      if (_isAdminLogin) {
+        // Sign in or register as admin using phone
+        userCredential = await AuthService.verifyPhoneCodeAsAdmin(
+          _verificationId,
+          smsCode,
+          phoneNumber.replaceAll('+91', ''),
+        );
+      } else {
+        // Regular sign in or registration
+        userCredential = await AuthService.verifyPhoneCode(
+          _verificationId,
+          smsCode,
+          phoneNumber.replaceAll('+91', ''),
+        );
+      }
+
       if (mounted) {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => BottomNavBarDemo(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            pageBuilder:
+                (context, animation, secondaryAnimation) =>
+                    BottomNavBarDemo(isAdmin: _isAdminLogin),
+            transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ) {
               var curve = Curves.easeInOut;
-              var tween = Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: curve));
-              return FadeTransition(opacity: animation.drive(tween), child: child);
+              var tween = Tween(
+                begin: 0.0,
+                end: 1.0,
+              ).chain(CurveTween(curve: curve));
+              return FadeTransition(
+                opacity: animation.drive(tween),
+                child: child,
+              );
             },
             transitionDuration: const Duration(milliseconds: 600),
           ),
@@ -117,7 +155,9 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
             content: Text("Verification failed: ${e.message}"),
             backgroundColor: Colors.red.shade700,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             margin: const EdgeInsets.all(12),
           ),
         );
@@ -154,7 +194,8 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
   @override
   Widget build(BuildContext context) {
     // Get the phone number from route arguments if available
-    final phoneNumber = ModalRoute.of(context)?.settings.arguments as String? ?? '';
+    final phoneNumber =
+        ModalRoute.of(context)?.settings.arguments as String? ?? '';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -191,9 +232,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
                             const SizedBox(height: 30),
 
                             // OTP verification illustration
-                            Center(
-                              child: _buildOtpAnimation(),
-                            ),
+                            Center(child: _buildOtpAnimation()),
 
                             const SizedBox(height: 30),
 
@@ -252,6 +291,86 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
                                 ),
                               ),
 
+                            const SizedBox(height: 20),
+
+                            // Admin login option
+                            CheckboxListTile(
+                              title: Text(
+                                'Sign in as admin',
+                                style: _archivoTextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              value: _isAdminLogin,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  _isAdminLogin = value ?? false;
+                                });
+                              },
+                              controlAffinity: ListTileControlAffinity.leading,
+                              activeColor: Colors.red.shade600,
+                              checkColor: Colors.white,
+                              contentPadding: EdgeInsets.zero,
+                              secondary:
+                                  _isAdminLogin
+                                      ? Icon(
+                                        Icons.admin_panel_settings,
+                                        color: Colors.red.shade600,
+                                      )
+                                      : null,
+                            ),
+
+                            if (_isAdminLogin)
+                              Container(
+                                margin: const EdgeInsets.only(
+                                  top: 8.0,
+                                  bottom: 12.0,
+                                ),
+                                padding: const EdgeInsets.all(12.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.red.shade200,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.info_outline,
+                                          color: Colors.red.shade700,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            'Admin Login',
+                                            style: _archivoTextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.red.shade800,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Use the OTP sent to the admin phone 9876543210',
+                                      style: _archivoTextStyle(
+                                        fontSize: 13,
+                                        color: Colors.red.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
                             const SizedBox(height: 32),
 
                             // Verify button
@@ -274,12 +393,21 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
                                   TextButton(
                                     onPressed: () {
                                       // Resend OTP functionality would go here
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
-                                          content: const Text("OTP resent successfully!"),
-                                          backgroundColor: Colors.green.shade700,
+                                          content: const Text(
+                                            "OTP resent successfully!",
+                                          ),
+                                          backgroundColor:
+                                              Colors.green.shade700,
                                           behavior: SnackBarBehavior.floating,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
                                           margin: const EdgeInsets.all(12),
                                         ),
                                       );
@@ -327,10 +455,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SpinKitDoubleBounce(
-                        color: primaryColor,
-                        size: 60.0,
-                      ),
+                      SpinKitDoubleBounce(color: primaryColor, size: 60.0),
                       const SizedBox(height: 20),
                       Text(
                         'Verifying OTP...',
@@ -368,11 +493,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Icon(
-                  Icons.lock_outlined,
-                  size: 64,
-                  color: primaryColor,
-                ),
+                child: Icon(Icons.lock_outlined, size: 64, color: primaryColor),
               ),
             ),
           ),
@@ -393,11 +514,17 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
           child: Container(
             height: 60,
             decoration: BoxDecoration(
-              border: Border.all(color: _isValid ? primaryColor : Colors.grey.shade400, width: 1.5),
+              border: Border.all(
+                color: _isValid ? primaryColor : Colors.grey.shade400,
+                width: 1.5,
+              ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: _isValid ? primaryColor.withOpacity(0.1) : Colors.transparent,
+                  color:
+                      _isValid
+                          ? primaryColor.withOpacity(0.1)
+                          : Colors.transparent,
                   blurRadius: 8,
                   spreadRadius: 0,
                   offset: const Offset(0, 2),
@@ -417,16 +544,23 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
               decoration: InputDecoration(
                 counterText: '',
                 hintText: '6-digit code',
-                hintStyle: _archivoTextStyle(fontSize: 16, color: Colors.grey.shade400),
+                hintStyle: _archivoTextStyle(
+                  fontSize: 16,
+                  color: Colors.grey.shade400,
+                ),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                suffixIcon: _isValid
-                    ? AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  child: Icon(Icons.check_circle, color: Colors.green.shade600),
-                )
-                    : null,
+                suffixIcon:
+                    _isValid
+                        ? AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          child: Icon(
+                            Icons.check_circle,
+                            color: Colors.green.shade600,
+                          ),
+                        )
+                        : null,
               ),
             ),
           ),
@@ -442,15 +576,16 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> with SingleTicker
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
-        boxShadow: _isValid
-            ? [
-          BoxShadow(
-            color: primaryColor.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ]
-            : null,
+        boxShadow:
+            _isValid
+                ? [
+                  BoxShadow(
+                    color: primaryColor.withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+                : null,
       ),
       child: ElevatedButton(
         onPressed: _isValid && !_isLoading ? _submitOTP : null,

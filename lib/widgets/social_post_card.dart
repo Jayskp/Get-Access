@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../auth_serviices.dart';
 import '../models/social_post.dart';
 import '../providers/social_post_provider.dart';
 import '../widgets/comment_section.dart';
@@ -696,68 +697,113 @@ class _SocialPostCardState extends State<SocialPostCard>
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder:
-          (context) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                if (widget.post.authorId ==
-                    FirebaseAuth.instance.currentUser?.uid)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.delete_outline,
-                      color: Colors.red,
+          (context) => FutureBuilder<bool>(
+            future: AuthService.isAdmin(),
+            builder: (context, adminSnapshot) {
+              final isAdmin = adminSnapshot.data ?? false;
+
+              return SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                    title: const Text(
-                      'Delete post',
-                      style: TextStyle(color: Colors.red),
+
+                    // Show delete option if user is post author or admin
+                    if (widget.post.authorId ==
+                            FirebaseAuth.instance.currentUser?.uid ||
+                        isAdmin)
+                      ListTile(
+                        leading: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.red,
+                        ),
+                        title: const Text(
+                          'Delete post',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                          _showDeleteConfirmation(context, isAdmin);
+                        },
+                      ),
+
+                    if (isAdmin && !widget.post.isFeatured)
+                      ListTile(
+                        leading: const Icon(
+                          Icons.star_outline,
+                          color: Colors.amber,
+                        ),
+                        title: const Text('Feature post'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          _toggleFeaturePost(context);
+                        },
+                      ),
+
+                    if (isAdmin && widget.post.isFeatured)
+                      ListTile(
+                        leading: const Icon(
+                          Icons.star_outline,
+                          color: Colors.grey,
+                        ),
+                        title: const Text('Unfeature post'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          _toggleFeaturePost(context);
+                        },
+                      ),
+
+                    ListTile(
+                      leading: const Icon(Icons.report_outlined),
+                      title: const Text('Report'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _showReportDialog();
+                      },
                     ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      _showDeleteConfirmation(context);
-                    },
-                  ),
-                ListTile(
-                  leading: const Icon(Icons.report_outlined),
-                  title: const Text('Report'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showReportDialog();
-                  },
+                    const SizedBox(height: 8),
+                  ],
                 ),
-                const SizedBox(height: 8),
-              ],
-            ),
+              );
+            },
           ),
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context) {
+  void _showDeleteConfirmation(BuildContext context, bool isAdmin) {
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
             title: const Text('Delete Post'),
-            content: const Text('Are you sure you want to delete this post?'),
+            content: Text(
+              'Are you sure you want to delete this post? ${isAdmin ? 'You are deleting this as an admin.' : ''}',
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('CANCEL'),
               ),
               TextButton(
-                onPressed: () {
-                  Provider.of<SocialPostProvider>(
-                    context,
-                    listen: false,
-                  ).deletePost(widget.post.id);
+                onPressed: () async {
+                  if (isAdmin) {
+                    // Use admin delete method
+                    await AuthService.deletePost(widget.post.id);
+                  } else {
+                    // Use standard delete method
+                    Provider.of<SocialPostProvider>(
+                      context,
+                      listen: false,
+                    ).deletePost(widget.post.id);
+                  }
                   Navigator.pop(context);
                 },
                 child: const Text(
@@ -768,6 +814,31 @@ class _SocialPostCardState extends State<SocialPostCard>
             ],
           ),
     );
+  }
+
+  void _toggleFeaturePost(BuildContext context) async {
+    try {
+      await AuthService.toggleFeaturePost(
+        widget.post.id,
+        !widget.post.isFeatured,
+      );
+
+      // Show confirmation
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.post.isFeatured
+                ? 'Post unfeatured successfully'
+                : 'Post featured successfully',
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
+    }
   }
 
   String _formatDate(DateTime date) {

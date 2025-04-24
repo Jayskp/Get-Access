@@ -23,6 +23,7 @@ class _EmailSignInPageState extends State<EmailSignInPage>
   bool _isLoading = false;
   String _errorMessage = '';
   bool _isSignUp = false; // Determines if we're signing up or signing in
+  bool _isAdminLogin = false;
 
   // Theme colors - matching with SignUpPage
   static const Color primaryColor = Color(0xFF004D40);
@@ -101,12 +102,32 @@ class _EmailSignInPageState extends State<EmailSignInPage>
       });
 
       try {
-        // Use the AuthService to sign in with email
-        final userCredential = await AuthService.signInWithEmail(
-          _emailController.text.trim(),
-          _passwordController.text,
-          isSignUp: _isSignUp,
-        );
+        // Use the AuthService
+        UserCredential userCredential;
+
+        if (_isAdminLogin) {
+          if (_isSignUp) {
+            // Register as admin (requires special handling)
+            userCredential = await AuthService.signUpAsAdmin(
+              _emailController.text.trim(),
+              _passwordController.text,
+            );
+          } else {
+            // Sign in as admin
+            userCredential = await AuthService.signInAsAdmin(
+              _emailController.text.trim(),
+              _passwordController.text,
+            );
+          }
+        } else {
+          // Regular sign in or sign up
+          userCredential = await AuthService.signInWithEmail(
+            _emailController.text.trim(),
+            _passwordController.text,
+            isSignUp: _isSignUp,
+            isAdmin: false, // Not admin
+          );
+        }
 
         if (userCredential.user != null) {
           // Navigate to main app after successful authentication
@@ -115,7 +136,7 @@ class _EmailSignInPageState extends State<EmailSignInPage>
             PageRouteBuilder(
               pageBuilder:
                   (context, animation, secondaryAnimation) =>
-                      BottomNavBarDemo(),
+                      BottomNavBarDemo(isAdmin: _isAdminLogin),
               transitionsBuilder: (
                 context,
                 animation,
@@ -165,6 +186,11 @@ class _EmailSignInPageState extends State<EmailSignInPage>
 
   String _getErrorMessage(String code) {
     switch (code) {
+      // Add admin-specific errors
+      case 'not-admin':
+        return 'This account is not registered as an admin.';
+      case 'admin-not-approved':
+        return 'Your admin account is pending approval.';
       case 'wrong-password':
         return 'Incorrect password. Please try again.';
       case 'user-not-found':
@@ -273,6 +299,107 @@ class _EmailSignInPageState extends State<EmailSignInPage>
                               keyboardType: TextInputType.visiblePassword,
                               prefixIcon: Icons.lock_outline,
                             ),
+
+                            if (_isSignUp) ...[
+                              // Only show admin checkbox when signing up
+                              CheckboxListTile(
+                                title: Text(
+                                  _isSignUp
+                                      ? 'Sign up as admin'
+                                      : 'Sign in as admin',
+                                  style: _archivoTextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                value: _isAdminLogin,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    _isAdminLogin = value ?? false;
+                                  });
+                                },
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                activeColor: Colors.red.shade600,
+                                checkColor: Colors.white,
+                                contentPadding: EdgeInsets.zero,
+                                secondary:
+                                    _isAdminLogin
+                                        ? Icon(
+                                          Icons.admin_panel_settings,
+                                          color: Colors.red.shade600,
+                                        )
+                                        : null,
+                              ),
+
+                              if (_isAdminLogin)
+                                Container(
+                                  margin: const EdgeInsets.only(
+                                    top: 8.0,
+                                    bottom: 12.0,
+                                  ),
+                                  padding: const EdgeInsets.all(12.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade50,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.red.shade200,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.info_outline,
+                                            color: Colors.red.shade700,
+                                            size: 20,
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              'Admin Login',
+                                              style: _archivoTextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.red.shade800,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Predefined admin credentials:',
+                                        style: _archivoTextStyle(
+                                          fontSize: 13,
+                                          color: Colors.red.shade800,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Email: admin@getaccess.com',
+                                        style: _archivoTextStyle(
+                                          fontSize: 12,
+                                          color: Colors.red.shade700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Password: admin@123',
+                                        style: _archivoTextStyle(
+                                          fontSize: 12,
+                                          color: Colors.red.shade700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
 
                             if (_showError)
                               Padding(

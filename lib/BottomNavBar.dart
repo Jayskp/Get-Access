@@ -8,7 +8,9 @@ import 'package:getaccess/screens/Services/Service_screen.dart';
 import 'package:getaccess/screens/Social%20screen/social_screen.dart';
 
 class BottomNavBarDemo extends StatefulWidget {
-  const BottomNavBarDemo({super.key});
+  final bool isAdmin;
+
+  const BottomNavBarDemo({super.key, this.isAdmin = false});
 
   @override
   State<BottomNavBarDemo> createState() => _BottomNavBarDemoState();
@@ -16,13 +18,21 @@ class BottomNavBarDemo extends StatefulWidget {
 
 class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
   int _currentIndex = 0;
-  final List<Widget> _screens = [
-    SocialScreen(),
-    CommunityScreen(),
-    SearchHomeScreen(),
-    Marketplace(),
-    ServiceScreen(),
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize screens with admin status
+    _screens = [
+      SocialScreen(isAdmin: widget.isAdmin),
+      CommunityScreen(),
+      SearchHomeScreen(),
+      Marketplace(),
+      ServiceScreen(),
+    ];
+  }
 
   // Theme colors
   // static const Color primaryColor = Color(0xFF004D40);
@@ -47,58 +57,56 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
   Future<bool> _onWillPop() async {
     return await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          'Exit App',
-          style: _archivoTextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Text(
-          'Are you sure you want to exit?',
-          style: _archivoTextStyle(
-            fontSize: 16,
-            color: grayText,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(
-              'Cancel',
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(
+              'Exit App',
               style: _archivoTextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: grayText,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
             ),
+            content: Text(
+              'Are you sure you want to exit?',
+              style: _archivoTextStyle(fontSize: 16, color: grayText),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(
+                  'Cancel',
+                  style: _archivoTextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: grayText,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                  SystemNavigator.pop(); // Close the app
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                ),
+                child: Text(
+                  'Exit',
+                  style: _archivoTextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-              SystemNavigator.pop(); // Close the app
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(28),
-              ),
-            ),
-            child: Text(
-              'Exit',
-              style: _archivoTextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -109,74 +117,78 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
       onWillPop: _onWillPop,
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: isWeb
-            ? Row(
-          children: [
-            NavigationRail(
-              selectedIndex: _currentIndex,
-              onDestinationSelected: (index) {
-                setState(() => _currentIndex = index);
-              },
-              labelType: NavigationRailLabelType.all,
-              destinations: [
-                NavigationRailDestination(
-                  icon: _buildNavIcon(
-                    'assets/images/icons/Social.png',
-                    0,
-                  ),
-                  selectedIcon: _buildNavIcon(
-                    'assets/images/icons/Social.png',
-                    0,
-                  ),
-                  label: _buildNavLabel('Social', 0),
-                ),
-                NavigationRailDestination(
-                  icon: _buildNavIcon(
-                    'assets/images/icons/Community.png',
-                    1,
-                  ),
-                  selectedIcon: _buildNavIcon(
-                    'assets/images/icons/Community.png',
-                    1,
-                  ),
-                  label: _buildNavLabel('Community', 1),
-                ),
-                NavigationRailDestination(
-                  icon: _buildNavIcon('assets/images/icons/Homes.png', 2),
-                  selectedIcon: _buildNavIcon(
-                    'assets/images/icons/Homes.png',
-                    2,
-                  ),
-                  label: _buildNavLabel('Homes', 2),
-                ),
-                NavigationRailDestination(
-                  icon: _buildNavIcon(
-                    'assets/images/icons/Marketplace.png',
-                    3,
-                  ),
-                  selectedIcon: _buildNavIcon(
-                    'assets/images/icons/Marketplace.png',
-                    3,
-                  ),
-                  label: _buildNavLabel('Marketplace', 3),
-                ),
-                NavigationRailDestination(
-                  icon: _buildNavIcon(
-                    'assets/images/icons/Services.png',
-                    4,
-                  ),
-                  selectedIcon: _buildNavIcon(
-                    'assets/images/icons/Services.png',
-                    4,
-                  ),
-                  label: _buildNavLabel('Services', 4),
-                ),
-              ],
-            ),
-            Expanded(child: _screens[_currentIndex]),
-          ],
-        )
-            : _buildMobileScaffold(),
+        body:
+            isWeb
+                ? Row(
+                  children: [
+                    NavigationRail(
+                      selectedIndex: _currentIndex,
+                      onDestinationSelected: (index) {
+                        setState(() => _currentIndex = index);
+                      },
+                      labelType: NavigationRailLabelType.all,
+                      destinations: [
+                        NavigationRailDestination(
+                          icon: _buildNavIcon(
+                            'assets/images/icons/Social.png',
+                            0,
+                          ),
+                          selectedIcon: _buildNavIcon(
+                            'assets/images/icons/Social.png',
+                            0,
+                          ),
+                          label: _buildNavLabel('Social', 0),
+                        ),
+                        NavigationRailDestination(
+                          icon: _buildNavIcon(
+                            'assets/images/icons/Community.png',
+                            1,
+                          ),
+                          selectedIcon: _buildNavIcon(
+                            'assets/images/icons/Community.png',
+                            1,
+                          ),
+                          label: _buildNavLabel('Community', 1),
+                        ),
+                        NavigationRailDestination(
+                          icon: _buildNavIcon(
+                            'assets/images/icons/Homes.png',
+                            2,
+                          ),
+                          selectedIcon: _buildNavIcon(
+                            'assets/images/icons/Homes.png',
+                            2,
+                          ),
+                          label: _buildNavLabel('Homes', 2),
+                        ),
+                        NavigationRailDestination(
+                          icon: _buildNavIcon(
+                            'assets/images/icons/Marketplace.png',
+                            3,
+                          ),
+                          selectedIcon: _buildNavIcon(
+                            'assets/images/icons/Marketplace.png',
+                            3,
+                          ),
+                          label: _buildNavLabel('Marketplace', 3),
+                        ),
+                        NavigationRailDestination(
+                          icon: _buildNavIcon(
+                            'assets/images/icons/Services.png',
+                            4,
+                          ),
+                          selectedIcon: _buildNavIcon(
+                            'assets/images/icons/Services.png',
+                            4,
+                          ),
+                          label: _buildNavLabel('Services', 4),
+                        ),
+                      ],
+                    ),
+                    Expanded(child: _screens[_currentIndex]),
+                  ],
+                )
+                : _buildMobileScaffold(),
       ),
     );
   }
@@ -268,11 +280,7 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> {
     final FontWeight weight = isSelected ? FontWeight.bold : FontWeight.normal;
     return Text(
       label,
-      style: _archivoTextStyle(
-        fontSize: 12,
-        fontWeight: weight,
-        color: color,
-      ),
+      style: _archivoTextStyle(fontSize: 12, fontWeight: weight, color: color),
     );
   }
 }

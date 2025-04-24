@@ -20,6 +20,7 @@ class _SignUpPageState extends State<SignUpPage>
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isValid = false;
   bool _isLoading = false;
+  bool _isAdminLogin = false;
 
   // Animation controller for elements
   late AnimationController _animationController;
@@ -84,6 +85,12 @@ class _SignUpPageState extends State<SignUpPage>
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber, // Expected format: +919876543210
         verificationCompleted: (PhoneAuthCredential credential) async {
+          // Auto-verification not used for admin accounts
+          if (_isAdminLogin) {
+            // For admin accounts, always require manual verification
+            return;
+          }
+
           // Optional: Automatically sign the user in on Android.
           await _auth.signInWithCredential(credential);
           // Navigate to the home screen after auto verification.
@@ -142,7 +149,10 @@ class _SignUpPageState extends State<SignUpPage>
               PageRouteBuilder(
                 pageBuilder:
                     (context, animation, secondaryAnimation) =>
-                        PhoneVerifyScreen(verificationID: verificationId),
+                        PhoneVerifyScreen(
+                          verificationID: verificationId,
+                          isAdmin: _isAdminLogin,
+                        ),
                 transitionsBuilder: (
                   context,
                   animation,
@@ -265,6 +275,8 @@ class _SignUpPageState extends State<SignUpPage>
                           ),
                           const SizedBox(height: 32),
                           _buildPhoneInput(),
+                          const SizedBox(height: 20),
+                          _buildAdminOption(),
                           const SizedBox(height: 20),
                           TextButton.icon(
                             onPressed: () {
@@ -466,6 +478,95 @@ class _SignUpPageState extends State<SignUpPage>
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildAdminOption() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Column(
+        children: [
+          CheckboxListTile(
+            title: Text(
+              'Sign in as admin',
+              style: _archivoTextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            value: _isAdminLogin,
+            onChanged: (bool? value) {
+              setState(() {
+                _isAdminLogin = value ?? false;
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+            activeColor: Colors.red.shade600,
+            checkColor: Colors.white,
+            contentPadding: EdgeInsets.zero,
+            secondary:
+                _isAdminLogin
+                    ? Icon(
+                      Icons.admin_panel_settings,
+                      color: Colors.red.shade600,
+                    )
+                    : null,
+          ),
+          if (_isAdminLogin)
+            Container(
+              margin: const EdgeInsets.only(top: 8.0, bottom: 12.0),
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red.shade200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.red.shade700,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Admin Login',
+                          style: _archivoTextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red.shade800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Predefined admin phone number:',
+                    style: _archivoTextStyle(
+                      fontSize: 13,
+                      color: Colors.red.shade800,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Phone: 9876543210',
+                    style: _archivoTextStyle(
+                      fontSize: 12,
+                      color: Colors.red.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -11,9 +12,12 @@ class AuthService {
   static const String _lastLoginTimeKey = "lastLoginTime";
   static const String _isAdminKey = "isAdmin";
 
-  // Admin credentials
-  static const String adminEmail = "admin@example.com";
-  static const String adminPassword = "admin123";
+  // Admin credentials - these would typically be managed through Firebase Auth Rules
+  // in a production environment and not hardcoded
+  static const String adminEmail = "admin@getaccess.com";
+  static const String adminPassword = "admin@123";
+  static const String adminPhone =
+      "9876543210"; // Admin phone number for OTP login
 
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final DatabaseReference _database = FirebaseDatabase.instance.ref();
@@ -166,6 +170,67 @@ class AuthService {
       return userCredential;
     } catch (e) {
       print("Error in verifyPhoneCode: $e");
+      rethrow;
+    }
+  }
+
+  // Verify phone code and sign in as admin
+  static Future<UserCredential> verifyPhoneCodeAsAdmin(
+    String verificationId,
+    String smsCode,
+    String phoneNumber,
+  ) async {
+    try {
+      // Check if using predefined admin phone
+      if (phoneNumber != adminPhone) {
+        throw FirebaseAuthException(
+          code: 'not-admin',
+          message: 'This phone number is not authorized for admin access',
+        );
+      }
+
+      // Create credential
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode,
+      );
+
+      // Sign in with credential
+      UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
+
+      // Check if this user is already registered as admin
+      final userSnapshot =
+          await _database.child('Users').child(userCredential.user!.uid).once();
+
+      final userData = userSnapshot.snapshot.value as Map<dynamic, dynamic>?;
+
+      // If user exists, update last login
+      if (userData != null) {
+        await _database.child('Users').child(userCredential.user!.uid).update({
+          'lastLogin': ServerValue.timestamp,
+        });
+      } else {
+        // Create new admin account with phone
+        await _database.child('Users').child(userCredential.user!.uid).set({
+          'phone': phoneNumber,
+          'isAdmin': true,
+          'createdAt': ServerValue.timestamp,
+          'role': 'admin',
+        });
+      }
+
+      // Save to SharedPreferences with admin flag
+      await _saveUserDataToPrefs(
+        userCredential.user!.uid,
+        phone: phoneNumber,
+        isAdmin: true,
+      );
+
+      return userCredential;
+    } catch (e) {
+      print("Error in verifyPhoneCodeAsAdmin: $e");
       rethrow;
     }
   }
@@ -397,6 +462,88 @@ class AuthService {
     } catch (e) {
       print("Error deleting post: $e");
       return false;
+    }
+  }
+
+  // Sign in as admin
+  static Future<UserCredential> signInAsAdmin(
+    String email,
+    String password,
+  ) async {
+    try {
+      // Check if using predefined admin email
+      if (email.toLowerCase() != adminEmail.toLowerCase()) {
+        throw FirebaseAuthException(
+          code: 'not-admin',
+          message: 'This email is not authorized for admin access',
+        );
+      }
+
+      // Sign in with the provided credentials
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Update or create admin record
+      await _database.child('Users').child(userCredential.user!.uid).update({
+        'email': email,
+        'isAdmin': true,
+        'lastLogin': ServerValue.timestamp,
+      });
+
+      // Save to SharedPreferences
+      await _saveUserDataToPrefs(
+        userCredential.user!.uid,
+        email: email,
+        isAdmin: true,
+      );
+
+      return userCredential;
+    } catch (e) {
+      print("Error in signInAsAdmin: $e");
+      rethrow;
+    }
+  }
+
+  // Sign up as admin
+  static Future<UserCredential> signUpAsAdmin(
+    String email,
+    String password,
+  ) async {
+    try {
+      // Check if using predefined admin credentials
+      if (email.toLowerCase() != adminEmail.toLowerCase()) {
+        throw FirebaseAuthException(
+          code: 'not-admin',
+          message: 'This email is not authorized for admin access',
+        );
+      }
+
+      // Create a new user account
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // Mark this account as an admin in the database
+      await _database.child('Users').child(userCredential.user!.uid).set({
+        'email': email,
+        'isAdmin': true,
+        'createdAt': ServerValue.timestamp,
+        'role': 'admin',
+      });
+
+      // Save to SharedPreferences
+      await _saveUserDataToPrefs(
+        userCredential.user!.uid,
+        email: email,
+        isAdmin: true,
+      );
+
+      print("New admin account created: ${userCredential.user?.uid}");
+      return userCredential;
+    } catch (e) {
+      print("Error in signUpAsAdmin: $e");
+      rethrow;
     }
   }
 }

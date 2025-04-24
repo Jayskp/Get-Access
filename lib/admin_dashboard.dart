@@ -556,138 +556,134 @@ class _AdminDashboardState extends State<AdminDashboard>
     showDialog(
       context: context,
       builder:
-          (context) => Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      announcementId != null
-                          ? 'Edit Announcement'
-                          : 'Create Announcement',
-                      style: _archivoTextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _titleController,
-                      decoration: InputDecoration(
-                        labelText: 'Title',
-                        hintText: 'Enter announcement title',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _contentController,
-                      minLines: 3,
-                      maxLines: 5,
-                      decoration: InputDecoration(
-                        labelText: 'Content',
-                        hintText: 'Enter announcement content',
-                        alignLabelWithHint: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _imageUrlController,
-                      decoration: InputDecoration(
-                        labelText: 'Image URL (optional)',
-                        hintText: 'Enter image URL',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
+          (context) => StatefulBuilder(
+            builder: (context, setDialogState) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Checkbox(
-                          value: _isImportant,
-                          activeColor: Colors.red,
-                          onChanged: (value) {
-                            setState(() {
-                              _isImportant = value ?? false;
-                            });
-                            Navigator.of(context).pop();
-                            _showAnnouncementDialog(
-                              announcementId: announcementId,
-                              title: _titleController.text,
-                              content: _contentController.text,
-                              imageUrl: _imageUrlController.text,
-                              isImportant: value ?? false,
-                            );
-                          },
-                        ),
-                        const Text('Mark as important'),
-                        if (_isImportant) ...[
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.priority_high,
-                            size: 16,
-                            color: Colors.red,
+                        Text(
+                          announcementId != null
+                              ? 'Edit Announcement'
+                              : 'Create Announcement',
+                          style: _archivoTextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('Cancel', style: _archivoTextStyle()),
                         ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryGreen,
-                            shape: RoundedRectangleBorder(
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: _titleController,
+                          decoration: InputDecoration(
+                            labelText: 'Title',
+                            hintText: 'Enter announcement title',
+                            border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          onPressed: () {
-                            if (_titleController.text.trim().isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Title cannot be empty'),
-                                ),
-                              );
-                              return;
-                            }
-
-                            if (announcementId != null) {
-                              _updateAnnouncement(announcementId);
-                            } else {
-                              _createAnnouncement();
-                            }
-
-                            Navigator.pop(context);
-                          },
-                          child: Text(
-                            announcementId != null ? 'Update' : 'Create',
-                            style: _archivoTextStyle(color: Colors.white),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: _contentController,
+                          minLines: 3,
+                          maxLines: 5,
+                          decoration: InputDecoration(
+                            labelText: 'Content',
+                            hintText: 'Enter announcement content',
+                            alignLabelWithHint: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: _imageUrlController,
+                          decoration: InputDecoration(
+                            labelText: 'Image URL (optional)',
+                            hintText: 'Enter image URL',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _isImportant,
+                              activeColor: Colors.red,
+                              onChanged: (value) {
+                                setDialogState(() {
+                                  _isImportant = value ?? false;
+                                });
+                              },
+                            ),
+                            const Text('Mark as important'),
+                            if (_isImportant) ...[
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.priority_high,
+                                size: 16,
+                                color: Colors.red,
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('Cancel', style: _archivoTextStyle()),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryGreen,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () {
+                                if (_titleController.text.trim().isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Title cannot be empty'),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                if (announcementId != null) {
+                                  _updateAnnouncement(announcementId);
+                                } else {
+                                  _createAnnouncement();
+                                }
+
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                announcementId != null ? 'Update' : 'Create',
+                                style: _archivoTextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
     );
   }
@@ -712,6 +708,7 @@ class _AdminDashboardState extends State<AdminDashboard>
         'content': _contentController.text.trim(),
         'imageUrl': _imageUrlController.text.trim(),
         'important': _isImportant,
+        'isImportant': _isImportant,
         'createdAt': FieldValue.serverTimestamp(),
         'createdBy':
             (await AuthService.getCurrentUser())['userId'] ?? 'unknown',
@@ -761,6 +758,7 @@ class _AdminDashboardState extends State<AdminDashboard>
             'content': _contentController.text.trim(),
             'imageUrl': _imageUrlController.text.trim(),
             'important': _isImportant,
+            'isImportant': _isImportant,
             'updatedAt': FieldValue.serverTimestamp(),
           });
 

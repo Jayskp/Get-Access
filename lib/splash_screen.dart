@@ -27,6 +27,12 @@ class _SplashScreenState extends State<SplashScreen> {
     // Check if user is logged in
     final isLoggedIn = await AuthService.isLoggedIn();
 
+    // Check if user is admin (only if logged in)
+    bool isAdmin = false;
+    if (isLoggedIn) {
+      isAdmin = await AuthService.isAdmin();
+    }
+
     if (!mounted) return;
 
     // Navigate to appropriate screen
@@ -35,7 +41,9 @@ class _SplashScreenState extends State<SplashScreen> {
       MaterialPageRoute(
         builder:
             (context) =>
-                isLoggedIn ? const BottomNavBarDemo() : const SignUpPage(),
+                isLoggedIn
+                    ? BottomNavBarDemo(isAdmin: isAdmin)
+                    : const SignUpPage(),
       ),
     );
   }

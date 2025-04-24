@@ -14,6 +14,8 @@ import 'package:getaccess/util/constants/colors.dart';
 import 'package:getaccess/widgets/social_post_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:getaccess/screens/Admin/admin_dashboard.dart';
+import 'package:getaccess/providers/announcement_provider.dart';
 
 import '../../NewEvent.dart';
 import '../../NewPoll.dart';
@@ -22,7 +24,9 @@ import '../../messages.dart';
 import '../../widgets/social_services_card.dart';
 
 class SocialScreen extends StatefulWidget {
-  const SocialScreen({super.key});
+  final bool isAdmin;
+
+  const SocialScreen({super.key, this.isAdmin = false});
 
   @override
   _SocialScreenState createState() => _SocialScreenState();
@@ -118,30 +122,6 @@ class _SocialScreenState extends State<SocialScreen>
       "icon": Icons.home_work_outlined,
       "title": "List a\nproperty",
       "page": GuestEntryPage(),
-    },
-  ];
-  // Sample notice data
-  final List<Map<String, dynamic>> _notices = [
-    {
-      'category': 'Society',
-      'timeAgo': '6d ago',
-      'title': 'Attention Residents',
-      'content':
-          'Water tank cleaning is scheduled for Friday, 10 AM - 2 PM. Water supply may be interrupted during this time. Please plan accordingly',
-    },
-    {
-      'category': 'Society',
-      'timeAgo': '2d ago',
-      'title': 'Monthly Meeting',
-      'content':
-          'Monthly society meeting will be held on Sunday at 11 AM in the community hall. All residents are requested to attend.',
-    },
-    {
-      'category': 'Maintenance',
-      'timeAgo': '1d ago',
-      'title': 'Elevator Maintenance',
-      'content':
-          'Elevator maintenance is scheduled for Saturday from 9 AM to 12 PM. Please use stairs during this period.',
     },
   ];
 
@@ -318,7 +298,7 @@ class _SocialScreenState extends State<SocialScreen>
     showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
+      barrierColor: Colors.black.withOpacity(0.5),
       builder: (BuildContext dialogContext) {
         return Dialog(
           insetPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -433,7 +413,7 @@ class _SocialScreenState extends State<SocialScreen>
     showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
+      barrierColor: Colors.black.withOpacity(0.5),
       builder: (BuildContext dialogContext) {
         return Dialog(
           insetPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -591,6 +571,14 @@ class _SocialScreenState extends State<SocialScreen>
     // Initialize sample posts
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<SocialPostProvider>(context, listen: false).addSamplePosts();
+    });
+
+    // Load announcements when screen initializes
+    Future.microtask(() {
+      Provider.of<AnnouncementProvider>(
+        context,
+        listen: false,
+      ).loadAnnouncements();
     });
   }
 
@@ -1269,7 +1257,7 @@ class _SocialScreenState extends State<SocialScreen>
     showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
+      barrierColor: Colors.black.withOpacity(0.5),
       builder: (BuildContext dialogContext) {
         return Center(
           child: Stack(
@@ -1415,7 +1403,7 @@ class _SocialScreenState extends State<SocialScreen>
                                 color: Colors.white,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.05),
+                                    color: Colors.black.withOpacity(0.05),
                                     offset: const Offset(0, 0),
                                     blurRadius: 10,
                                     spreadRadius: 0,
@@ -1457,19 +1445,53 @@ class _SocialScreenState extends State<SocialScreen>
                                                 ),
                                               );
                                             },
-                                            child: CircleAvatar(
-                                              backgroundColor: const Color(
-                                                0xFFD4BE45,
-                                              ),
-                                              radius: 18,
-                                              child: const Text(
-                                                'D',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
+                                            child: Stack(
+                                              children: [
+                                                CircleAvatar(
+                                                  backgroundColor:
+                                                      widget.isAdmin
+                                                          ? Colors.blue.shade700
+                                                          : const Color(
+                                                            0xFFD4BE45,
+                                                          ),
+                                                  radius: 18,
+                                                  child: Text(
+                                                    widget.isAdmin ? 'A' : 'D',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
+                                                if (widget.isAdmin)
+                                                  Positioned(
+                                                    right: 0,
+                                                    bottom: 0,
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            4,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            Colors.red.shade600,
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(
+                                                          color: Colors.white,
+                                                          width: 2,
+                                                        ),
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons
+                                                            .admin_panel_settings,
+                                                        color: Colors.white,
+                                                        size: 10,
+                                                      ),
+                                                    ),
+                                                  ),
+                                              ],
                                             ),
                                           ),
                                           const SizedBox(width: 8),
@@ -1500,6 +1522,74 @@ class _SocialScreenState extends State<SocialScreen>
                                             ),
                                           ),
                                           const Spacer(),
+                                          if (widget.isAdmin)
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                right: 12,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.red.shade600,
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(0.1),
+                                                    blurRadius: 4,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Material(
+                                                color: Colors.transparent,
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    // Navigate to admin dashboard
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder:
+                                                            (context) =>
+                                                                AdminDashboardScreen(),
+                                                      ),
+                                                    );
+                                                  },
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 12,
+                                                          vertical: 8,
+                                                        ),
+                                                    child: Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Icon(
+                                                          Icons
+                                                              .admin_panel_settings_outlined,
+                                                          color: Colors.white,
+                                                          size: 16,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 4,
+                                                        ),
+                                                        Text(
+                                                          'Admin',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           Container(
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
@@ -1507,7 +1597,7 @@ class _SocialScreenState extends State<SocialScreen>
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.black
-                                                      .withValues(alpha: 0.1),
+                                                      .withOpacity(0.1),
                                                   blurRadius: 4,
                                                   offset: const Offset(0, 2),
                                                 ),
@@ -1551,8 +1641,8 @@ class _SocialScreenState extends State<SocialScreen>
                                           ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: Colors.black.withValues(
-                                                alpha: 0.05,
+                                              color: Colors.black.withOpacity(
+                                                0.05,
                                               ),
                                               blurRadius: 5,
                                               offset: const Offset(0, 2),
@@ -1627,214 +1717,260 @@ class _SocialScreenState extends State<SocialScreen>
                                               fontSize: 20,
                                             ),
                                           ),
-                                          TextButton(
-                                            onPressed: () {},
-                                            child: Text(
-                                              'View All',
-                                              style: TextStyle(
-                                                color: Colors.blue[700],
-                                                fontWeight: FontWeight.w500,
+                                          Row(
+                                            children: [
+                                              if (widget.isAdmin)
+                                                Container(
+                                                  margin: EdgeInsets.only(
+                                                    right: 12,
+                                                  ),
+                                                  child: ElevatedButton.icon(
+                                                    onPressed: () {
+                                                      // Admin action to add new notice
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            'Add Notice feature coming soon',
+                                                          ),
+                                                          backgroundColor:
+                                                              Colors.blue,
+                                                        ),
+                                                      );
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.add,
+                                                      size: 16,
+                                                    ),
+                                                    label: Text('Add'),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor:
+                                                          Colors.green.shade600,
+                                                      foregroundColor:
+                                                          Colors.white,
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                            horizontal: 12,
+                                                            vertical: 0,
+                                                          ),
+                                                      minimumSize: Size(0, 32),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              16,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              TextButton(
+                                                onPressed: () {},
+                                                child: Text(
+                                                  'View All',
+                                                  style: TextStyle(
+                                                    color: Colors.blue[700],
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+                                            ],
                                           ),
                                         ],
                                       ),
                                       const SizedBox(height: 16),
                                       // Notice Carousel
                                       SizedBox(
-                                        height: isPortrait ? 230 : 170,
-                                        child: PageView.builder(
-                                          controller: _noticePageController,
-                                          itemCount: _notices.length,
-                                          onPageChanged: (index) {
-                                            setState(() {
-                                              _currentNoticePage = index;
-                                            });
-                                          },
-                                          itemBuilder: (context, index) {
-                                            final notice = _notices[index];
-                                            return Container(
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 2,
+                                        height: isLargeScreen ? 130.0 : 160.0,
+                                        child: Consumer<AnnouncementProvider>(
+                                          builder: (
+                                            context,
+                                            announcementProvider,
+                                            child,
+                                          ) {
+                                            final notices =
+                                                announcementProvider
+                                                    .announcements;
+
+                                            if (announcementProvider
+                                                .isLoading) {
+                                              return const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            }
+
+                                            if (notices.isEmpty) {
+                                              return Center(
+                                                child: Text(
+                                                  'No Notices available',
+                                                  style: _archivoTextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.grey,
                                                   ),
-                                              decoration: BoxDecoration(
-                                                color: AppColors.lightGrey,
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withValues(
-                                                          alpha: 0.05,
-                                                        ),
-                                                    offset: const Offset(0, 2),
-                                                    blurRadius: 10,
-                                                    spreadRadius: 0,
-                                                  ),
-                                                ],
-                                                border: Border.all(
-                                                  color: Colors.grey[100]!,
-                                                  width: 1,
                                                 ),
-                                              ),
-                                              padding: const EdgeInsets.all(16),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      Container(
-                                                        width: 40,
-                                                        height: 40,
-                                                        decoration: BoxDecoration(
-                                                          color:
-                                                              Colors.grey[300],
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                8,
-                                                              ),
+                                              );
+                                            }
+
+                                            return PageView.builder(
+                                              controller: _noticePageController,
+                                              itemCount: notices.length,
+                                              onPageChanged: (index) {
+                                                setState(() {
+                                                  _currentNoticePage = index;
+                                                });
+                                              },
+                                              itemBuilder: (context, index) {
+                                                final notice = notices[index];
+                                                return Container(
+                                                  margin:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 2,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.lightGrey,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          16,
                                                         ),
-                                                        child: const Center(
-                                                          child: Text(
-                                                            '=',
-                                                            style: TextStyle(
-                                                              fontSize: 24,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color:
-                                                                  Colors
-                                                                      .black54,
-                                                            ),
-                                                          ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withOpacity(0.05),
+                                                        blurRadius: 5,
+                                                        offset: const Offset(
+                                                          0,
+                                                          2,
                                                         ),
                                                       ),
-                                                      const SizedBox(width: 12),
-                                                      Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
+                                                    ],
+                                                  ),
+                                                  padding: const EdgeInsets.all(
+                                                    16,
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Row(
                                                         children: [
-                                                          Row(
-                                                            children: [
-                                                              const Text(
-                                                                'Notice',
-                                                                style: TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                ),
+                                                          if (notice
+                                                              .isImportant) ...[
+                                                            const Icon(
+                                                              Icons
+                                                                  .priority_high,
+                                                              color: Colors.red,
+                                                              size: 16,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 4,
+                                                            ),
+                                                          ],
+                                                          Expanded(
+                                                            child: Text(
+                                                              notice.title,
+                                                              style: _archivoTextStyle(
+                                                                fontSize: 16.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                color:
+                                                                    notice.isImportant
+                                                                        ? Colors
+                                                                            .red
+                                                                        : Colors
+                                                                            .black,
                                                               ),
-                                                              const SizedBox(
-                                                                width: 8,
-                                                              ),
-                                                              Container(
-                                                                padding:
-                                                                    const EdgeInsets.symmetric(
-                                                                      horizontal:
-                                                                          8,
-                                                                      vertical:
-                                                                          2,
-                                                                    ),
-                                                                decoration: BoxDecoration(
-                                                                  color:
-                                                                      Colors
-                                                                          .black,
-                                                                  borderRadius:
-                                                                      BorderRadius.circular(
-                                                                        4,
-                                                                      ),
-                                                                ),
-                                                                child: const Text(
-                                                                  'Admin',
-                                                                  style: TextStyle(
-                                                                    color:
-                                                                        Colors
-                                                                            .white,
-                                                                    fontSize:
-                                                                        12,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          const SizedBox(
-                                                            height: 4,
+                                                              maxLines: 1,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                            ),
                                                           ),
                                                           Text(
-                                                            '${notice['category']} • ${notice['timeAgo']}',
+                                                            notice.timeAgo,
                                                             style: TextStyle(
                                                               color:
                                                                   Colors
                                                                       .grey[600],
-                                                              fontSize: 14,
+                                                              fontSize: 14.0,
                                                             ),
                                                           ),
                                                         ],
                                                       ),
+                                                      const SizedBox(height: 8),
+                                                      Expanded(
+                                                        child: Text(
+                                                          notice.content,
+                                                          style:
+                                                              const TextStyle(
+                                                                fontSize: 14.0,
+                                                                color:
+                                                                    Colors.grey,
+                                                              ),
+                                                          maxLines: 3,
+                                                          overflow:
+                                                              TextOverflow
+                                                                  .ellipsis,
+                                                        ),
+                                                      ),
                                                     ],
                                                   ),
-                                                  const SizedBox(height: 16),
-                                                  Text(
-                                                    notice['title'],
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    notice['content'],
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.black87,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                                );
+                                              },
                                             );
                                           },
                                         ),
                                       ),
                                       const SizedBox(height: 12),
                                       // Carousel indicators
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: List.generate(
-                                          _notices.length,
-                                          (index) => GestureDetector(
-                                            onTap: () {
-                                              _noticePageController
-                                                  .animateToPage(
-                                                    index,
-                                                    duration: const Duration(
-                                                      milliseconds: 300,
-                                                    ),
-                                                    curve: Curves.easeInOut,
-                                                  );
-                                            },
-                                            child: Container(
-                                              width: 8,
-                                              height: 8,
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 4,
+                                      Consumer<AnnouncementProvider>(
+                                        builder: (context, provider, child) {
+                                          final count =
+                                              provider.announcements.length;
+
+                                          if (count == 0) {
+                                            return Container(); // Return empty container if no announcements
+                                          }
+
+                                          return Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: List.generate(
+                                              count,
+                                              (index) => GestureDetector(
+                                                onTap: () {
+                                                  _noticePageController
+                                                      .animateToPage(
+                                                        index,
+                                                        duration:
+                                                            const Duration(
+                                                              milliseconds: 300,
+                                                            ),
+                                                        curve: Curves.easeInOut,
+                                                      );
+                                                },
+                                                child: Container(
+                                                  width: 8.0,
+                                                  height: 8.0,
+                                                  margin:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 4,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color:
+                                                        _currentNoticePage ==
+                                                                index
+                                                            ? Colors.black
+                                                            : Colors.grey[300],
                                                   ),
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color:
-                                                    _currentNoticePage == index
-                                                        ? Colors.black
-                                                        : Colors.grey[300],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ),
+                                          );
+                                        },
                                       ),
                                       const SizedBox(height: 24),
                                       // Social Feed Section
@@ -1909,7 +2045,8 @@ class _SocialScreenState extends State<SocialScreen>
                                                 posts
                                                     .map(
                                                       (post) => SocialPostCard(
-                                                        post: post, onReport: (String ) {  },
+                                                        post: post,
+                                                        onReport: (String) {},
                                                       ),
                                                     )
                                                     .toList(),
@@ -1994,9 +2131,7 @@ class _SocialScreenState extends State<SocialScreen>
                                       color: Colors.white,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.1,
-                                          ),
+                                          color: Colors.black.withOpacity(0.1),
                                           blurRadius: 4,
                                           offset: const Offset(0, 2),
                                         ),
@@ -2024,9 +2159,7 @@ class _SocialScreenState extends State<SocialScreen>
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.1,
-                                      ),
+                                      color: Colors.black.withOpacity(0.1),
                                       spreadRadius: 1,
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
@@ -2143,12 +2276,10 @@ class _SocialScreenState extends State<SocialScreen>
                                 ),
                               ),
                             ),
-
-                          // Add Property Form overlay
                           if (_showAddPropertyForm)
                             Positioned.fill(
                               child: Container(
-                                color: Colors.black.withValues(alpha: 0.5),
+                                color: Colors.black.withOpacity(0.5),
                                 child: Center(
                                   child: Container(
                                     width: screenWidth - 48,
@@ -2328,24 +2459,6 @@ class _SocialScreenState extends State<SocialScreen>
           ),
         ),
       ),
-      floatingActionButton: Container(
-        margin: const EdgeInsets.only(bottom: 16.0),
-        child: FloatingActionButton(
-          onPressed: _toggleQuickAccessPopup,
-          backgroundColor: AppColors.primaryGreen,
-          elevation: 6,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
-          ),
-          tooltip: 'Quick Access',
-          child: Icon(
-            _showQuickAccessPopup ? Icons.close : Icons.add,
-            color: Colors.white,
-            size: 28,
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -2359,20 +2472,19 @@ class _SocialScreenState extends State<SocialScreen>
     final horizontalPadding =
         inHeader ? (isWebScreen ? 60.0 : (isLargeScreen ? 40.0 : 20.0)) : 0.0;
 
+    // Fixed card sizing (don't increase for web)
+    final cardWidth = 100.0;
+    final cardHeight = inHeader ? 70.0 : 80.0;
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Get available width
+        // Get available width first
         final availableWidth =
             constraints.maxWidth != double.infinity
                 ? constraints.maxWidth
                 : screenWidth - (horizontalPadding * 2);
 
-        // Fixed card sizing (don't increase for web)
-        final cardWidth = 100.0;
-        final cardHeight = inHeader ? 70.0 : 80.0;
-
-        // Calculate spacing to distribute cards evenly across full width
-        // For web, calculate spacing that makes cards use the full width
+        // Now calculate these values
         final totalCardWidth = cardWidth * quickAccessItems.length;
         final remainingSpace = availableWidth - totalCardWidth;
         final cardSpacing =
@@ -2493,7 +2605,7 @@ class _SocialScreenState extends State<SocialScreen>
           borderRadius: BorderRadius.circular(isWebView ? 8 : 12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
